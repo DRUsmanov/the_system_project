@@ -1,6 +1,8 @@
+// Управляет пользователями системы
 #pragma once
 
-#include "../../entities/user.h"
+#include "domain/entities/user/user.h"
+
 
 #include <optional>
 

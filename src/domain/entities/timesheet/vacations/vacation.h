@@ -1,7 +1,7 @@
 #pragma once
 
-#include "../../utils/tagged.h"
-#include "../value_data/timesheet_data.h"
+#include "utils/tagged.h"
+#include "domain/value_data/types.h"
 
 namespace domain {
 
@@ -12,7 +12,7 @@ namespace detail {
 using VacationId = utils::Tagged<int, detail::Vacation>;
 using VacationIdHasher = utils::TaggedHasher<VacationId>;
 
-struct VacationData{
+struct Vacation{
     Date start;
     Date end;
 

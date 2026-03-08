@@ -43,3 +43,8 @@
 .DS_Store
 *.bkp
 .vscode
+
+# Drawio
+*.dtmp
+*.drawio.dtmp
+*.tmp
