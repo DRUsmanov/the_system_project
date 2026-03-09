@@ -7,7 +7,7 @@
 #include <unordered_map>
 #include <exception>
 
-bool application::TimeSheetService::GenerateTimeSheet(std::chrono::year year) {
+domain::Timesheet application::TimeSheetService::GenerateTimeSheet(const domain::Shop& shop, std::chrono::year year) {
     try{
         using namespace std::chrono;
         using namespace std::literals;
@@ -17,6 +17,9 @@ bool application::TimeSheetService::GenerateTimeSheet(std::chrono::year year) {
         auto end_date = sys_days{year / December / 31};
 
         // Формируем табель для всех графиков
+
+
+
         auto work_schedules = timesheet_repository_.GetWorkSchedules();
         auto holidays = timesheet_repository_.GetHolidays(year);
         auto extra_holidays = timesheet_repository_.GetExtraHolidays(year);

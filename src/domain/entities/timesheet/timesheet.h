@@ -7,6 +7,7 @@
 #include "domain/entities/timesheet/work_schedules/work_schedule.h"
 #include "domain/entities/timesheet/leave_types/leave_type.h"
 #include "domain/entities/timesheet/administrators/administrator.h"
+#include "domain/entities/shop/shop.h"
 
 #include <string>
 #include <optional>
@@ -47,8 +48,8 @@ public:
         WorkScheduleId work_schedule_id;
         std::optional<Time> work_time;
         std::optional<Time> night_work_time;
-        LeaveTypeId leave_type_id;
-        std::string comment;
+        std::optional<LeaveTypeId> leave_type_id;
+        std::optional<std::string> comment;
 
         bool IsWorkingDay() const noexcept{
             return work_time.has_value();
@@ -59,10 +60,12 @@ public:
         }
     };
 
-    bool AddEmployeeDayData(EmployeeId employee_id, std::chrono::year_month_day day, AdministratorId administrator_id, const DayData& day_data);
-
     using DaysData = std::unordered_map<Key, domain::Timesheet::DayData>;
     using TimesheetData = std::unordered_map<domain::EmployeeId, DaysData, domain::EmployeeIdHasher>;
+
+    bool IsEmpty() const;
+    bool AddEmployeeDayData(EmployeeId employee_id, std::chrono::year_month_day day
+                            , AdministratorId administrator_id, const DayData& day_data);
 
 private:
     TimesheetData data_;

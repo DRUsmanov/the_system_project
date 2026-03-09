@@ -23,6 +23,7 @@ public:
     virtual ~TimeSheetRepositoryInterface() = default;
 
     virtual WorkSchedules GetWorkSchedules() const = 0;
+    virtual WorkSchedule GetWorkSchedulesById(WorkScheduleId id) const = 0;
     virtual Holidays GetHolidays(std::chrono::year year) const = 0;
     virtual ExtraHolidays GetExtraHolidays(std::chrono::year year) const = 0;
     virtual PreHolidays GetPreHolidays(std::chrono::year year) const = 0;
