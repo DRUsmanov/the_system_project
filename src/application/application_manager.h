@@ -1,27 +1,21 @@
 #pragma once
 
-#include "application/services/timesheet_service/timesheet_service.h"
-#include "application/services/shop_service/shop_service.h"
-#include "domain/entities/timesheet/timesheet.h"
+#include "application_manager_interface.h"
 
 #include <chrono>
 
 namespace application{
 
-class ApplicationManager{
+class ApplicationManager : public ApplicationManagerInterface {
 public:
     ApplicationManager(
-        TimeSheetService& timesheet_service
-        , ShopService shop_service
+        TimeSheetServiceInterface& timesheet_service
+        , ShopServiceInterface& shop_service
     )
-    : timesheet_service_{timesheet_service}
-    , shop_service_{shop_service} { }
+    : ApplicationManagerInterface{timesheet_service, shop_service} { }
 
-    domain::Timesheet GetTimesheet(domain::DepartmentId department_id, std::chrono::year_month year_month
-                                    , domain::AdministratorId administrator_id) const;
-private:
-    TimeSheetService& timesheet_service_;
-    ShopService& shop_service_;
+    domain::Timesheet GetTimesheet(domain::DepartmentId department_id, domain::AdministratorId administrator_id
+                                    , std::chrono::year_month year_month) const override;
 };
     
 } // namespace application

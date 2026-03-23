@@ -17,12 +17,12 @@ public:
         WorkScheduleId work_schedule_id;
     };
 
-    using ShopData = std::unordered_map<EmployeeId, EmployeeAssignment, EmployeeIdHasher>;
+    using EmployeeAssignments = std::unordered_map<EmployeeId, EmployeeAssignment, EmployeeIdHasher>;
 
-    const ShopData& GetData() const;
+    const EmployeeAssignments& GetEmployeeAssignments() const;
     
 private:
-    ShopData data_;
+    EmployeeAssignments employee_assignments_;
 };
     
 } // namespace domain

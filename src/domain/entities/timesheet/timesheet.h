@@ -18,17 +18,17 @@ namespace domain {
 
 class Timesheet {
 public:
-    struct Key {
+    struct DayDataKey {
         std::chrono::year_month_day date;
         AdministratorId administrator_id;
 
-        bool operator==(const Key& other) const {
+        bool operator==(const DayDataKey& other) const {
             return date == other.date && administrator_id == other.administrator_id;
         }
     };
 
-    struct KeyHasher {
-        size_t operator()(const Key& key) const {
+    struct DayDataKeyHasher {
+        size_t operator()(const DayDataKey& key) const {
             auto date_year_hash = std::hash<int>{}(static_cast<int>(key.date.year()));
             auto date_month_hash = std::hash<unsigned>{}(static_cast<unsigned>(key.date.month()));
             auto date_day_hash = std::hash<unsigned>{}(static_cast<unsigned>(key.date.day()));
@@ -46,8 +46,14 @@ public:
         DepartmentId department_id;
         StaffPositionId staff_position_id;
         WorkScheduleId work_schedule_id;
+        std::optional<Time> work_start;
+        std::optional<Time> work_end;
         std::optional<Time> work_time;
+        std::optional<Time> night_work_start;
+        std::optional<Time> night_work_end;
         std::optional<Time> night_work_time;
+        std::optional<Time> rest_start;
+        std::optional<Time> rest_end;
         std::optional<LeaveTypeId> leave_type_id;
         std::optional<std::string> comment;
 
@@ -60,7 +66,7 @@ public:
         }
     };
 
-    using DaysData = std::unordered_map<Key, domain::Timesheet::DayData>;
+    using DaysData = std::unordered_map<DayDataKey, domain::Timesheet::DayData>;
     using TimesheetData = std::unordered_map<domain::EmployeeId, DaysData, domain::EmployeeIdHasher>;
 
     bool IsEmpty() const;

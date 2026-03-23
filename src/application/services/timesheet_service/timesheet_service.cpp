@@ -11,12 +11,23 @@ domain::Timesheet application::TimeSheetService::GenerateTimeSheet(const domain:
     try{
         using namespace std::chrono;
         using namespace std::literals;
-        using WorkSchedulesDaysData = std::unordered_map<domain::WorkScheduleId, domain::Timesheet::DaysData, domain::WorkScheduleIdHasher>;
+        using WorkSchedules = std::unordered_map<domain::WorkScheduleId, domain::WorkSchedule, domain::WorkScheduleIdHasher>;
+
+        domain::Timesheet timesheet;
+        WorkSchedules work_schedules;
         
         auto start_date = sys_days{year / January / 1};
         auto end_date = sys_days{year / December / 31};
 
-        // Формируем табель для всех графиков
+        const auto& employees_assignments = shop.GetEmployeeAssignments();
+        
+        for (const auto& [employee_id, employee_assignment] : employees_assignments){
+            const auto workschedule_id = employee_assignment.work_schedule_id;
+            if (!work_schedules.contains(workschedule_id)){
+                work_schedules[workschedule_id] = timesheet_repository_.LoadWorkScheduleById(workschedule_id);
+            }
+            
+        }   
 
 
 

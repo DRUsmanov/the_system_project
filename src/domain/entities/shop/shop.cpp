@@ -1,5 +1,5 @@
 #include "shop.h"
 
-const domain::Shop::ShopData& domain::Shop::GetData() const {
-    return data_;
+const domain::Shop::EmployeeAssignments& domain::Shop::GetEmployeeAssignments() const {
+    return employee_assignments_;
 }

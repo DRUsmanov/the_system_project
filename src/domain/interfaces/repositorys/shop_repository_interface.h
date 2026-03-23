@@ -8,7 +8,7 @@ class ShopRepositoryInterface {
 public:
     virtual ~ShopRepositoryInterface() = default;
 
-    virtual Shop GetShop() const = 0;
+    virtual Shop LoadShop() const = 0;
 };
     
 } // namespace domai 

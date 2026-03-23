@@ -1,22 +1,19 @@
 #pragma once
 
-#include "domain/entities/shop/shop.h"
-#include "domain/interfaces/repositorys/timesheet_repository.h"
+#include "timesheet_service_interface.h"
 
 #include <chrono>
 
 namespace application{
 
-class TimeSheetService{
+class TimeSheetService : public TimeSheetServiceInterface{
 public:
     TimeSheetService(domain::TimeSheetRepositoryInterface& timesheet_repository)
-    : timesheet_repository_{timesheet_repository} { }
+    : TimeSheetServiceInterface{timesheet_repository} { }
 
-    domain::Timesheet GetTimesheet(domain::DepartmentId department_id, std::chrono::year_month year_month) const;
-private:
-    domain::TimeSheetRepositoryInterface& timesheet_repository_;
-
-    domain::Timesheet GenerateTimeSheet(const domain::Shop& shop, std::chrono::year year);
+    domain::Timesheet GetTimesheet(domain::DepartmentId department_id, domain::AdministratorId administrator_id
+                                    , std::chrono::year_month year_month) const override;
+    domain::Timesheet GenerateTimeSheet(const domain::Shop& shop, std::chrono::year year) override;
 };
 
 } // namespace application

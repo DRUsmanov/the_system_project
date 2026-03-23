@@ -1,20 +1,17 @@
 #pragma once
 
-#include "domain/entities/shop/shop.h"
-#include "domain/interfaces/repositorys/shop_repository.h"
+#include "shop_service_interface.h"
 
 #include <chrono>
 
 namespace application{
 
-class ShopService{
+class ShopService : public ShopServiceInterface {
 public:
     ShopService(domain::ShopRepositoryInterface& shop_repository)
-    : shop_repository_{shop_repository} { }
+    : ShopServiceInterface{shop_repository} { }
 
-    domain::Shop GetShop() const;
-private:
-    domain::ShopRepositoryInterface& shop_repository_;
+    domain::Shop GetShop() const override;
 };
 
 } // namespace application
