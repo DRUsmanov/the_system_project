@@ -43,9 +43,15 @@ public:
     };
 
     struct DayData {
+        explicit DayData(const WorkSchedule::DayData& work_schedule_day_data
+                        , DepartmentId department_id, StaffPositionId staff_position_id
+                        , WorkScheduleId work_schedule_id);
+        explicit DayData(LeaveType leave_type);
+
         DepartmentId department_id;
         StaffPositionId staff_position_id;
         WorkScheduleId work_schedule_id;
+
         std::optional<Time> work_start;
         std::optional<Time> work_end;
         std::optional<Time> work_time;
@@ -54,16 +60,12 @@ public:
         std::optional<Time> night_work_time;
         std::optional<Time> rest_start;
         std::optional<Time> rest_end;
-        std::optional<LeaveTypeId> leave_type_id;
+
+        std::optional<LeaveType> leave_type;
         std::optional<std::string> comment;
 
-        bool IsWorkingDay() const noexcept{
-            return work_time.has_value();
-        }
-
-        bool IsNightWorkingDay() const noexcept {
-            return night_work_time.has_value();
-        }
+        bool IsWorkingDay() const noexcept;
+        bool IsNightWorkingDay() const noexcept;
     };
 
     using DaysData = std::unordered_map<DayDataKey, domain::Timesheet::DayData>;

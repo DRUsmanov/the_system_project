@@ -8,12 +8,12 @@
 namespace domain {
 
 namespace detail {
-    struct Holiday{};
-    struct ExtraHolidayDay{};
-    struct PreHolidayDay{};
+    struct HolidayIdtag{};
+    struct ExtraHolidayDayIdTag{};
+    struct PreHolidayDayIdTag{};
 } // namespace detail
 
-using HolidayId = utils::Tagged<int, detail::Holiday>;
+using HolidayId = utils::Tagged<int, detail::HolidayIdtag>;
 using HolidayIdHasher = utils::TaggedHasher<HolidayId>;
 
     

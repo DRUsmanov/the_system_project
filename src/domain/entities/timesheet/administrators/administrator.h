@@ -8,10 +8,10 @@
 namespace domain {
 
 namespace detail {
-    struct Administrator{};
+    struct AdministratorIdTag{};
 } // namespace detail
 
-using AdministratorId = utils::Tagged<int, detail::Administrator>;
+using AdministratorId = utils::Tagged<int, detail::AdministratorIdTag>;
 using AdministratorIdHasher = utils::TaggedHasher<AdministratorId>;
 
 struct Administrator {

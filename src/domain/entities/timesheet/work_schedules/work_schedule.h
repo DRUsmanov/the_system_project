@@ -3,13 +3,15 @@
 #include "utils/tagged.h"
 #include "domain/value_data/types.h"
 
+#include <chrono>
+
 namespace domain {
 
 namespace detail {
-    struct WorkSchedule{};
+    struct WorkScheduleIdTag{};
 } // namespace detail
 
-using WorkScheduleId = utils::Tagged<int, detail::WorkSchedule>;
+using WorkScheduleId = utils::Tagged<int, detail::WorkScheduleIdTag>;
 using WorkScheduleIdHasher = utils::TaggedHasher<WorkScheduleId>;
 
 class WorkSchedule {
@@ -48,6 +50,7 @@ public:
     size_t GetCycleSize() const noexcept;
     const Date& GetStartCycleDate() const noexcept;
     bool IsWorksOnHolidays() const noexcept;
+    const DayData& GetDayDataByDate(std::chrono::year_month_day date) const;
     const DayData& operator[](size_t index) const;
 private:
     size_t cycle_size_;

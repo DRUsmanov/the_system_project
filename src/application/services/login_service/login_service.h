@@ -1,7 +1,7 @@
 #pragma once
 
-#include "../../../domain/interfaces/repositorys/users_repository.h"
-#include "../../dto/login_dto.h"
+#include "domain/interfaces/repositorys/users_repository_interface.h"
+#include "application/dto/login_dto.h"
 
 #include <unordered_map>
 

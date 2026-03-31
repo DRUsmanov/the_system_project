@@ -14,27 +14,37 @@ domain::Timesheet application::TimeSheetService::GenerateTimeSheet(const domain:
         using WorkSchedules = std::unordered_map<domain::WorkScheduleId, domain::WorkSchedule, domain::WorkScheduleIdHasher>;
 
         domain::Timesheet timesheet;
-        WorkSchedules work_schedules;
+        WorkSchedules work_schedules_cache;
         
-        auto start_date = sys_days{year / January / 1};
-        auto end_date = sys_days{year / December / 31};
+        auto start_date = year / January / 1;
+        auto end_date = year / December / 31;
 
         const auto& employees_assignments = shop.GetEmployeeAssignments();
+        auto pre_holidays = timesheet_repository_.LoadPreHolidaysByYear(year);
+        auto holidays = timesheet_repository_.LoadHolidaysByYear(year);
+        auto extra_holidays = timesheet_repository_.LoadExtraHolidaysByYear(year);
+
+        auto system_administrator_id = timesheet_repository_.LoadSystemAdministratorId();
         
         for (const auto& [employee_id, employee_assignment] : employees_assignments){
             const auto workschedule_id = employee_assignment.work_schedule_id;
-            if (!work_schedules.contains(workschedule_id)){
-                work_schedules[workschedule_id] = timesheet_repository_.LoadWorkScheduleById(workschedule_id);
+            if (!work_schedules_cache.contains(workschedule_id)){
+                work_schedules_cache[workschedule_id] = timesheet_repository_.LoadWorkScheduleById(workschedule_id);
             }
-            
+            const auto& work_schedule = work_schedules_cache[workschedule_id];
+
+            auto vacatons = timesheet_repository_.LoadVacationsByEmployeeId(employee_id);
+
+            for (auto date = sys_days{start_date}; date <= sys_days{end_date}; date += std::chrono::days{1}){
+                const auto& work_schedule_day_data = work_schedule.GetDayDataByDate(date);
+                // добавляем рабочие дни
+                if ()
+            }
         }   
 
 
 
-        auto work_schedules = timesheet_repository_.GetWorkSchedules();
-        auto holidays = timesheet_repository_.GetHolidays(year);
-        auto extra_holidays = timesheet_repository_.GetExtraHolidays(year);
-        auto pre_holidays = timesheet_repository_.GetPreHolidays(year);
+        
         auto system_admnistrator_id = timesheet_repository_.GetSystemAdministratorId();
 
         WorkSchedulesDaysData work_schedules_days_data;
