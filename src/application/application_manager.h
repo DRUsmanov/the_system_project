@@ -14,8 +14,8 @@ public:
     )
     : ApplicationManagerInterface{timesheet_service, shop_service} { }
 
-    domain::Timesheet GetTimesheet(domain::DepartmentId department_id, domain::AdministratorId administrator_id
-                                    , std::chrono::year_month year_month) const override;
+    std::optional<domain::Timesheet> GetTimesheet(domain::DepartmentId department_id, domain::AdministratorId administrator_id
+                                                    , std::chrono::year_month year_month) const override;
 };
     
 } // namespace application

@@ -6,6 +6,7 @@
 namespace domain {
 
 enum class LeaveType {
+    VACATION, // Отпуск
     STUDY_LEAVE, // Ученический отпуск
     STATE_DUTIES, // Гос. обязанности
     MOBILIZATION, // Мобилизация

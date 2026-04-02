@@ -5,6 +5,7 @@
 #include "domain/entities/timesheet/timesheet.h"
 
 #include <chrono>
+#include <optional>
 
 namespace application{
 
@@ -19,8 +20,8 @@ public:
 
     virtual ~ApplicationManagerInterface() = default;
 
-    virtual domain::Timesheet GetTimesheet(domain::DepartmentId department_id, domain::AdministratorId administrator_id
-                                    , std::chrono::year_month year_month) const = 0;
+    virtual std::optional<domain::Timesheet> GetTimesheet(domain::DepartmentId department_id, domain::AdministratorId administrator_id
+                                                            , std::chrono::year_month year_month) const = 0;
 protected:
     TimeSheetServiceInterface& timesheet_service_;
     ShopServiceInterface& shop_service_;

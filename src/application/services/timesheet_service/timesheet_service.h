@@ -3,6 +3,7 @@
 #include "timesheet_service_interface.h"
 
 #include <chrono>
+#include <optional>
 
 namespace application{
 
@@ -11,9 +12,30 @@ public:
     TimeSheetService(domain::TimeSheetRepositoryInterface& timesheet_repository)
     : TimeSheetServiceInterface{timesheet_repository} { }
 
-    domain::Timesheet GetTimesheet(domain::DepartmentId department_id, domain::AdministratorId administrator_id
+    std::optional<domain::Timesheet> GetTimesheet(domain::DepartmentId department_id, domain::AdministratorId administrator_id
                                     , std::chrono::year_month year_month) const override;
-    domain::Timesheet GenerateTimeSheet(const domain::Shop& shop, std::chrono::year year) override;
+    domain::Timesheet GenerateTimesheet(const domain::Shop& shop, std::chrono::year year) override;
+    bool AddTimesheet(const domain::Timesheet& timesheet) override;
+
+private:
+    struct TimesheetGenerationContext {
+        domain::Timesheet& timesheet;
+        const domain::AdministratorId& administrator_id;
+        const domain::Date& date;
+        const domain::EmployeeId& employee_id;
+        const domain::DepartmentId& department_id;
+        const domain::StaffPositionId& staff_position_id;
+        const domain::WorkScheduleId& work_schedule_id;
+        const domain::WorkSchedule& work_schedule;
+        const domain::PreHolidays& pre_holidays;
+        const domain::Holidays& holidays;
+        const domain::ExtraHolidays& extra_holidays;
+        const domain::Vacations& vacations;
+    };
+
+    bool AddEmployeeVacationsInTimesheet(const TimesheetGenerationContext& generation_context);
+    bool AddHolidaysInTimesheet(const TimesheetGenerationContext& generation_context);
+    bool AddWorkingDayInTimesheet(const TimesheetGenerationContext& generation_context);
 };
 
 } // namespace application

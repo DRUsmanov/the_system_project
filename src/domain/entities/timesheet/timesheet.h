@@ -43,11 +43,6 @@ public:
     };
 
     struct DayData {
-        explicit DayData(const WorkSchedule::DayData& work_schedule_day_data
-                        , DepartmentId department_id, StaffPositionId staff_position_id
-                        , WorkScheduleId work_schedule_id);
-        explicit DayData(LeaveType leave_type);
-
         DepartmentId department_id;
         StaffPositionId staff_position_id;
         WorkScheduleId work_schedule_id;
@@ -64,6 +59,14 @@ public:
         std::optional<LeaveType> leave_type;
         std::optional<std::string> comment;
 
+        static DayData CreateWorkingDayData(const WorkSchedule::DayData& work_schedule_day_data
+                                            , DepartmentId department_id, StaffPositionId staff_position_id
+                                            , WorkScheduleId work_schedule_id);
+        static DayData CreateNonWorkingDayData(LeaveType leave_type
+                                                , DepartmentId department_id, StaffPositionId staff_position_id
+                                                , WorkScheduleId work_schedule_id);
+        
+
         bool IsWorkingDay() const noexcept;
         bool IsNightWorkingDay() const noexcept;
     };
@@ -72,7 +75,7 @@ public:
     using TimesheetData = std::unordered_map<domain::EmployeeId, DaysData, domain::EmployeeIdHasher>;
 
     bool IsEmpty() const;
-    bool AddEmployeeDayData(EmployeeId employee_id, std::chrono::year_month_day day
+    bool AddEmployeeDayData(EmployeeId employee_id, domain::Date date
                             , AdministratorId administrator_id, const DayData& day_data);
 
 private:
