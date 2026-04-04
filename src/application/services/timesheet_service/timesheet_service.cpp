@@ -15,7 +15,8 @@ std::optional<domain::Timesheet> application::TimeSheetService::GetTimesheet(dom
    return timesheet_repository_.DownloadTimesheet(department_id, administrator_id, year_month);
 }
 
-bool application::TimeSheetService::AddEmployeeVacationsInTimesheet(const TimesheetGenerationContext& generation_context) {
+bool application::TimeSheetService::GenerateEmployeeVacationsInTimesheet(domain::Timesheet& timesheet
+                                                                    , const TimesheetGenerationContext& generation_context) {
     auto it = generation_context.vacations.find(generation_context.employee_id);
     if (it == generation_context.vacations.end()){
         return false;
@@ -29,14 +30,15 @@ bool application::TimeSheetService::AddEmployeeVacationsInTimesheet(const Timesh
                 generation_context.staff_position_id,
                 generation_context.work_schedule_id
             );
-            generation_context.timesheet.AddEmployeeDayData(generation_context.employee_id, generation_context.date,
+            timesheet.AddEmployeeDayData(generation_context.employee_id, generation_context.date,
                                                             generation_context.administrator_id, vacation_day_data);
             return true;
         }
     }
 }
 
-bool application::TimeSheetService::AddHolidaysInTimesheet(const TimesheetGenerationContext& generation_context) {
+bool application::TimeSheetService::GenerateHolidaysInTimesheet(domain::Timesheet& timesheet
+                                                            , const TimesheetGenerationContext& generation_context) {
     const auto& work_schedule_day_data = generation_context.work_schedule.GetDayDataByDate(generation_context.date);
 
     if (!generation_context.work_schedule.IsWorksOnHolidays()){
@@ -51,7 +53,7 @@ bool application::TimeSheetService::AddHolidaysInTimesheet(const TimesheetGenera
             pre_holidays_day_data.work_end.value() -= std::chrono::hours{1};
             pre_holidays_day_data.work_time.value() -= std::chrono::hours{1};
 
-            generation_context.timesheet.AddEmployeeDayData(
+            timesheet.AddEmployeeDayData(
                 generation_context.employee_id,
                 generation_context.date,
                 generation_context.administrator_id,
@@ -71,7 +73,8 @@ bool application::TimeSheetService::AddHolidaysInTimesheet(const TimesheetGenera
     return false;
 }
 
-bool application::TimeSheetService::AddWorkingDayInTimesheet(const TimesheetGenerationContext& generation_context) {
+bool application::TimeSheetService::GenerateWorkingDayInTimesheet(domain::Timesheet& timesheet
+                                                            , const TimesheetGenerationContext& generation_context) {
     const auto& work_schedule_day_data = generation_context.work_schedule.GetDayDataByDate(generation_context.date);
 
     if (work_schedule_day_data.IsWorkingDay()){
@@ -82,7 +85,7 @@ bool application::TimeSheetService::AddWorkingDayInTimesheet(const TimesheetGene
             generation_context.work_schedule_id
         );
 
-        generation_context.timesheet.AddEmployeeDayData(
+        timesheet.AddEmployeeDayData(
             generation_context.employee_id,
             generation_context.date,
             generation_context.administrator_id,
@@ -123,28 +126,19 @@ domain::Timesheet application::TimeSheetService::GenerateTimesheet(const domain:
         auto end_date = sys_days{year / December / 31};
 
         for (auto date = start_date; date <= end_date; date += std::chrono::days{1}){
-            TimesheetGenerationContext context{timesheet
-                                                , system_administrator_id
-                                                , date, employee_id
-                                                , department_id
-                                                , staff_position_id
-                                                , work_schedule_id
-                                                , work_schedule
-                                                , pre_holidays
-                                                , holidays
-                                                , extra_holidays
-                                                , vacations};
+            TimesheetGenerationContext generation_context{system_administrator_id, date, employee_id, department_id
+                                                            , staff_position_id, work_schedule_id, work_schedule, pre_holidays
+                                                            , holidays, extra_holidays, vacations};
         
-            
-            if (AddEmployeeVacationsInTimesheet(context)){
+            if (GenerateEmployeeVacationsInTimesheet(timesheet, generation_context)){
                 continue;
             }
 
-            if (AddHolidaysInTimesheet(context)){
+            if (GenerateHolidaysInTimesheet(timesheet, generation_context)){
                 continue;
             }
 
-            AddWorkingDayInTimesheet(context);
+            GenerateWorkingDayInTimesheet(timesheet, generation_context);
         }
     }   
     return timesheet;

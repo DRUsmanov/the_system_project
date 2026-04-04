@@ -14,6 +14,8 @@ public:
 
     virtual ~ShopServiceInterface() = default;
 
+    
+
     virtual domain::Shop GetShop() const = 0; // Далее можно добавить перегрузки с id при расширении программы
 protected:
     domain::ShopRepositoryInterface& shop_repository_;

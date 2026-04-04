@@ -10,6 +10,7 @@ std::optional<domain::Timesheet> application::ApplicationManager::GetTimesheet(d
             auto shop = shop_service_.GetShop();
             timesheet_service_.GenerateTimesheet(shop, year_month.year());
         }
+        timesheet = timesheet_service_.GetTimesheet(department_id, administrator_id, year_month);
         return timesheet;
     }
     catch (std::exception& ex){

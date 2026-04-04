@@ -19,7 +19,6 @@ public:
 
 private:
     struct TimesheetGenerationContext {
-        domain::Timesheet& timesheet;
         const domain::AdministratorId& administrator_id;
         const domain::Date& date;
         const domain::EmployeeId& employee_id;
@@ -33,9 +32,9 @@ private:
         const domain::Vacations& vacations;
     };
 
-    bool AddEmployeeVacationsInTimesheet(const TimesheetGenerationContext& generation_context);
-    bool AddHolidaysInTimesheet(const TimesheetGenerationContext& generation_context);
-    bool AddWorkingDayInTimesheet(const TimesheetGenerationContext& generation_context);
+    bool GenerateEmployeeVacationsInTimesheet(domain::Timesheet& timesheet, const TimesheetGenerationContext& generation_context);
+    bool GenerateHolidaysInTimesheet(domain::Timesheet& timesheet, const TimesheetGenerationContext& generation_context);
+    bool GenerateWorkingDayInTimesheet(domain::Timesheet& timesheet, const TimesheetGenerationContext& generation_context);
 };
 
 } // namespace application
