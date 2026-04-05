@@ -11,6 +11,7 @@
   * [__Табель сверхурочной работы__](#табель-сверхурочной-работы)
   * [__Табель работ в выходной день__](#табель-работ-в-выходной-день)
   * [__Отсутствия__](#отсутствия)
++ [__Аутентификация__](#аутентификация)
 + [__Модуль управления подразделением__](#модуль-управления-подразделением)
 + [__Модуль табеля учета рабочего времени__](#модуль-табеля-учета-рабочего-времени)
 + [__Модуль обучения__](#модуль-обучения)
@@ -407,7 +408,26 @@ height_groups ||--o{  work_at_height_exams : "одна группа по выс
 employees ||--o{  work_instructions_exams : "один работник -> ноль или много проверок знаний по профессии"
 professions ||--o{  work_instructions_exams : "одна профессия -> ноль или много проверок знаний по ней"
 ```
+## Аутентификация
+```mermaid
+sequenceDiagram
+user ->> RequestHandler: login + password
+RequestHandler ->> LoginRequestHandler: login + password
+LoginRequestHandler ->> ApplicationManagerInterface: InputLoginDtO
+ApplicationManagerInterface ->> LoginServiceInterface: LoginData
 
+alt Успешная аутентификация
+LoginServiceInterface -->> ApplicationManagerInterface: User
+ApplicationManagerInterface -->> LoginRequestHandler: OutputLoginDto
+LoginRequestHandler ->> TokenGenerator: payload
+TokenGenerator -->> LoginRequestHandler: token
+LoginRequestHandler -->> user: 200 + system.html + token
+else Неуспешная аутентификация
+LoginServiceInterface -->> ApplicationManagerInterface: nullopt
+ApplicationManagerInterface -->> LoginRequestHandler: nullopt
+LoginRequestHandler -->> user: 401
+end
+```
 ## Модуль управления подразделением
 Модуль предназначен для управления структурой подразделения.
 ### Инструменты:
