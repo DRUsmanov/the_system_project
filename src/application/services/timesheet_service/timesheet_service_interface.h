@@ -8,12 +8,12 @@
 
 namespace application{
 
-class TimeSheetServiceInterface {
+class TimesheetServiceInterface {
 public:
-    TimeSheetServiceInterface(domain::TimeSheetRepositoryInterface& timesheet_repository)
+    TimesheetServiceInterface(domain::TimeSheetRepositoryInterface& timesheet_repository)
     : timesheet_repository_{timesheet_repository} { }
 
-    virtual ~TimeSheetServiceInterface() = default;
+    virtual ~TimesheetServiceInterface() = default;
 
     virtual std::optional<domain::Timesheet> GetTimesheet(domain::DepartmentId department_id, domain::AdministratorId administrator_id
                                     , std::chrono::year_month year_month) const = 0;

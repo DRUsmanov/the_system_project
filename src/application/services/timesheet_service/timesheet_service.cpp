@@ -9,13 +9,13 @@
 #include <exception>
 #include <vector>
 
-std::optional<domain::Timesheet> application::TimeSheetService::GetTimesheet(domain::DepartmentId department_id
+std::optional<domain::Timesheet> application::TimesheetService::GetTimesheet(domain::DepartmentId department_id
                                                                             , domain::AdministratorId administrator_id
                                                                             , std::chrono::year_month year_month) const {
    return timesheet_repository_.DownloadTimesheet(department_id, administrator_id, year_month);
 }
 
-bool application::TimeSheetService::GenerateEmployeeVacationsInTimesheet(domain::Timesheet& timesheet
+bool application::TimesheetService::GenerateEmployeeVacationsInTimesheet(domain::Timesheet& timesheet
                                                                     , const TimesheetGenerationContext& generation_context) {
     auto it = generation_context.vacations.find(generation_context.employee_id);
     if (it == generation_context.vacations.end()){
@@ -37,7 +37,7 @@ bool application::TimeSheetService::GenerateEmployeeVacationsInTimesheet(domain:
     }
 }
 
-bool application::TimeSheetService::GenerateHolidaysInTimesheet(domain::Timesheet& timesheet
+bool application::TimesheetService::GenerateHolidaysInTimesheet(domain::Timesheet& timesheet
                                                             , const TimesheetGenerationContext& generation_context) {
     const auto& work_schedule_day_data = generation_context.work_schedule.GetDayDataByDate(generation_context.date);
 
@@ -73,7 +73,7 @@ bool application::TimeSheetService::GenerateHolidaysInTimesheet(domain::Timeshee
     return false;
 }
 
-bool application::TimeSheetService::GenerateWorkingDayInTimesheet(domain::Timesheet& timesheet
+bool application::TimesheetService::GenerateWorkingDayInTimesheet(domain::Timesheet& timesheet
                                                             , const TimesheetGenerationContext& generation_context) {
     const auto& work_schedule_day_data = generation_context.work_schedule.GetDayDataByDate(generation_context.date);
 
@@ -96,7 +96,7 @@ bool application::TimeSheetService::GenerateWorkingDayInTimesheet(domain::Timesh
     return false;
 }
 
-domain::Timesheet application::TimeSheetService::GenerateTimesheet(const domain::Shop &shop, std::chrono::year year) {
+domain::Timesheet application::TimesheetService::GenerateTimesheet(const domain::Shop &shop, std::chrono::year year) {
     using namespace std::chrono;
     using namespace std::literals;
     using WorkSchedules = std::unordered_map<domain::WorkScheduleId, domain::WorkSchedule, domain::WorkScheduleIdHasher>;
@@ -144,6 +144,6 @@ domain::Timesheet application::TimeSheetService::GenerateTimesheet(const domain:
     return timesheet;
 }
 
-bool application::TimeSheetService::AddTimesheet(const domain::Timesheet &timesheet) {
+bool application::TimesheetService::AddTimesheet(const domain::Timesheet &timesheet) {
     return timesheet_repository_.UploadTimesheet(timesheet);
 }

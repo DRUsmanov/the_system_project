@@ -7,10 +7,10 @@
 
 namespace application{
 
-class TimeSheetService : public TimeSheetServiceInterface{
+class TimesheetService : public TimesheetServiceInterface{
 public:
-    TimeSheetService(domain::TimeSheetRepositoryInterface& timesheet_repository)
-    : TimeSheetServiceInterface{timesheet_repository} { }
+    TimesheetService(domain::TimeSheetRepositoryInterface& timesheet_repository)
+    : TimesheetServiceInterface{timesheet_repository} { }
 
     std::optional<domain::Timesheet> GetTimesheet(domain::DepartmentId department_id, domain::AdministratorId administrator_id
                                     , std::chrono::year_month year_month) const override;
