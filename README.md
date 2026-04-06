@@ -431,6 +431,7 @@ end
 
 actor DB@{"type" : "database"}
 
+autonumber
 user ->> RequestHandler: login_request
 activate RequestHandler
 RequestHandler ->> LoginRequestHandler: login_request
@@ -456,7 +457,9 @@ activate TokenGenerator
 TokenGenerator -->> LoginRequestHandler: token
 deactivate TokenGenerator
 LoginRequestHandler -->> user: 200 + system.html + token
+
 else Неуспешная аутентификация
+autonumber 7
 DB -->> UserRepositoryInterface: unsuccess
 deactivate DB
 UserRepositoryInterface -->> LoginServiceInterface: nullopt
