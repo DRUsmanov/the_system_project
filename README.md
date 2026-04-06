@@ -474,15 +474,98 @@ end
 ```
 ## Модуль управления подразделением
 Модуль предназначен для управления структурой подразделения.
-### Инструменты:
-+ Добавление участка
-+ Удаление участка
-+ Добавление штатной единицы
-+ Удаление штатной единицы
-+ Добавление работника
-+ Удаление работника
-+ Перевод работника на другой участок
-+ Перевод работника на другую штатную единицу
+### Функционал:
++ Добавление/удаление работника
++ Изменение данных работника
+
+```mermaid
+sequenceDiagram
+
+actor user
+
+box rgb(138, 136, 252) Infrastructure
+participant RequestHandler
+participant ShopHandler
+participant TokenParser
+end
+
+box rgb(243, 252, 136) Application
+participant ApplicationManagerInterface
+participant ShopServiceInterface
+end
+
+box rgb(136, 252, 210) Domain
+participant ShopRepositoryInterface
+end
+
+actor DB@{"type" : "database"}
+
+user ->> RequestHandler: add_employee_request
+
+activate RequestHandler
+RequestHandler ->> ShopHandler: add_employee_request
+deactivate RequestHandler
+
+activate ShopHandler
+ShopHandler ->> TokenParser: token
+
+activate TokenParser
+
+alt Токен валиден
+TokenParser -->> ShopHandler: payload
+ShopHandler ->> ApplicationManagerInterface: AddEmployeeDto
+
+activate ApplicationManagerInterface
+ApplicationManagerInterface ->> ShopServiceInterface: AddEmployeeDto
+
+activate ShopServiceInterface
+ShopServiceInterface ->> ShopRepositoryInterface: AddEmployeeDto
+
+activate ShopRepositoryInterface
+ShopRepositoryInterface ->> DB: sql_add_employee_request
+
+activate DB
+
+alt Работник добавлен успешно
+
+DB -->> ShopRepositoryInterface: success
+
+ShopRepositoryInterface -->> ShopServiceInterface: success
+
+ShopServiceInterface -->> ApplicationManagerInterface: success
+
+ApplicationManagerInterface -->> ShopHandler: success
+
+ShopHandler -->> user: success
+
+else Добавление работника не удалось (на любом участе)
+
+DB -->> ShopRepositoryInterface: unsuccess
+deactivate DB
+
+ShopRepositoryInterface -->> ShopServiceInterface: unsuccess
+deactivate ShopRepositoryInterface
+
+ShopServiceInterface -->> ApplicationManagerInterface: unsuccess
+deactivate ShopServiceInterface
+
+ApplicationManagerInterface -->> ShopHandler: unsuccess
+deactivate ApplicationManagerInterface
+
+ShopHandler -->> user: unsuccess
+
+end
+
+else Токен невалиден
+
+TokenParser -->> ShopHandler: invalid_token
+deactivate TokenParser
+
+ShopHandler -->> user: invalid_token
+deactivate ShopHandler
+
+end
+```
 
 ## Модуль табеля учета рабочего времени
 Модуль предназначен для фиксации фактически отработанного времени и отсутствий работников.
