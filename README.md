@@ -411,21 +411,61 @@ professions ||--o{  work_instructions_exams : "одна профессия -> �
 ## Аутентификация
 ```mermaid
 sequenceDiagram
-user ->> RequestHandler: login + password
-RequestHandler ->> LoginRequestHandler: login + password
+
+actor user
+
+box rgb(138, 136, 252) Infrastructure
+participant RequestHandler
+participant LoginRequestHandler
+participant TokenGenerator
+end
+
+box rgb(243, 252, 136) Application
+participant ApplicationManagerInterface
+participant LoginServiceInterface
+end
+
+box rgb(136, 252, 210) Domain
+participant UserRepositoryInterface
+end
+
+actor DB@{"type" : "database"}
+
+user ->> RequestHandler: login_request
+activate RequestHandler
+RequestHandler ->> LoginRequestHandler: login_request
+deactivate RequestHandler
+activate LoginRequestHandler
 LoginRequestHandler ->> ApplicationManagerInterface: InputLoginDtO
+activate ApplicationManagerInterface
 ApplicationManagerInterface ->> LoginServiceInterface: LoginData
+activate LoginServiceInterface
+LoginServiceInterface ->> UserRepositoryInterface: LoginData
+activate UserRepositoryInterface
+UserRepositoryInterface ->> DB: sql_login_request
 
 alt Успешная аутентификация
+activate DB
+DB -->> UserRepositoryInterface: success
+UserRepositoryInterface -->> LoginServiceInterface: User
 LoginServiceInterface -->> ApplicationManagerInterface: User
 ApplicationManagerInterface -->> LoginRequestHandler: OutputLoginDto
 LoginRequestHandler ->> TokenGenerator: payload
+activate TokenGenerator
 TokenGenerator -->> LoginRequestHandler: token
+deactivate TokenGenerator
 LoginRequestHandler -->> user: 200 + system.html + token
 else Неуспешная аутентификация
+DB -->> UserRepositoryInterface: unsuccess
+deactivate DB
+UserRepositoryInterface -->> LoginServiceInterface: nullopt
+deactivate UserRepositoryInterface
 LoginServiceInterface -->> ApplicationManagerInterface: nullopt
+deactivate LoginServiceInterface
 ApplicationManagerInterface -->> LoginRequestHandler: nullopt
+deactivate ApplicationManagerInterface
 LoginRequestHandler -->> user: 401
+deactivate LoginRequestHandler
 end
 ```
 ## Модуль управления подразделением
