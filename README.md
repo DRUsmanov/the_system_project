@@ -444,8 +444,9 @@ LoginServiceInterface ->> UserRepositoryInterface: LoginData
 activate UserRepositoryInterface
 UserRepositoryInterface ->> DB: sql_login_request
 
-alt Успешная аутентификация
 activate DB
+
+alt Успешная аутентификация
 DB -->> UserRepositoryInterface: success
 UserRepositoryInterface -->> LoginServiceInterface: User
 LoginServiceInterface -->> ApplicationManagerInterface: User
