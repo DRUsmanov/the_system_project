@@ -7,10 +7,10 @@ bool domain::Timesheet::IsEmpty() const {
 }
 
 bool domain::Timesheet::AddEmployeeDayData(EmployeeId employee_id, domain::Date date,
-                                           AdministratorId administrator_id, const DayData &day_data) {
+                                           AdminCategoryId admin_category_id, const DayData &day_data) {
     try {
         auto& employee_days_data = data_[employee_id];
-        auto [it, inserted] = employee_days_data.try_emplace(DayDataKey{date, administrator_id}, day_data);
+        auto [it, inserted] = employee_days_data.try_emplace(DayDataKey{date, admin_category_id}, day_data);
         return inserted;
     }
     catch (const std::exception& ex){

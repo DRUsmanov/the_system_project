@@ -10,9 +10,9 @@
 #include <vector>
 
 std::optional<domain::Timesheet> application::TimesheetService::GetTimesheet(domain::DepartmentId department_id
-                                                                            , domain::AdministratorId administrator_id
+                                                                            , domain::AdminCategoryId admin_category_id
                                                                             , std::chrono::year_month year_month) const {
-   return timesheet_repository_.DownloadTimesheet(department_id, administrator_id, year_month);
+   return timesheet_repository_.DownloadTimesheet(department_id, admin_category_id, year_month);
 }
 
 bool application::TimesheetService::GenerateEmployeeVacationsInTimesheet(domain::Timesheet& timesheet
@@ -31,7 +31,7 @@ bool application::TimesheetService::GenerateEmployeeVacationsInTimesheet(domain:
                 generation_context.work_schedule_id
             );
             timesheet.AddEmployeeDayData(generation_context.employee_id, generation_context.date,
-                                                            generation_context.administrator_id, vacation_day_data);
+                                                            generation_context.admin_category_id, vacation_day_data);
             return true;
         }
     }
@@ -56,7 +56,7 @@ bool application::TimesheetService::GenerateHolidaysInTimesheet(domain::Timeshee
             timesheet.AddEmployeeDayData(
                 generation_context.employee_id,
                 generation_context.date,
-                generation_context.administrator_id,
+                generation_context.admin_category_id,
                 pre_holidays_day_data
             );
             return true;
@@ -88,7 +88,7 @@ bool application::TimesheetService::GenerateWorkingDayInTimesheet(domain::Timesh
         timesheet.AddEmployeeDayData(
             generation_context.employee_id,
             generation_context.date,
-            generation_context.administrator_id,
+            generation_context.admin_category_id,
             working_day_data
         );
         return true;

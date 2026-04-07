@@ -4,7 +4,7 @@
 #include "domain/entities/timesheet/work_schedules/work_schedule.h"
 #include "domain/entities/timesheet/holidays/holiday.h"
 #include "domain/entities/timesheet/leave_types/leave_type.h"
-#include "domain/entities/timesheet/administrators/administrator.h"
+#include "domain/entities/timesheet/admin_categorys/admin_category.h"
 #include "domain/entities/timesheet/vacations/vacation.h"
 #include "domain/entities/timesheet/timesheet.h"
 
@@ -31,9 +31,9 @@ public:
     virtual ExtraHolidays DownloadExtraHolidaysByYear(std::chrono::year year) const = 0;
     virtual Vacations DownloadVacationsByShopAndYear(const Shop& shop, std::chrono::year year) const = 0;
     virtual Vacations DownloadVacationsByEmployeeId(EmployeeId employee_id) const = 0;
-    virtual AdministratorId DownloadSystemAdministratorId() const = 0;
+    virtual AdminCategoryId DownloadSystemAdministratorId() const = 0;
     virtual std::optional<Timesheet> DownloadTimesheet(domain::DepartmentId department_id
-                                    , domain::AdministratorId administrator_id
+                                    , domain::AdminCategoryId admin_category_id
                                     , std::chrono::year_month year_month) const = 0;
 
     virtual bool UploadTimesheet(const domain::Timesheet& timesheet) = 0;

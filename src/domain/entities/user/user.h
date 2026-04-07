@@ -4,14 +4,15 @@
 
 namespace domain {
 
-struct LoginData{
+struct UserLoginData{
     std::string login;
     std::string password;
 };
 
 struct User {
-    std::string login;
-    uint64_t permissions;
+    int user_id;
+    int permissions;
+    int admin_category_id;
 };
 
 } // namespace domain

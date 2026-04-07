@@ -1,6 +1,6 @@
 #pragma once
 
-#include "application/services/login_service/login_service.h"
+#include "application/services/user_service/user_service_interface.h"
 #include "infrastructure/json_formater/json_formater.h"
 
 #include <boost/beast.hpp>
@@ -16,10 +16,10 @@ using namespace std::literals;
 const std::string LOGIN = "login"s;
 const std::string PASSWORD = "password"s;
 
-class LoginHandler{
+class UserHandler{
 public:
-    explicit LoginHandler(const application::LoginService& login_service)
-    :login_service_{login_service}{ }
+    explicit UserHandler(const application::UserServiceInterface& user_service)
+    : user_service_{user_service}{ }
 
     template <typename Body, typename Allocator, typename TextResponseMaker, typename Send>
     void operator()(http::request<Body, http::basic_fields<Allocator>>&& req, TextResponseMaker&& text_response_maker, Send&& send){     
@@ -82,7 +82,7 @@ public:
         }
     }
 private:
-    const application::LoginService& login_service_;
+    const application::UserServiceInterface& user_service_;
 
     static inline const std::string API_V1_LOGIN = "api/v1/login"s;
 

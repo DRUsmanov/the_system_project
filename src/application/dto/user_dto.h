@@ -4,15 +4,13 @@
 
 namespace application {
 
-struct InputLoginDto{
+struct InputUserDto{
     std::string login;
     std::string password;
 };
 
-struct OutputLoginDto{
-    bool acces_accepted = false;
-    std::string login;
-    uint64_t permisions = 0;
+struct OutputUserDto{
+    int user_id;
 };
 
 } // namespace application

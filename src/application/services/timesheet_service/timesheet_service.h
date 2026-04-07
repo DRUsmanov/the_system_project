@@ -12,14 +12,14 @@ public:
     TimesheetService(domain::TimeSheetRepositoryInterface& timesheet_repository)
     : TimesheetServiceInterface{timesheet_repository} { }
 
-    std::optional<domain::Timesheet> GetTimesheet(domain::DepartmentId department_id, domain::AdministratorId administrator_id
+    std::optional<domain::Timesheet> GetTimesheet(domain::DepartmentId department_id, domain::AdminCategoryId admin_category_id
                                     , std::chrono::year_month year_month) const override;
     domain::Timesheet GenerateTimesheet(const domain::Shop& shop, std::chrono::year year) override;
     bool AddTimesheet(const domain::Timesheet& timesheet) override;
 
 private:
     struct TimesheetGenerationContext {
-        const domain::AdministratorId& administrator_id;
+        const domain::AdminCategoryId& admin_category_id;
         const domain::Date& date;
         const domain::EmployeeId& employee_id;
         const domain::DepartmentId& department_id;

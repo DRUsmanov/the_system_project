@@ -1,6 +1,6 @@
 #pragma once
 
-#include "infrastructure/handlers/login_handler/login_handler.h"
+#include "infrastructure/handlers/user_handler/user_handler.h"
 #include "../../logger/logger.h"
 
 #include <boost/asio/ip/tcp.hpp>
@@ -55,9 +55,9 @@ public:
     using Strand = net::strand<net::io_context::executor_type>;
 
     explicit RequestHandler(
-        LoginHandler& login_handler
+        UserHandler& user_handler
     )
-        : login_handler_{login_handler} {
+        : user_handler_{user_handler} {
     }
 
     RequestHandler(const RequestHandler&) = delete;
@@ -94,7 +94,7 @@ private:
     FileResponse MakeFileResponse(http::status status, http::file_body::value_type&& file, unsigned http_version,
         bool keep_alive, std::string_view content_type);
 
-    LoginHandler& login_handler_;
+    UserHandler& user_handler_;
 
     static inline const std::string API_V1_LOGIN = "api/v1/login"s;
 };
