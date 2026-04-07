@@ -513,13 +513,16 @@ activate TokenParser
 
 alt Токен валиден
 TokenParser -->> ShopHandler: payload
-ShopHandler ->> ApplicationManagerInterface: AddEmployeeDto
+ShopHandler ->> ApplicationManagerInterface: EmployeeDto + AdminDto
 
 activate ApplicationManagerInterface
-ApplicationManagerInterface ->> ShopServiceInterface: AddEmployeeDto
+ApplicationManagerInterface ->> ShopServiceInterface: Employee + Admin
 
 activate ShopServiceInterface
-ShopServiceInterface ->> ShopRepositoryInterface: AddEmployeeDto
+activate ShopServiceInterface
+ShopServiceInterface ->> ShopServiceInterface: проверка прав
+deactivate ShopServiceInterface
+ShopServiceInterface ->> ShopRepositoryInterface: Employee
 
 activate ShopRepositoryInterface
 ShopRepositoryInterface ->> DB: sql_add_employee_request
@@ -536,7 +539,7 @@ ShopServiceInterface -->> ApplicationManagerInterface: success
 
 ApplicationManagerInterface -->> ShopHandler: success
 
-ShopHandler -->> user: success
+ShopHandler -->> user: 201 + message("Работник успешно добавлен")
 
 else Добавление работника не удалось (на любом участе)
 
@@ -552,7 +555,7 @@ deactivate ShopServiceInterface
 ApplicationManagerInterface -->> ShopHandler: unsuccess
 deactivate ApplicationManagerInterface
 
-ShopHandler -->> user: unsuccess
+ShopHandler -->> user: 500 + message(причина)
 
 end
 
@@ -561,7 +564,7 @@ else Токен невалиден
 TokenParser -->> ShopHandler: invalid_token
 deactivate TokenParser
 
-ShopHandler -->> user: invalid_token
+ShopHandler -->> user: 401 + login.html
 deactivate ShopHandler
 
 end
