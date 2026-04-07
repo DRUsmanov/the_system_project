@@ -422,7 +422,7 @@ end
 
 box rgb(243, 252, 136) Application
 participant ApplicationManagerInterface
-participant LoginServiceInterface
+participant UserServiceInterface
 end
 
 box rgb(136, 252, 210) Domain
@@ -432,6 +432,7 @@ end
 actor DB@{"type" : "database"}
 
 autonumber
+
 user ->> RequestHandler: login_request
 activate RequestHandler
 RequestHandler ->> LoginRequestHandler: login_request
@@ -439,9 +440,9 @@ deactivate RequestHandler
 activate LoginRequestHandler
 LoginRequestHandler ->> ApplicationManagerInterface: InputLoginDtO
 activate ApplicationManagerInterface
-ApplicationManagerInterface ->> LoginServiceInterface: LoginData
-activate LoginServiceInterface
-LoginServiceInterface ->> UserRepositoryInterface: LoginData
+ApplicationManagerInterface ->> UserServiceInterface: LoginData
+activate UserServiceInterface
+UserServiceInterface ->> UserRepositoryInterface: LoginData
 activate UserRepositoryInterface
 UserRepositoryInterface ->> DB: sql_login_request
 
@@ -449,8 +450,8 @@ activate DB
 
 alt Успешная аутентификация
 DB -->> UserRepositoryInterface: success
-UserRepositoryInterface -->> LoginServiceInterface: User
-LoginServiceInterface -->> ApplicationManagerInterface: User
+UserRepositoryInterface -->> UserServiceInterface: User
+UserServiceInterface -->> ApplicationManagerInterface: User
 ApplicationManagerInterface -->> LoginRequestHandler: OutputLoginDto
 LoginRequestHandler ->> TokenGenerator: payload
 activate TokenGenerator
@@ -459,13 +460,13 @@ deactivate TokenGenerator
 LoginRequestHandler -->> user: 200 + system.html + token
 
 else Неуспешная аутентификация
-autonumber 7
+
 DB -->> UserRepositoryInterface: unsuccess
 deactivate DB
-UserRepositoryInterface -->> LoginServiceInterface: nullopt
+UserRepositoryInterface -->> UserServiceInterface: nullopt
 deactivate UserRepositoryInterface
-LoginServiceInterface -->> ApplicationManagerInterface: nullopt
-deactivate LoginServiceInterface
+UserServiceInterface -->> ApplicationManagerInterface: nullopt
+deactivate UserServiceInterface
 ApplicationManagerInterface -->> LoginRequestHandler: nullopt
 deactivate ApplicationManagerInterface
 LoginRequestHandler -->> user: 401
@@ -491,19 +492,23 @@ end
 
 box rgb(243, 252, 136) Application
 participant ApplicationManagerInterface
+participant UserServiceInterface
 participant ShopServiceInterface
 end
 
 box rgb(136, 252, 210) Domain
 participant ShopRepositoryInterface
+participant UserRepositoryInterface
 end
 
 actor DB@{"type" : "database"}
 
-user ->> RequestHandler: add_employee_request
+autonumber
+
+user ->> RequestHandler: add_employee_reques + user_id
 
 activate RequestHandler
-RequestHandler ->> ShopHandler: add_employee_request
+RequestHandler ->> ShopHandler: add_employee_request + user_id
 deactivate RequestHandler
 
 activate ShopHandler
@@ -513,10 +518,22 @@ activate TokenParser
 
 alt Токен валиден
 TokenParser -->> ShopHandler: payload
-ShopHandler ->> ApplicationManagerInterface: EmployeeDto + AdminDto
+ShopHandler ->> ApplicationManagerInterface: EmployeeDto + UserDto
 
 activate ApplicationManagerInterface
-ApplicationManagerInterface ->> ShopServiceInterface: Employee + Admin
+ApplicationManagerInterface ->> UserServiceInterface: user_id
+
+activate UserServiceInterface
+UserServiceInterface ->> UserRepositoryInterface: user_id
+
+activate UserRepositoryInterface
+UserRepositoryInterface -->> UserServiceInterface: User
+deactivate UserRepositoryInterface
+
+UserServiceInterface -->> ApplicationManagerInterface: User
+deactivate UserServiceInterface
+
+ApplicationManagerInterface ->> ShopServiceInterface: Employee + User
 
 activate ShopServiceInterface
 activate ShopServiceInterface
