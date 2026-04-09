@@ -438,7 +438,7 @@ activate RequestHandler
 RequestHandler ->> LoginRequestHandler: login_request
 deactivate RequestHandler
 activate LoginRequestHandler
-LoginRequestHandler ->> ApplicationManagerInterface: InputLoginDtO
+LoginRequestHandler ->> ApplicationManagerInterface: InputUserDtO
 activate ApplicationManagerInterface
 ApplicationManagerInterface ->> UserServiceInterface: LoginData
 activate UserServiceInterface
@@ -452,7 +452,7 @@ alt Успешная аутентификация
 DB -->> UserRepositoryInterface: success
 UserRepositoryInterface -->> UserServiceInterface: User
 UserServiceInterface -->> ApplicationManagerInterface: User
-ApplicationManagerInterface -->> LoginRequestHandler: OutputLoginDto
+ApplicationManagerInterface -->> LoginRequestHandler: OutputUserDto
 LoginRequestHandler ->> TokenGenerator: payload
 activate TokenGenerator
 TokenGenerator -->> LoginRequestHandler: token
