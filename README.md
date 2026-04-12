@@ -3,7 +3,7 @@
 # Описание
 Проект по разработке системы управления производственными цехами для нефтеперерабатывающей компании.
 
-# Модули
+# Содержание
 + [__База данных__](#база-данных)
   * [__Пользователи__](#пользователи)
   * [__Производственный цех__](#производственный-цех)
@@ -11,7 +11,7 @@
   * [__Табель сверхурочной работы__](#табель-сверхурочной-работы)
   * [__Табель работ в выходной день__](#табель-работ-в-выходной-день)
   * [__Отсутствия__](#отсутствия)
-+ [__Аутентификация__](#аутентификация)
++ [__Модуль пользователей__](#модуль-пользователей)
 + [__Модуль управления подразделением__](#модуль-управления-подразделением)
 + [__Модуль табеля учета рабочего времени__](#модуль-табеля-учета-рабочего-времени)
 + [__Модуль обучения__](#модуль-обучения)
@@ -408,7 +408,18 @@ height_groups ||--o{  work_at_height_exams : "одна группа по выс
 employees ||--o{  work_instructions_exams : "один работник -> ноль или много проверок знаний по профессии"
 professions ||--o{  work_instructions_exams : "одна профессия -> ноль или много проверок знаний по ней"
 ```
-## Аутентификация
+## Модуль пользователей
+
+### Аутентификация
+```json
+{
+"login":"user123",
+"password":"password123"
+}
+```
+
+### Диаграмма выполнения запроса аутентификации пользователя
+
 ```mermaid
 sequenceDiagram
 
@@ -422,6 +433,7 @@ end
 
 box rgb(243, 252, 136) Application
 participant ApplicationManagerInterface
+participant UserDtoMapper
 participant UserServiceInterface
 end
 
@@ -434,15 +446,26 @@ actor DB@{"type" : "database"}
 autonumber
 
 user ->> RequestHandler: login_request
+
 activate RequestHandler
 RequestHandler ->> LoginRequestHandler: login_request
 deactivate RequestHandler
+
 activate LoginRequestHandler
-LoginRequestHandler ->> ApplicationManagerInterface: InputUserDtO
+LoginRequestHandler ->> ApplicationManagerInterface: UserLoginDataDto
+
 activate ApplicationManagerInterface
-ApplicationManagerInterface ->> UserServiceInterface: LoginData
+ApplicationManagerInterface ->> UserDtoMapper: UserLoginDataDto
+
+activate UserDtoMapper
+UserDtoMapper -->> ApplicationManagerInterface: UserLoginData
+deactivate UserDtoMapper
+
+ApplicationManagerInterface ->> UserServiceInterface: UserLoginData
+
 activate UserServiceInterface
-UserServiceInterface ->> UserRepositoryInterface: LoginData
+UserServiceInterface ->> UserRepositoryInterface: UserLoginData
+
 activate UserRepositoryInterface
 UserRepositoryInterface ->> DB: sql_login_request
 
@@ -452,8 +475,16 @@ alt Успешная аутентификация
 DB -->> UserRepositoryInterface: success
 UserRepositoryInterface -->> UserServiceInterface: User
 UserServiceInterface -->> ApplicationManagerInterface: User
-ApplicationManagerInterface -->> LoginRequestHandler: OutputUserDto
+
+ApplicationManagerInterface ->> UserDtoMapper: User
+
+activate UserDtoMapper
+UserDtoMapper -->> ApplicationManagerInterface: UserDto
+deactivate UserDtoMapper
+
+ApplicationManagerInterface -->> LoginRequestHandler: UserDto
 LoginRequestHandler ->> TokenGenerator: payload
+
 activate TokenGenerator
 TokenGenerator -->> LoginRequestHandler: token
 deactivate TokenGenerator
@@ -474,10 +505,49 @@ deactivate LoginRequestHandler
 end
 ```
 ## Модуль управления подразделением
-Модуль предназначен для управления структурой подразделения.
-### Функционал:
-+ Добавление/удаление работника
-+ Изменение данных работника
+
+### Добавление работника (__POST__)
+
+```json
+{
+"last_name":"Иванов",
+"first_name":"Иван",
+"patronymic":"Иванович",
+"birth_date":"1994/03/27",
+"employment_date":"1994/03/27",
+"employee_number":98765,
+"department_id":98765,
+"staff_position_id":98765,
+"work_schedule_id":98765
+}
+```
+
+### Удаление работника (__DELETE__)
+
+```json
+{
+"employee_id":98765
+}
+```
+
+### Изменение данных работника (__PATCH__)
+
+```json
+{
+"employee_id":98765,
+"last_name":"Иванов",
+"first_name":"Иван",
+"patronymic":"Иванович",
+"birth_date":"1994/03/27",
+"employment_date":"1994/03/27",
+"employee_number":98765,
+"department_id":98765,
+"staff_position_id":98765,
+"work_schedule_id":98765
+}
+```
+
+### Диаграмма выполнения запросов добавления/удаления/изменения работника
 
 ```mermaid
 sequenceDiagram
@@ -505,10 +575,10 @@ actor DB@{"type" : "database"}
 
 autonumber
 
-user ->> RequestHandler: add_employee_reques + user_id
+user ->> RequestHandler: employee_reques + user_id
 
 activate RequestHandler
-RequestHandler ->> ShopHandler: add_employee_request + user_id
+RequestHandler ->> ShopHandler: employee_request + user_id
 deactivate RequestHandler
 
 activate ShopHandler
