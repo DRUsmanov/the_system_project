@@ -452,10 +452,10 @@ RequestHandler ->> LoginRequestHandler: login_request
 deactivate RequestHandler
 
 activate LoginRequestHandler
-LoginRequestHandler ->> ApplicationManagerInterface: UserLoginDataDto
+LoginRequestHandler ->> ApplicationManagerInterface: UserLoginDto
 
 activate ApplicationManagerInterface
-ApplicationManagerInterface ->> UserDtoMapper: UserLoginDataDto
+ApplicationManagerInterface ->> UserDtoMapper: UserLoginDto
 
 activate UserDtoMapper
 UserDtoMapper -->> ApplicationManagerInterface: UserLoginData
@@ -479,10 +479,10 @@ UserServiceInterface -->> ApplicationManagerInterface: User
 ApplicationManagerInterface ->> UserDtoMapper: User
 
 activate UserDtoMapper
-UserDtoMapper -->> ApplicationManagerInterface: UserDto
+UserDtoMapper -->> ApplicationManagerInterface: UserIdDto
 deactivate UserDtoMapper
 
-ApplicationManagerInterface -->> LoginRequestHandler: UserDto
+ApplicationManagerInterface -->> LoginRequestHandler: UserIdDto
 LoginRequestHandler ->> TokenGenerator: payload
 
 activate TokenGenerator
@@ -522,32 +522,7 @@ end
 }
 ```
 
-### Удаление работника (__DELETE__)
-
-```json
-{
-"employee_id":98765
-}
-```
-
-### Изменение данных работника (__PATCH__)
-
-```json
-{
-"employee_id":98765,
-"last_name":"Иванов",
-"first_name":"Иван",
-"patronymic":"Иванович",
-"birth_date":"1994/03/27",
-"employment_date":"1994/03/27",
-"employee_number":98765,
-"department_id":98765,
-"staff_position_id":98765,
-"work_schedule_id":98765
-}
-```
-
-### Диаграмма выполнения запросов добавления/удаления/изменения работника
+### Диаграмма выполнения запросов добавления работника
 
 ```mermaid
 sequenceDiagram
@@ -562,6 +537,8 @@ end
 
 box rgb(243, 252, 136) Application
 participant ApplicationManagerInterface
+participant UserDtoMapper
+participant EmployeeDtoMapper
 participant UserServiceInterface
 participant ShopServiceInterface
 end
@@ -575,10 +552,10 @@ actor DB@{"type" : "database"}
 
 autonumber
 
-user ->> RequestHandler: employee_reques + user_id
+user ->> RequestHandler: add_employee_reques
 
 activate RequestHandler
-RequestHandler ->> ShopHandler: employee_request + user_id
+RequestHandler ->> ShopHandler: add_employee_request
 deactivate RequestHandler
 
 activate ShopHandler
@@ -588,13 +565,26 @@ activate TokenParser
 
 alt Токен валиден
 TokenParser -->> ShopHandler: payload
-ShopHandler ->> ApplicationManagerInterface: EmployeeDto + UserDto
+ShopHandler ->> ApplicationManagerInterface: EmployeeDto + UserIdDto
 
 activate ApplicationManagerInterface
-ApplicationManagerInterface ->> UserServiceInterface: user_id
+ApplicationManagerInterface ->> EmployeeDtoMapper: EmployeeDto
+
+activate EmployeeDtoMapper
+EmployeeDtoMapper -->> ApplicationManagerInterface: Employee
+deactivate EmployeeDtoMapper
+
+ApplicationManagerInterface ->> UserDtoMapper: UserIdDto
+
+activate UserDtoMapper
+UserDtoMapper -->> ApplicationManagerInterface: UserId
+deactivate UserDtoMapper
+
+
+ApplicationManagerInterface ->> UserServiceInterface: UserId
 
 activate UserServiceInterface
-UserServiceInterface ->> UserRepositoryInterface: user_id
+UserServiceInterface ->> UserRepositoryInterface: UserId
 
 activate UserRepositoryInterface
 UserRepositoryInterface -->> UserServiceInterface: User
@@ -655,6 +645,156 @@ ShopHandler -->> user: 401 + login.html
 deactivate ShopHandler
 
 end
+```
+
+### Удаление работника (__DELETE__)
+
+```json
+{
+"employee_id":98765
+}
+```
+
+### Диаграмма удаления работника
+
+```mermaid
+sequenceDiagram
+
+actor user
+
+box rgb(138, 136, 252) Infrastructure
+participant RequestHandler
+participant ShopHandler
+participant TokenParser
+end
+
+box rgb(243, 252, 136) Application
+participant ApplicationManagerInterface
+participant UserDtoMapper
+participant EmployeeDtoMapper
+participant UserServiceInterface
+participant ShopServiceInterface
+end
+
+box rgb(136, 252, 210) Domain
+participant ShopRepositoryInterface
+participant UserRepositoryInterface
+end
+
+actor DB@{"type" : "database"}
+
+autonumber
+
+user ->> RequestHandler: delete_employee_request
+
+activate RequestHandler
+RequestHandler ->> ShopHandler: delete_employee_request
+deactivate RequestHandler
+
+activate ShopHandler
+ShopHandler ->> TokenParser: token
+
+activate TokenParser
+
+alt Токен валиден
+TokenParser -->> ShopHandler: payload
+ShopHandler ->> ApplicationManagerInterface: EmployeeIdDto + UserIdDto
+
+activate ApplicationManagerInterface
+ApplicationManagerInterface ->> EmployeeDtoMapper: EmployeeIdDto
+
+activate EmployeeDtoMapper
+EmployeeDtoMapper -->> ApplicationManagerInterface: EmployeeId
+deactivate EmployeeDtoMapper
+
+ApplicationManagerInterface ->> UserDtoMapper: UserIdDto
+
+activate UserDtoMapper
+UserDtoMapper -->> ApplicationManagerInterface: UserId
+deactivate UserDtoMapper
+
+
+ApplicationManagerInterface ->> UserServiceInterface: UserId
+
+activate UserServiceInterface
+UserServiceInterface ->> UserRepositoryInterface: UserId
+
+activate UserRepositoryInterface
+UserRepositoryInterface -->> UserServiceInterface: User
+deactivate UserRepositoryInterface
+
+UserServiceInterface -->> ApplicationManagerInterface: User
+deactivate UserServiceInterface
+
+ApplicationManagerInterface ->> ShopServiceInterface: EmployeeId + User
+
+activate ShopServiceInterface
+activate ShopServiceInterface
+ShopServiceInterface ->> ShopServiceInterface: проверка прав
+deactivate ShopServiceInterface
+ShopServiceInterface ->> ShopRepositoryInterface: EmployeeId
+
+activate ShopRepositoryInterface
+ShopRepositoryInterface ->> DB: sql_delete_employee_request
+
+activate DB
+
+alt Работник удален успешно
+
+DB -->> ShopRepositoryInterface: success
+
+ShopRepositoryInterface -->> ShopServiceInterface: success
+
+ShopServiceInterface -->> ApplicationManagerInterface: success
+
+ApplicationManagerInterface -->> ShopHandler: success
+
+ShopHandler -->> user: 201 + message("Работник успешно удален")
+
+else Удаление работника не удалось (на любом участе)
+
+DB -->> ShopRepositoryInterface: unsuccess
+deactivate DB
+
+ShopRepositoryInterface -->> ShopServiceInterface: unsuccess
+deactivate ShopRepositoryInterface
+
+ShopServiceInterface -->> ApplicationManagerInterface: unsuccess
+deactivate ShopServiceInterface
+
+ApplicationManagerInterface -->> ShopHandler: unsuccess
+deactivate ApplicationManagerInterface
+
+ShopHandler -->> user: 500 + message(причина)
+
+end
+
+else Токен невалиден
+
+TokenParser -->> ShopHandler: invalid_token
+deactivate TokenParser
+
+ShopHandler -->> user: 401 + login.html
+deactivate ShopHandler
+
+end
+```
+
+### Изменение данных работника (__PATCH__)
+
+```json
+{
+"employee_id":98765,
+"last_name":"Иванов",
+"first_name":"Иван",
+"patronymic":"Иванович",
+"birth_date":"1994/03/27",
+"employment_date":"1994/03/27",
+"employee_number":98765,
+"department_id":98765,
+"staff_position_id":98765,
+"work_schedule_id":98765
+}
 ```
 
 ## Модуль табеля учета рабочего времени
