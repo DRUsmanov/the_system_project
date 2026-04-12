@@ -1,18 +1,27 @@
 #pragma once
 
+#include "utils/tagged.h"
+
 #include <string>
 
 namespace domain {
 
-struct UserLoginData{
-    std::string login;
-    std::string password;
-};
+namespace detail {
+    struct UserIdTag{};
+} // namespace detail
+
+using UserId = utils::Tagged<int, detail::UserIdTag>;
+using UserIdHasher = utils::TaggedHasher<UserId>;
 
 struct User {
     int user_id;
     int permissions;
     int admin_category_id;
+};
+
+struct UserLoginData{
+    std::string login;
+    std::string password;
 };
 
 } // namespace domain

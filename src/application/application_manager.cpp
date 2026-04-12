@@ -20,7 +20,7 @@ std::optional<application::OutputTimesheetDto> application::ApplicationManager::
             timesheet_service->GenerateTimesheet(shop, year_month.year());
         }
         timesheet = timesheet_service->GetTimesheet(department_id, admin_category_id, year_month);
-        return timesheet;
+        // return timesheet;
     }
     catch (std::exception& ex){
         return std::nullopt;
