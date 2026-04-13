@@ -483,7 +483,7 @@ UserDtoMapper -->> ApplicationManagerInterface: UserIdDto
 deactivate UserDtoMapper
 
 ApplicationManagerInterface -->> LoginRequestHandler: UserIdDto
-LoginRequestHandler ->> TokenGenerator: payload
+LoginRequestHandler ->> TokenGenerator: UserIdDto
 
 activate TokenGenerator
 TokenGenerator -->> LoginRequestHandler: token
@@ -522,7 +522,7 @@ end
 }
 ```
 
-### Диаграмма выполнения запросов добавления работника
+### Диаграмма выполнения запроса добавления работника
 
 ```mermaid
 sequenceDiagram
@@ -564,7 +564,7 @@ ShopHandler ->> TokenParser: token
 activate TokenParser
 
 alt Токен валиден
-TokenParser -->> ShopHandler: payload
+TokenParser -->> ShopHandler: UserIdDto
 ShopHandler ->> ApplicationManagerInterface: EmployeeDto + UserIdDto
 
 activate ApplicationManagerInterface
@@ -618,7 +618,7 @@ ApplicationManagerInterface -->> ShopHandler: success
 
 ShopHandler -->> user: 201 + message("Работник успешно добавлен")
 
-else Добавление работника не удалось (на любом участе)
+else Добавление работника не удалось (на любом участке)
 
 DB -->> ShopRepositoryInterface: unsuccess
 deactivate DB
@@ -655,7 +655,7 @@ end
 }
 ```
 
-### Диаграмма удаления работника
+### Диаграмма выполнения запроса удаления работника
 
 ```mermaid
 sequenceDiagram
@@ -697,7 +697,7 @@ ShopHandler ->> TokenParser: token
 activate TokenParser
 
 alt Токен валиден
-TokenParser -->> ShopHandler: payload
+TokenParser -->> ShopHandler: UserIdDto
 ShopHandler ->> ApplicationManagerInterface: EmployeeIdDto + UserIdDto
 
 activate ApplicationManagerInterface
@@ -751,7 +751,7 @@ ApplicationManagerInterface -->> ShopHandler: success
 
 ShopHandler -->> user: 201 + message("Работник успешно удален")
 
-else Удаление работника не удалось (на любом участе)
+else Удаление работника не удалось (на любом участке)
 
 DB -->> ShopRepositoryInterface: unsuccess
 deactivate DB
@@ -795,6 +795,137 @@ end
 "staff_position_id":98765,
 "work_schedule_id":98765
 }
+```
+
+### Диаграммма выполнения запроса изменения данных работника
+
+```mermaid
+sequenceDiagram
+
+actor user
+
+box rgb(138, 136, 252) Infrastructure
+participant RequestHandler
+participant ShopHandler
+participant TokenParser
+end
+
+box rgb(243, 252, 136) Application
+participant ApplicationManagerInterface
+participant UserDtoMapper
+participant EmployeeDtoMapper
+participant UserServiceInterface
+participant ShopServiceInterface
+end
+
+box rgb(136, 252, 210) Domain
+participant ShopRepositoryInterface
+participant UserRepositoryInterface
+end
+
+actor DB@{"type" : "database"}
+
+autonumber
+
+user ->> RequestHandler: change_employee_reques
+
+activate RequestHandler
+RequestHandler ->> ShopHandler: change_employee_reques
+deactivate RequestHandler
+
+activate ShopHandler
+ShopHandler ->> TokenParser: token
+
+activate TokenParser
+
+alt Токен валиден
+TokenParser -->> ShopHandler: UserIdDto
+ShopHandler ->> ApplicationManagerInterface: EmployeeIdDto + EmployeeDto + UserIdDto
+
+activate ApplicationManagerInterface
+ApplicationManagerInterface ->> EmployeeDtoMapper: EmployeeIdDto
+
+activate EmployeeDtoMapper
+EmployeeDtoMapper -->> ApplicationManagerInterface: EmployeeId
+deactivate EmployeeDtoMapper
+
+ApplicationManagerInterface ->> EmployeeDtoMapper: EmployeeDto
+
+activate EmployeeDtoMapper
+EmployeeDtoMapper -->> ApplicationManagerInterface: Employee
+deactivate EmployeeDtoMapper
+
+ApplicationManagerInterface ->> UserDtoMapper: UserIdDto
+
+activate UserDtoMapper
+UserDtoMapper -->> ApplicationManagerInterface: UserId
+deactivate UserDtoMapper
+
+
+ApplicationManagerInterface ->> UserServiceInterface: UserId
+
+activate UserServiceInterface
+UserServiceInterface ->> UserRepositoryInterface: UserId
+
+activate UserRepositoryInterface
+UserRepositoryInterface -->> UserServiceInterface: User
+deactivate UserRepositoryInterface
+
+UserServiceInterface -->> ApplicationManagerInterface: User
+deactivate UserServiceInterface
+
+ApplicationManagerInterface ->> ShopServiceInterface: EmployeeId + Employee + User
+
+activate ShopServiceInterface
+activate ShopServiceInterface
+ShopServiceInterface ->> ShopServiceInterface: проверка прав
+deactivate ShopServiceInterface
+ShopServiceInterface ->> ShopRepositoryInterface: EmployeeId + Employee
+
+activate ShopRepositoryInterface
+ShopRepositoryInterface ->> DB: sql_change_employee_request
+
+activate DB
+
+alt Данные работника изменены успешно
+
+DB -->> ShopRepositoryInterface: success
+
+ShopRepositoryInterface -->> ShopServiceInterface: success
+
+ShopServiceInterface -->> ApplicationManagerInterface: success
+
+ApplicationManagerInterface -->> ShopHandler: success
+
+ShopHandler -->> user: 201 + message("Работник успешно изменен")
+
+else Изменение данных работника не удалось (на любом участке)
+
+DB -->> ShopRepositoryInterface: unsuccess
+deactivate DB
+
+ShopRepositoryInterface -->> ShopServiceInterface: unsuccess
+deactivate ShopRepositoryInterface
+
+ShopServiceInterface -->> ApplicationManagerInterface: unsuccess
+deactivate ShopServiceInterface
+
+ApplicationManagerInterface -->> ShopHandler: unsuccess
+deactivate ApplicationManagerInterface
+
+ShopHandler -->> user: 500 + message(причина)
+
+end
+
+else Токен невалиден
+
+TokenParser -->> ShopHandler: invalid_token
+deactivate TokenParser
+
+ShopHandler -->> user: 401 + login.html
+deactivate ShopHandler
+
+end
 ```
 
 ## Модуль табеля учета рабочего времени
