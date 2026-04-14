@@ -452,10 +452,10 @@ RequestHandler ->> LoginRequestHandler: login_request
 deactivate RequestHandler
 
 activate LoginRequestHandler
-LoginRequestHandler ->> ApplicationManagerInterface: UserLoginDto
+LoginRequestHandler ->> ApplicationManagerInterface: UserLoginInputDto
 
 activate ApplicationManagerInterface
-ApplicationManagerInterface ->> UserDtoMapper: UserLoginDto
+ApplicationManagerInterface ->> UserDtoMapper: UserLoginInputDto
 
 activate UserDtoMapper
 UserDtoMapper -->> ApplicationManagerInterface: UserLoginData
@@ -479,11 +479,11 @@ UserServiceInterface -->> ApplicationManagerInterface: User
 ApplicationManagerInterface ->> UserDtoMapper: User
 
 activate UserDtoMapper
-UserDtoMapper -->> ApplicationManagerInterface: UserIdDto
+UserDtoMapper -->> ApplicationManagerInterface: UserIdOutputDto
 deactivate UserDtoMapper
 
-ApplicationManagerInterface -->> LoginRequestHandler: UserIdDto
-LoginRequestHandler ->> TokenGenerator: UserIdDto
+ApplicationManagerInterface -->> LoginRequestHandler: UserIdOutputDto
+LoginRequestHandler ->> TokenGenerator: payload
 
 activate TokenGenerator
 TokenGenerator -->> LoginRequestHandler: token
@@ -564,17 +564,17 @@ ShopHandler ->> TokenParser: token
 activate TokenParser
 
 alt Токен валиден
-TokenParser -->> ShopHandler: UserIdDto
-ShopHandler ->> ApplicationManagerInterface: EmployeeDto + UserIdDto
+TokenParser -->> ShopHandler: payload
+ShopHandler ->> ApplicationManagerInterface: EmployeeInputDto + UserIdInputDto
 
 activate ApplicationManagerInterface
-ApplicationManagerInterface ->> EmployeeDtoMapper: EmployeeDto
+ApplicationManagerInterface ->> EmployeeDtoMapper: EmployeeInputDto
 
 activate EmployeeDtoMapper
 EmployeeDtoMapper -->> ApplicationManagerInterface: Employee
 deactivate EmployeeDtoMapper
 
-ApplicationManagerInterface ->> UserDtoMapper: UserIdDto
+ApplicationManagerInterface ->> UserDtoMapper: UserIdInputDto
 
 activate UserDtoMapper
 UserDtoMapper -->> ApplicationManagerInterface: UserId
@@ -697,17 +697,17 @@ ShopHandler ->> TokenParser: token
 activate TokenParser
 
 alt Токен валиден
-TokenParser -->> ShopHandler: UserIdDto
-ShopHandler ->> ApplicationManagerInterface: EmployeeIdDto + UserIdDto
+TokenParser -->> ShopHandler: payload
+ShopHandler ->> ApplicationManagerInterface: EmployeeIdInputDto + UserIdInputDto
 
 activate ApplicationManagerInterface
-ApplicationManagerInterface ->> EmployeeDtoMapper: EmployeeIdDto
+ApplicationManagerInterface ->> EmployeeDtoMapper: EmployeeIdInputDto
 
 activate EmployeeDtoMapper
 EmployeeDtoMapper -->> ApplicationManagerInterface: EmployeeId
 deactivate EmployeeDtoMapper
 
-ApplicationManagerInterface ->> UserDtoMapper: UserIdDto
+ApplicationManagerInterface ->> UserDtoMapper: UserIdInputDto
 
 activate UserDtoMapper
 UserDtoMapper -->> ApplicationManagerInterface: UserId
@@ -839,23 +839,23 @@ ShopHandler ->> TokenParser: token
 activate TokenParser
 
 alt Токен валиден
-TokenParser -->> ShopHandler: UserIdDto
-ShopHandler ->> ApplicationManagerInterface: EmployeeIdDto + EmployeeDto + UserIdDto
+TokenParser -->> ShopHandler: payload
+ShopHandler ->> ApplicationManagerInterface: EmployeeIdInputDto + EmployeeInputDto + UserIdInputDto
 
 activate ApplicationManagerInterface
-ApplicationManagerInterface ->> EmployeeDtoMapper: EmployeeIdDto
+ApplicationManagerInterface ->> EmployeeDtoMapper: EmployeeIdInputDto
 
 activate EmployeeDtoMapper
 EmployeeDtoMapper -->> ApplicationManagerInterface: EmployeeId
 deactivate EmployeeDtoMapper
 
-ApplicationManagerInterface ->> EmployeeDtoMapper: EmployeeDto
+ApplicationManagerInterface ->> EmployeeDtoMapper: EmployeeInputDto
 
 activate EmployeeDtoMapper
 EmployeeDtoMapper -->> ApplicationManagerInterface: Employee
 deactivate EmployeeDtoMapper
 
-ApplicationManagerInterface ->> UserDtoMapper: UserIdDto
+ApplicationManagerInterface ->> UserDtoMapper: UserIdInputDto
 
 activate UserDtoMapper
 UserDtoMapper -->> ApplicationManagerInterface: UserId
