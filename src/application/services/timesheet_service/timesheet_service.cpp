@@ -9,14 +9,16 @@
 #include <exception>
 #include <vector>
 
-std::optional<domain::Timesheet> application::TimesheetService::GetTimesheet(domain::DepartmentId department_id
-                                                                            , domain::AdminCategoryId admin_category_id
-                                                                            , std::chrono::year_month year_month) const {
-   return timesheet_repository_.DownloadTimesheet(department_id, admin_category_id, year_month);
+using namespace application;
+
+std::optional<domain::Timesheet> TimesheetService::GetTimesheet(domain::DepartmentId department_id
+                                                                , domain::AdminCategoryId admin_category_id
+                                                                , std::chrono::year_month year_month) const {
+   return timesheet_repository_->DownloadTimesheet(department_id, admin_category_id, year_month);
 }
 
-bool application::TimesheetService::GenerateEmployeeVacationsInTimesheet(domain::Timesheet& timesheet
-                                                                    , const TimesheetGenerationContext& generation_context) {
+bool TimesheetService::GenerateEmployeeVacationsInTimesheet(domain::Timesheet& timesheet
+                                                            , const TimesheetGenerationContext& generation_context) {
     auto it = generation_context.vacations.find(generation_context.employee_id);
     if (it == generation_context.vacations.end()){
         return false;
@@ -37,8 +39,8 @@ bool application::TimesheetService::GenerateEmployeeVacationsInTimesheet(domain:
     }
 }
 
-bool application::TimesheetService::GenerateHolidaysInTimesheet(domain::Timesheet& timesheet
-                                                            , const TimesheetGenerationContext& generation_context) {
+bool TimesheetService::GenerateHolidaysInTimesheet(domain::Timesheet& timesheet
+                                                    , const TimesheetGenerationContext& generation_context) {
     const auto& work_schedule_day_data = generation_context.work_schedule.GetDayDataByDate(generation_context.date);
 
     if (!generation_context.work_schedule.IsWorksOnHolidays()){
@@ -73,8 +75,8 @@ bool application::TimesheetService::GenerateHolidaysInTimesheet(domain::Timeshee
     return false;
 }
 
-bool application::TimesheetService::GenerateWorkingDayInTimesheet(domain::Timesheet& timesheet
-                                                            , const TimesheetGenerationContext& generation_context) {
+bool TimesheetService::GenerateWorkingDayInTimesheet(domain::Timesheet& timesheet
+                                                    , const TimesheetGenerationContext& generation_context) {
     const auto& work_schedule_day_data = generation_context.work_schedule.GetDayDataByDate(generation_context.date);
 
     if (work_schedule_day_data.IsWorkingDay()){
@@ -96,7 +98,7 @@ bool application::TimesheetService::GenerateWorkingDayInTimesheet(domain::Timesh
     return false;
 }
 
-domain::Timesheet application::TimesheetService::GenerateTimesheet(const domain::Shop &shop, std::chrono::year year) {
+domain::Timesheet TimesheetService::GenerateTimesheet(const domain::Shop &shop, std::chrono::year year) {
     using namespace std::chrono;
     using namespace std::literals;
     using WorkSchedules = std::unordered_map<domain::WorkScheduleId, domain::WorkSchedule, domain::WorkScheduleIdHasher>;
@@ -106,11 +108,11 @@ domain::Timesheet application::TimesheetService::GenerateTimesheet(const domain:
 
     const auto& employees_assignments = shop.GetEmployeeAssignments();
 
-    auto pre_holidays = timesheet_repository_.DownloadPreHolidaysByYear(year);
-    auto holidays = timesheet_repository_.DownloadHolidaysByYear(year);
-    auto extra_holidays = timesheet_repository_.DownloadExtraHolidaysByYear(year);
-    auto vacations = timesheet_repository_.DownloadVacationsByShopAndYear(shop, year);
-    auto system_administrator_id = timesheet_repository_.DownloadSystemAdministratorId();
+    auto pre_holidays = timesheet_repository_->DownloadPreHolidaysByYear(year);
+    auto holidays = timesheet_repository_->DownloadHolidaysByYear(year);
+    auto extra_holidays = timesheet_repository_->DownloadExtraHolidaysByYear(year);
+    auto vacations = timesheet_repository_->DownloadVacationsByShopAndYear(shop, year);
+    auto system_administrator_id = timesheet_repository_->DownloadSystemAdministratorId();
     
     for (const auto& [employee_id, employee_assignment] : employees_assignments){
         const auto& work_schedule_id = employee_assignment.work_schedule_id;
@@ -118,7 +120,7 @@ domain::Timesheet application::TimesheetService::GenerateTimesheet(const domain:
         const auto& staff_position_id = employee_assignment.staff_position_id;
 
         if (!work_schedules_cache.contains(work_schedule_id)){
-            work_schedules_cache[work_schedule_id] = timesheet_repository_.DownloadWorkScheduleById(work_schedule_id);
+            work_schedules_cache[work_schedule_id] = timesheet_repository_->DownloadWorkScheduleById(work_schedule_id);
         }
         const auto& work_schedule = work_schedules_cache[work_schedule_id];
         
@@ -144,6 +146,6 @@ domain::Timesheet application::TimesheetService::GenerateTimesheet(const domain:
     return timesheet;
 }
 
-bool application::TimesheetService::AddTimesheet(const domain::Timesheet &timesheet) {
-    return timesheet_repository_.UploadTimesheet(timesheet);
+bool TimesheetService::AddTimesheet(const domain::Timesheet &timesheet) {
+    return timesheet_repository_->UploadTimesheet(timesheet);
 }

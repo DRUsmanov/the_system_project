@@ -4,14 +4,20 @@
 
 namespace application {
 
-struct UserIdDto{
-    int user_id;
-};
-
-struct UserLoginDto{
+struct UserLoginInputDto{
     std::string login;
     std::string password;
 };
+
+struct UserIdInputDto{
+    int user_id;
+};
+
+struct UserIdOutputDto{
+    int user_id;
+    int employee_id;
+};
+
 
 } // namespace application
 

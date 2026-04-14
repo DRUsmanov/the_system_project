@@ -4,13 +4,14 @@
 
 #include <chrono>
 #include <optional>
+#include <memory>
 
 namespace application{
 
 class TimesheetService : public TimesheetServiceInterface{
 public:
-    TimesheetService(domain::TimeSheetRepositoryInterface& timesheet_repository)
-    : TimesheetServiceInterface{timesheet_repository} { }
+    TimesheetService(std::shared_ptr<domain::TimeSheetRepositoryInterface> timesheet_repository)
+    : timesheet_repository_{timesheet_repository} { }
 
     std::optional<domain::Timesheet> GetTimesheet(domain::DepartmentId department_id, domain::AdminCategoryId admin_category_id
                                     , std::chrono::year_month year_month) const override;
@@ -35,6 +36,8 @@ private:
     bool GenerateEmployeeVacationsInTimesheet(domain::Timesheet& timesheet, const TimesheetGenerationContext& generation_context);
     bool GenerateHolidaysInTimesheet(domain::Timesheet& timesheet, const TimesheetGenerationContext& generation_context);
     bool GenerateWorkingDayInTimesheet(domain::Timesheet& timesheet, const TimesheetGenerationContext& generation_context);
+
+    std::shared_ptr<domain::TimeSheetRepositoryInterface> timesheet_repository_;
 };
 
 } // namespace application

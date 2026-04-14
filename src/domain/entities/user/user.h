@@ -15,7 +15,8 @@ using UserIdHasher = utils::TaggedHasher<UserId>;
 
 struct User {
     int user_id;
-    int permissions;
+    int employee_id;
+    int64_t permissions;
     int admin_category_id;
 };
 

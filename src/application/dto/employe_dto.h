@@ -5,11 +5,11 @@
 
 namespace application {
 
-struct EmployeeIdDto {
+struct EmployeeIdInputDto {
     int employee_id;
 };
 
-struct EmployeeDto {
+struct EmployeeOutputDto {
     std::string last_name;
     std::string first_name;
     std::optional<std::string> patronymic;
