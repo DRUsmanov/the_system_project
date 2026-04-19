@@ -1,0 +1,2 @@
+/Users/usmanovdenis/Documents/the_system/build/CMakeFiles/edit_cache.dir
+/Users/usmanovdenis/Documents/the_system/build/CMakeFiles/rebuild_cache.dir

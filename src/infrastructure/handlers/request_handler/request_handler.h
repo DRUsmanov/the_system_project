@@ -1,12 +1,16 @@
 #pragma once
 
-#include "infrastructure/handlers/user_handler/user_handler.h"
-#include "../../logger/logger.h"
+#include "infrastructure/handlers/login_request_handler/login_request_handler.h"
+#include "infrastructure/logger/logger.h"
+#include "infrastructure/url_decoder/url_decoder.h"
+#include "infrastructure/token_manager/token_manager.h"
+#include "application/application_manager_interface.h"
 
 #include <boost/asio/ip/tcp.hpp>
 #include <boost/asio/strand.hpp>
 #include <boost/beast/core.hpp>
 #include <boost/beast/http.hpp>
+#include <boost/url/url_view.hpp>
 #include <string_view>
 #include <memory>
 #include <unordered_map>
@@ -55,10 +59,9 @@ public:
     using Strand = net::strand<net::io_context::executor_type>;
 
     explicit RequestHandler(
-        UserHandler& user_handler
-    )
-        : user_handler_{user_handler} {
-    }
+        const application::ApplicationManagerInterface& application_manager)
+    : token_manager_{std::make_shared<TokenManager>()}
+    , login_request_handler_{application_manager, token_manager_} { }
 
     RequestHandler(const RequestHandler&) = delete;
     RequestHandler& operator=(const RequestHandler&) = delete;
@@ -75,10 +78,12 @@ public:
             return MakeFileResponse(status, std::move(file), version, keep_alive, content_type);
         };
 
-        std::string prepared_target = PrepareTarget(req.target());
-        req.target(prepared_target);
+        std::string decoded_target = DecodeTarget(req.target());
+        req.target(decoded_target);
 
-        if (prepared_target.starts_with(API_V1_LOGIN)){
+        std::string path = boost::urls::url_view{decoded_target}.path();
+
+        if (path == API_V1_LOGIN) {
             login_handler_(std::move(req), text_response_maker, std::forward<decltype(send)>(send));
         }
         else{
@@ -87,16 +92,15 @@ public:
     }
 
 private:
-    std::string PrepareTarget(std::string_view target);
-
     StringResponse MakeStringResponse(http::status status, std::string_view body, unsigned http_version,
         bool keep_alive, std::string_view content_type);
     FileResponse MakeFileResponse(http::status status, http::file_body::value_type&& file, unsigned http_version,
         bool keep_alive, std::string_view content_type);
 
-    UserHandler& user_handler_;
+    std::shared_ptr<TokenManager> token_manager_;
+    LoginRequestHandler login_request_handler_;
 
-    static inline const std::string API_V1_LOGIN = "api/v1/login"s;
+    static inline const std::string API_V1_LOGIN = "/api/v1/login"s;
 };
 
 }  // namespace infrastructure

@@ -1,17 +1,10 @@
 // #include "sdk.h"
-// #include "json_loader.h"
-// #include "request_handler.h"
-// #include "logger.h"
-// #include "application.h"
-// #include "ticker.h"
-// #include "extra_data.h"
-// #include "loot_generator.h"
-// #include "model_serialization.h"
-// #include "connection_pool.h"
-// #include "game_repository.h"
+// #include "infrastructure/connection_pool/connection_pool.h"
+// #include "infrastructure/factorys_impl/uow_factory_impl/uow_factory_impl.h"
 
 // #include <boost/asio/io_context.hpp>
 // #include <boost/asio/signal_set.hpp>
+// #include <jwt-cpp/jwt.h>
 // #include <iostream>
 // #include <thread>
 // #include <memory>
@@ -36,16 +29,10 @@
 //     fn();
 // }
 
-// double RandomGenerator(){
-//     static std::mt19937 gen{std::random_device{}()};
-//     static std::uniform_real_distribution<double> distrib(1.0, 1.0);
-//     return distrib(gen);
-// }
+// constexpr const char DB_URL_ENV_NAME[]{"SYSTEM_DATABASE"};
 
-// constexpr const char DB_URL_ENV_NAME[]{"GAME_DB_URL"};
-
-// game_repository::ConnectionConfig GetConfigFromEnv() {
-//     game_repository::ConnectionConfig config;
+// infrastructure::ConnectionConfig GetConfigFromEnv() {
+//     infrastructure::ConnectionConfig config;
 //     if (const auto* url = std::getenv(DB_URL_ENV_NAME)) {
 //         config.db_url = url;
 //     } else {
@@ -58,29 +45,18 @@
 
 // int main(int argc, const char* argv[]) {
 //     try {
-//         auto command_line_args_optional = command_line_parser::ParseCommandLine(argc, argv);
-//         if (!command_line_args_optional){
-//             return EXIT_SUCCESS;
-//         }
-        
-//         auto command_line_args = command_line_args_optional.value();
+//         infrastructure::ConnectionFactory connection_factory{GetConfigFromEnv()};
+//         const unsigned num_threads = std::thread::hardware_concurrency();
+//         infrastructure::ConnectionPool connection_pool{num_threads, connection_factory};
+ 
+//         infrastructure::UowFactory uow_factory(connection_pool);
 
-//         model::Game game;
-//         extra_data::ExtraData extra_data;
-
-//         loot_gen::LootGenerator loot_generator;
-//         loot_generator.SetRandomGenerator(RandomGenerator);
-
-//         json_loader::LoadConfigData(command_line_args.config_file, game, extra_data, loot_generator);
-//         game_repository::ConnectionFactory connection_factory{GetConfigFromEnv()};
-//         game_repository::ConnectionPool connection_pool{1, connection_factory};
-//         game_repository::GameRepository game_repository{connection_pool};
-//         game.SetLootGenerator(std::move(loot_generator));
+//         auto payload = jwt::
 
 //         app::Application application(game, command_line_args.randomize_spawn_points, game_repository);
 //         serialization::Serializer serializer(game, application, command_line_args);
 
-//         const unsigned num_threads = std::thread::hardware_concurrency();
+        
 //         net::io_context ioc(num_threads);
 //         auto api_strand = net::make_strand(ioc);
 

@@ -2,7 +2,7 @@
 
 #define BOOST_BEAST_USE_STD_STRING_VIEW
 
-#include "logger.h"
+#include "infrastructure/logger/logger.h"
 
 #include <boost/asio/ip/tcp.hpp>
 #include <boost/asio/strand.hpp>

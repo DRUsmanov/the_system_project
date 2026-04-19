@@ -27,24 +27,6 @@ public:
         if (db_url_.empty()){
             throw std::runtime_error("DB URL is not specified");
         }
-        // pqxx::connection conn{db_url_};
-        // pqxx::work work{conn};
-        // work.exec(
-        //     R"(
-        //         CREATE TABLE IF NOT EXISTS retired_players (
-        //             id UUID PRIMARY KEY,
-        //             name varchar(100) NOT NULL,
-        //             score INTEGER,
-        //             play_time_ms INTEGER NOT NULL
-        //         );
-        //         CREATE INDEX IF NOT EXISTS score_idx ON retired_players(
-        //             score DESC,
-        //             play_time_ms,
-        //             name
-        //         );
-        //     )"_zv
-        // );
-        // work.commit();
     }
 
     std::shared_ptr<pqxx::connection> operator()() const; 

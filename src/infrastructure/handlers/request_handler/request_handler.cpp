@@ -4,7 +4,8 @@
 
 namespace infrastructure {
 
-StringResponse RequestHandler::MakeStringResponse(http::status status, std::string_view body, unsigned http_version, bool keep_alive, std::string_view content_type) {
+StringResponse RequestHandler::MakeStringResponse(http::status status, std::string_view body,
+                                                    unsigned http_version, bool keep_alive, std::string_view content_type) {
     StringResponse response(status, http_version);
     response.set(http::field::content_type, content_type);
     response.body() = body;
@@ -13,7 +14,8 @@ StringResponse RequestHandler::MakeStringResponse(http::status status, std::stri
     return response;
 }
 
-FileResponse RequestHandler::MakeFileResponse(http::status status, http::file_body::value_type&& file, unsigned http_version, bool keep_alive, std::string_view content_type){
+FileResponse RequestHandler::MakeFileResponse(http::status status, http::file_body::value_type&& file,
+                                                unsigned http_version, bool keep_alive, std::string_view content_type){
     FileResponse response;
     response.version(http_version);
     response.result(status);
