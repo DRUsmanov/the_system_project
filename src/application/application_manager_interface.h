@@ -14,6 +14,8 @@ public:
 
     virtual std::optional<UserIdOutputDto> Login(const UserLoginInputDto& user_login_input_dto) const = 0;
 
+    virtual bool AddEmployee() const = 0;
+
     virtual std::optional<TimesheetOutputDto> GetTimesheet(const TimesheetInputDto& timesheet_input_dto) const = 0;
     virtual std::optional<UserIdOutputDto> GetUser(const UserLoginInputDto user_login_input_dto) const = 0;    
 };

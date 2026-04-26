@@ -2,8 +2,21 @@
 
 #include <string>
 #include <chrono>
+#include <string>
 
 namespace application {
+
+struct AddEmployeeInputDto {
+    std::string last_name;
+    std::string first_name;
+    std::string patronymic;
+    std::string birth_date;
+    std::string employment_date;
+    int employee_number;
+    int department_id;
+    int staff_position_id;
+    int work_schedule_id;
+};
 
 struct EmployeeIdInputDto {
     int employee_id;

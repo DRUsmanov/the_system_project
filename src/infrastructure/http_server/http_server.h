@@ -85,7 +85,7 @@ private:
             [self = this->shared_from_this()](auto&& response){
                 self->Write(std::move(response));
             },
-            Stream()// Добавлен сокет
+            Stream()
         );
     }
 

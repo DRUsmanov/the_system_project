@@ -4,6 +4,7 @@
 #include "infrastructure/json_formater/json_formater.h"
 #include "application/dto/user_dto.h"
 #include "infrastructure/token_manager/token_manager.h"
+#include "infrastructure/handlers/file_sender/file_sender.h"
 
 #include <boost/beast.hpp>
 #include <string_view>
@@ -16,19 +17,30 @@ namespace http = beast::http;
 namespace sys = boost::system;
 using namespace std::literals;
 
-const std::string LOGIN = "login"s;
-const std::string PASSWORD = "password"s;
-
+/**
+ * @brief Обрабатывает запросы аутентификации пользователя, авторизованные пользователи перенаправляются на главную страницу
+ */
 class LoginRequestHandler{
 public:
     explicit LoginRequestHandler(
         const application::ApplicationManagerInterface& application_manager
-        , const std::shared_ptr<TokenManager> token_manager)
+        , const std::shared_ptr<TokenManager> token_manager
+        , const FileSender& file_sender
+    )
     : application_manager_{application_manager}
-    , token_manager_{token_manager} { }
+    , token_manager_{token_manager}
+    , file_sender_{file_sender} { }
 
-    template <typename Body, typename Allocator, typename TextResponseMaker, typename Send>
-    void operator()(http::request<Body, http::basic_fields<Allocator>>&& req, TextResponseMaker&& text_response_maker, Send&& send){     
+    template <typename Body, typename Allocator, typename TextResponseMaker, typename FileResponseMaker, typename Send>
+    void operator()(http::request<Body, http::basic_fields<Allocator>>&& req, TextResponseMaker&& text_response_maker,
+                    FileResponseMaker&& file_response_maker, Send&& send){     
+        
+        if (IsUserAuthorized(req)){
+            file_sender_(FileSender::File::INDEX_HTML, std::forward<decltype(text_response_maker)>(text_response_maker),
+                        std::forward<decltype(file_response_maker)>(file_response_maker), std::forward<decltype(send)>(send));
+            return;
+        }
+
         std::string_view target = req.target();
         target.remove_prefix(API_V1_LOGIN.size());
 
@@ -48,61 +60,69 @@ public:
             return;
         }
 
-        try{
-            json::value request_body = ParseString(std::string(req.body));
-            const json::object& request_body_as_object = request_body.as_object();
+        json::object request_body_as_object = ParseString(std::string(req.body));
 
-            const std::string login = std::string(request_body_as_object.at(LOGIN).as_string());
-            const std::string password = std::string(request_body_as_object.at(PASSWORD).as_string());
+        application::UserLoginInputDto user_login_input_dto;
+        user_login_input_dto.login = std::string(request_body_as_object.at(LOGIN).as_string());
+        user_login_input_dto.password = std::string(request_body_as_object.at(PASSWORD).as_string());
 
-            application::UserLoginInputDto user_login_input_dto;
-            user_login_input_dto.login = login;
-            user_login_input_dto.password = password;
-
-            auto user_login_output_dto = application_manager_.Login(user_login_input_dto);
-            
-            if (!user_login_output_dto.has_value()) {
-                auto unauthorized_response = text_response_maker(http::status::unauthorized, UNAUTHORIZED, content_type::APP_JSON);
-                unauthorized_response.set(http::field::cache_control, "no-cache");
-                send(std::move(unauthorized_response));
-                return;
-            }
-
-            auto token = token_manager_->CreateToken(user_login_output_dto->user_id, user_login_output_dto->employee_id );
-
-            if (!token.has_value()){
-                auto unauthorized_response = text_response_maker(http::status::unauthorized, UNAUTHORIZED, content_type::APP_JSON);
-                unauthorized_response.set(http::field::cache_control, "no-cache");
-                send(std::move(unauthorized_response));
-                return;
-            }
-
-            auto authorized_response = text_response_maker(http::status::accepted, MakeAcceptedAnswer(token), content_type::APP_JSON);
-            authorized_response.set(http::field::cache_control, "no-cache");
-            send(std::move(authorized_response));
-            return;
-
-        }
-        catch(const std::exception& ex){
-            auto server_error = text_response_maker(http::status::internal_server_error, SERVER_ERROR, content_type::APP_JSON);
-            server_error.set(http::field::cache_control, "no-cache");
-            send(std::move(server_error));
+        auto user_login_output_dto = application_manager_.Login(user_login_input_dto);
+        
+        if (!user_login_output_dto.has_value()) {
+            auto unauthorized_response = text_response_maker(http::status::unauthorized, UNAUTHORIZED, content_type::APP_JSON);
+            unauthorized_response.set(http::field::cache_control, "no-cache");
+            send(std::move(unauthorized_response));
             return;
         }
+
+        auto token = token_manager_->CreateToken(user_login_output_dto->user_id, user_login_output_dto->employee_id );
+
+        if (!token.has_value()){
+            auto unauthorized_response = text_response_maker(http::status::unauthorized, UNAUTHORIZED, content_type::APP_JSON);
+            unauthorized_response.set(http::field::cache_control, "no-cache");
+            send(std::move(unauthorized_response));
+            return;
+        }
+
+        auto authorized_response = text_response_maker(http::status::accepted, MakeAcceptedAnswer(token), content_type::APP_JSON);
+        authorized_response.set(http::field::cache_control, "no-cache");
+        send(std::move(authorized_response));
+        return;
     }
 private:
     const application::ApplicationManagerInterface& application_manager_;
     const std::shared_ptr<TokenManager> token_manager_;
+    const FileSender& file_sender_;
 
-    static inline const std::string API_V1_LOGIN = "/api/v1/login"s;
-
+    constexpr static std::string_view LOGIN = "login"sv;
+    constexpr static std::string_view PASSWORD = "password"sv;
+    constexpr static std::string_view BEARER = "Bearer "sv;
+    constexpr static std::string_view API_V1_LOGIN = "/api/v1/login"sv;
     constexpr static std::string_view UNAUTHORIZED = "{\"code\":\"unauthorized\", \"message\":\"Bad login or password\"}"sv;
     constexpr static std::string_view BAD_REQUEST = "{\"code\":\"bad_request\", \"message\":\"Bad request\"}"sv;
     constexpr static std::string_view INVALID_METHOD = "{\"code\":\"invalid_method\", \"message\":\"Only POST method is expected\"}"sv;
-    constexpr static std::string_view SERVER_ERROR = "{\"code\": \"server_error\", \"message\": \"Server error\"}"sv;
     
     std::string MakeAcceptedAnswer(const TokenManager::Token& token){
-        return "{\"authToken\":\"" + *token + "\"}";
+        return "{\"auth_token\":\"" + *token + "\"}";
+    }
+
+    template <typename Body, typename Allocator>
+    bool IsUserAuthorized(const http::request<Body, http::basic_fields<Allocator>>& req) const {
+        auto authorization_field_it = req.find(http::field::authorization);
+        
+        if (authorization_field_it != req.end()) {
+            std::string_view authorization_field = authorization_field_it->value();
+            if (authorization_field.size() > BEARER.size() && authorization_field.starts_with(BEARER)){
+                std::string_view token = authorization_field.substr(BEARER.size());
+                TokenManager::Payload payload = token_manager_->GetPayloadFromToken(token);
+
+                if (payload){
+                    return true;
+                }
+            }
+            
+        }
+        return false;
     }
 
 };

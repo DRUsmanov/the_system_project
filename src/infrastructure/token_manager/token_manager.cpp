@@ -27,9 +27,9 @@ TokenManager::Token TokenManager::CreateToken(int user_id, int employee_id) cons
     }
 }
 
-TokenManager::Payload TokenManager::GetPayloadFromToken(std::string token) const {
+TokenManager::Payload TokenManager::GetPayloadFromToken(std::string_view token) const {
     try{
-        auto decode_token = jwt::decode(token);
+        auto decode_token = jwt::decode(std::string(token));
         auto verifier = jwt::verify()
             .allow_algorithm(jwt::algorithm::hs256{SECRET_KEY})
             .with_issuer(ISSUER);

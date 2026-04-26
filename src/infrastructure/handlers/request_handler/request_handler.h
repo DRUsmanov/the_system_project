@@ -1,10 +1,12 @@
 #pragma once
 
 #include "infrastructure/handlers/login_request_handler/login_request_handler.h"
+#include "infrastructure/handlers/shop_request_handler/shop_request_handler.h"
 #include "infrastructure/logger/logger.h"
 #include "infrastructure/url_decoder/url_decoder.h"
 #include "infrastructure/token_manager/token_manager.h"
 #include "application/application_manager_interface.h"
+#include "infrastructure/handlers/file_sender/file_sender.h"
 
 #include <boost/asio/ip/tcp.hpp>
 #include <boost/asio/strand.hpp>
@@ -18,6 +20,7 @@
 #include <functional>
 #include <chrono>
 #include <variant>
+#include <exception>
 
 namespace infrastructure {
 
@@ -31,6 +34,10 @@ using StringRequest = http::request<http::string_body>;
 using StringResponse = http::response<http::string_body>;
 using FileResponse = http::response<http::file_body>;
 using Response = std::variant<std::monostate, StringResponse, FileResponse>;
+
+/**
+ * @brief Добавляет к обработчику запросов логирование
+ */
 
 template <typename SomeRequestHandler>
 class LoggingRequestHandler{
@@ -54,14 +61,20 @@ private:
     SomeRequestHandler& handler_;
 };
 
+/**
+ * @brief Определяет тип запроса и передает его специализированному обработчику
+ */
 class RequestHandler {
 public:
     using Strand = net::strand<net::io_context::executor_type>;
 
     explicit RequestHandler(
-        const application::ApplicationManagerInterface& application_manager)
+        const application::ApplicationManagerInterface& application_manager
+        , const FileSender& file_sender    
+    )
     : token_manager_{std::make_shared<TokenManager>()}
-    , login_request_handler_{application_manager, token_manager_} { }
+    , login_request_handler_{application_manager, token_manager_, file_sender}
+    , shop_request_handler_{application_manager, token_manager_, file_sender} { }
 
     RequestHandler(const RequestHandler&) = delete;
     RequestHandler& operator=(const RequestHandler&) = delete;
@@ -78,16 +91,26 @@ public:
             return MakeFileResponse(status, std::move(file), version, keep_alive, content_type);
         };
 
-        std::string decoded_target = DecodeTarget(req.target());
-        req.target(decoded_target);
+        try {
+            std::string decoded_target = DecodeUrl(req.target());
+            req.target(decoded_target);
 
-        std::string path = boost::urls::url_view{decoded_target}.path();
+            std::string path = boost::urls::url_view{decoded_target}.path();
 
-        if (path == API_V1_LOGIN) {
-            login_handler_(std::move(req), text_response_maker, std::forward<decltype(send)>(send));
+            if (path == API_V1_LOGIN) {
+                login_handler_(std::move(req), text_response_maker, file_response_maker, std::forward<decltype(send)>(send));
+                return;
+            }
+            if (path == API_V1_SHOP){
+                shop_request_handler_(std::move(req), text_response_maker, file_response_maker, std::forward<decltype(send)>(send));
+                return;
+            }
         }
-        else{
-            // TODO
+        catch(const std::exception& ex) {
+            auto server_error = text_response_maker(http::status::internal_server_error, SERVER_ERROR, content_type::APP_JSON);
+            server_error.set(http::field::cache_control, "no-cache");
+            send(std::move(server_error));
+            return;
         }
     }
 
@@ -99,8 +122,11 @@ private:
 
     std::shared_ptr<TokenManager> token_manager_;
     LoginRequestHandler login_request_handler_;
+    ShopRequestHandler shop_request_handler_;
 
-    static inline const std::string API_V1_LOGIN = "/api/v1/login"s;
+    constexpr static std::string_view API_V1_LOGIN = "/api/v1/login"sv;
+    constexpr static std::string_view API_V1_SHOP = "/api/v1/shop"sv;
+    constexpr static std::string_view SERVER_ERROR = "{\"code\": \"server_error\", \"message\": \"Server error\"}"sv;
 };
 
 }  // namespace infrastructure
