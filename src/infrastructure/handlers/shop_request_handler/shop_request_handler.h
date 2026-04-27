@@ -31,25 +31,8 @@ public:
     , file_sender_{file_sender} { }
 
     template <typename Body, typename Allocator, typename TextResponseMaker, typename FileResponseMaker, typename Send>
-    void operator()(http::request<Body, http::basic_fields<Allocator>>&& req, TextResponseMaker&& text_response_maker,
-                    FileResponseMaker&& file_response_maker, Send&& send){
-        auto authorization_field_it = req.find(http::field::authorization);
-        
-        if (authorization_field_it == req.end()) {
-            file_sender_(FileSender::File::LOGIN_HTML, std::forward<decltype(text_response_maker)>(text_response_maker),
-            std::forward<decltype(file_response_maker)>(file_response_maker), std::forward<decltype(send)>(send));
-            return;
-        }
-
-        std::string_view token = authorization_field_it->value();
-        TokenManager::Payload payload = token_manager_->GetPayloadFromToken(token);
-
-        if (!payload){
-            file_sender_(FileSender::File::LOGIN_HTML, std::forward<decltype(text_response_maker)>(text_response_maker),
-                            std::forward<decltype(file_response_maker)>(file_response_maker), std::forward<decltype(send)>(send));
-            return;
-        }
-            
+    void operator()(http::request<Body, http::basic_fields<Allocator>>&& req, TokenManager::Payload payload, 
+                    TextResponseMaker&& text_response_maker, FileResponseMaker&& file_response_maker, Send&& send){            
         std::string_view target = req.target();
 
         if (target.empty()){

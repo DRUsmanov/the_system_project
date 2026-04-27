@@ -32,10 +32,10 @@ public:
     , file_sender_{file_sender} { }
 
     template <typename Body, typename Allocator, typename TextResponseMaker, typename FileResponseMaker, typename Send>
-    void operator()(http::request<Body, http::basic_fields<Allocator>>&& req, TextResponseMaker&& text_response_maker,
-                    FileResponseMaker&& file_response_maker, Send&& send){     
+    void operator()(http::request<Body, http::basic_fields<Allocator>>&& req, TokenManager::Payload payload,
+                    TextResponseMaker&& text_response_maker, FileResponseMaker&& file_response_maker, Send&& send){     
         
-        if (IsUserAuthorized(req)){
+        if (payload.has_value()){
             file_sender_(FileSender::File::INDEX_HTML, std::forward<decltype(text_response_maker)>(text_response_maker),
                         std::forward<decltype(file_response_maker)>(file_response_maker), std::forward<decltype(send)>(send));
             return;
@@ -96,7 +96,6 @@ private:
 
     constexpr static std::string_view LOGIN = "login"sv;
     constexpr static std::string_view PASSWORD = "password"sv;
-    constexpr static std::string_view BEARER = "Bearer "sv;
     constexpr static std::string_view API_V1_LOGIN = "/api/v1/login"sv;
     constexpr static std::string_view UNAUTHORIZED = "{\"code\":\"unauthorized\", \"message\":\"Bad login or password\"}"sv;
     constexpr static std::string_view BAD_REQUEST = "{\"code\":\"bad_request\", \"message\":\"Bad request\"}"sv;
@@ -105,26 +104,6 @@ private:
     std::string MakeAcceptedAnswer(const TokenManager::Token& token){
         return "{\"auth_token\":\"" + *token + "\"}";
     }
-
-    template <typename Body, typename Allocator>
-    bool IsUserAuthorized(const http::request<Body, http::basic_fields<Allocator>>& req) const {
-        auto authorization_field_it = req.find(http::field::authorization);
-        
-        if (authorization_field_it != req.end()) {
-            std::string_view authorization_field = authorization_field_it->value();
-            if (authorization_field.size() > BEARER.size() && authorization_field.starts_with(BEARER)){
-                std::string_view token = authorization_field.substr(BEARER.size());
-                TokenManager::Payload payload = token_manager_->GetPayloadFromToken(token);
-
-                if (payload){
-                    return true;
-                }
-            }
-            
-        }
-        return false;
-    }
-
 };
 
 } // namespace infrastructure
