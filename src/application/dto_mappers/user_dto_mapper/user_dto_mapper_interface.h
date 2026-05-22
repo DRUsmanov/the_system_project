@@ -11,6 +11,8 @@ public:
 
     virtual domain::UserLoginData Convert(const UserLoginInputDto& user_login_input_dto) const = 0;
     virtual UserIdOutputDto Convert(const domain::User& user) const = 0;
+
+    virtual domain::UserId Convert(const UserIdInputDto& user_id_input_dto) const = 0;
 };
     
 } // namespace application

@@ -24,8 +24,31 @@ std::optional<UserIdOutputDto> ApplicationManager::Login(const UserLoginInputDto
     }
 }
 
-std::optional<application::TimesheetOutputDto> application::ApplicationManager::GetTimesheet(const application::TimesheetInputDto &input_timesheet_dto) const
-{
+bool ApplicationManager::AddEmployee(const UserIdInputDto& user_id_input_dto, const AddEmployeeInputDto& add_employee_input_dto) const {
+    try {
+        domain::Employee employee = employee_dto_mapper_.Convert(add_employee_input_dto);
+        domain::UserId user_id = user_dto_mapper_.Convert(user_id_input_dto);
+
+        std::shared_ptr<application::UowInterface> uow = uow_factory_.CreateUow();
+        std::shared_ptr<application::TimesheetServiceInterface> timesheet_service = timesheet_service_factory_.CreateTimesheetService(uow);
+        std::shared_ptr<application::ShopServiceInterface> shop_service = shop_service_factory_.CreateShopService(uow);
+        std::shared_ptr<application::UserServiceInterface> user_service = user_service_factory_.CreateUserService(uow);
+
+        std::optional<domain::User> user = user_service->GetUser(user_id);
+
+        if (!user.has_value()){
+            return false;
+        }
+
+        //TODO
+
+    }
+    catch(std::exception& ex){
+        return false;
+    }
+}
+
+std::optional<application::TimesheetOutputDto> application::ApplicationManager::GetTimesheet(const application::TimesheetInputDto &input_timesheet_dto) const {
     try {
         domain::DepartmentId department_id{input_timesheet_dto.department_id};
         domain::AdminCategoryId admin_category_id{input_timesheet_dto.admin_category_id};
@@ -33,13 +56,13 @@ std::optional<application::TimesheetOutputDto> application::ApplicationManager::
         std::chrono::month month{input_timesheet_dto.month};
         std::chrono::year_month year_month = year / month;
 
-        auto uow = uow_factory_.CreateUow();
-        auto timesheet_service = timesheet_service_factory_.CreateTimesheetService(uow);
-        auto shop_service = shop_service_factory_.CreateShopService(uow);
+        std::shared_ptr<application::UowInterface> uow = uow_factory_.CreateUow();
+        std::shared_ptr<application::TimesheetServiceInterface> timesheet_service = timesheet_service_factory_.CreateTimesheetService(uow);
+        std::shared_ptr<application::ShopServiceInterface> shop_service = shop_service_factory_.CreateShopService(uow);
 
-        auto timesheet = timesheet_service->GetTimesheet(department_id, admin_category_id, year_month);
+        std::optional<domain::Timesheet> timesheet = timesheet_service->GetTimesheet(department_id, admin_category_id, year_month);
         if (!timesheet.has_value()) {
-            auto shop = shop_service->GetShop();
+            domain::Shop shop = shop_service->GetShop();
             timesheet_service->GenerateTimesheet(shop, year_month.year());
         }
         timesheet = timesheet_service->GetTimesheet(department_id, admin_category_id, year_month);

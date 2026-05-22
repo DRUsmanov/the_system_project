@@ -74,8 +74,8 @@ public:
     )
     : token_manager_{std::make_shared<TokenManager>()}
     , file_sender_{file_sender}
-    , login_request_handler_{application_manager, token_manager_, file_sender_}
-    , shop_request_handler_{application_manager, token_manager_, file_sender_} { }
+    , login_request_handler_{application_manager, token_manager_}
+    , shop_request_handler_{application_manager} { }
 
     RequestHandler(const RequestHandler&) = delete;
     RequestHandler& operator=(const RequestHandler&) = delete;
@@ -95,26 +95,24 @@ public:
         try {
             std::string target = DecodeUrl(req.target());
             req.target(target);
-            auto payload = GetPayloadFromAuthorizationField(req);
-            
-            if (target.empty()) {
-                if (payload.has_value()) {
-                    file_sender_(FileSender::File::INDEX_HTML, text_response_maker, file_response_maker, std::forward<decltype(send)>(send));
-                    return;
-                }
-                else {
-                    file_sender_(FileSender::File::LOGIN_HTML, text_response_maker, file_response_maker, std::forward<decltype(send)>(send));
-                    return;
-                }
-            }
-
             std::string path = boost::urls::url_view{target}.path();
 
             if (path == API_V1_LOGIN) {
-                login_request_handler_(std::move(req), payload, text_response_maker, file_response_maker, std::forward<decltype(send)>(send));
+                login_request_handler_(std::move(req), text_response_maker, file_response_maker, std::forward<decltype(send)>(send));
                 return;
             }
-            if (path == API_V1_SHOP){
+
+            auto payload = GetPayloadFromAuthorizationField(req);
+
+            if (!payload.has_value()){
+                file_sender_(FileSender::File::LOGIN_HTML, text_response_maker, file_response_maker, std::forward<decltype(send)>(send));
+                return;
+            }
+            if (target.empty()) {
+                file_sender_(FileSender::File::INDEX_HTML, text_response_maker, file_response_maker, std::forward<decltype(send)>(send));
+                return;
+            }
+            if (path.starts_with(API_V1_SHOP)){
                 shop_request_handler_(std::move(req), payload, text_response_maker, file_response_maker, std::forward<decltype(send)>(send));
                 return;
             }

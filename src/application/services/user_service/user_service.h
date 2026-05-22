@@ -13,7 +13,7 @@ public:
     : user_repository_{user_repository}{ }
 
     std::optional<domain::User> Login (const domain::UserLoginData& user_login_data) const override;
-
+    std::optional<domain::User> GetUser (const domain::UserId& user_id) const override;
 private:
     std::shared_ptr<domain::UsersRepositoryInterface> user_repository_;
 };

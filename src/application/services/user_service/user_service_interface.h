@@ -12,6 +12,7 @@ public:
     virtual ~UserServiceInterface() = default;
 
     virtual std::optional<domain::User> Login (const domain::UserLoginData& user_login_data) const = 0;
+    virtual std::optional<domain::User> GetUser (const domain::UserId& user_id) const = 0;
 };
 
 } // namespace application

@@ -6,6 +6,7 @@
 #include "application/factorys/timesheet_service_factory_interface.h"
 #include "application/factorys/shop_service_factory_interface.h"
 #include "application/dto_mappers/user_dto_mapper/user_dto_mapper_interface.h"
+#include "application/dto_mappers/employee_dto_mapper/employee_dto_mapper_interface.h"
 
 
 #include <chrono>
@@ -19,15 +20,19 @@ public:
         const UserServiceFactoryInterface& user_service_factory,
         const TimesheetServiceFactoryInterface& timesheet_service_factory,
         const ShopServiceFactoryInterface& shop_service_factory,
-        const UserDtoMapperInterface& user_dto_mapper
+        const UserDtoMapperInterface& user_dto_mapper,
+        const EmployeeDtoMapperInterface& employee_dto_mapper
     )
     : uow_factory_{uow_factory}
     , user_service_factory_{user_service_factory}
     , timesheet_service_factory_{timesheet_service_factory} 
     , shop_service_factory_{shop_service_factory}
-    , user_dto_mapper_{user_dto_mapper}{ }
+    , user_dto_mapper_{user_dto_mapper}
+    , employee_dto_mapper_{employee_dto_mapper}{ }
 
     std::optional<UserIdOutputDto> Login(const UserLoginInputDto& user_login_input_dto) const override;
+
+    bool AddEmployee(const UserIdInputDto& user_id_input_dto, const AddEmployeeInputDto& add_employee_input_dto) const override;
 
     std::optional<TimesheetOutputDto> GetTimesheet(const TimesheetInputDto& timesheet_input_dto) const override;
 
@@ -38,6 +43,7 @@ private:
     const ShopServiceFactoryInterface& shop_service_factory_;
 
     const UserDtoMapperInterface& user_dto_mapper_;
+    const EmployeeDtoMapperInterface& employee_dto_mapper_;
 };
     
 } // namespace application

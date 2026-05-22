@@ -6,6 +6,7 @@ namespace infrastructure {
 
 namespace query {
 
+constexpr std::string login{"login"};
 constexpr std::string download_user{"download_user"};
 
 } // namespace query
@@ -29,7 +30,8 @@ constexpr std::string ADMIN_CATEGORY{"admin_category_id"};
 
 
 inline const std::unordered_map<std::string, std::string> querys{
-    {download_user, R"(SELECT id, employee_id, permissions, admin_category_id FROM users WHERE login = $1 AND password = $2;)"}
+    {query::login, R"(SELECT id, employee_id, permissions, admin_category_id FROM users WHERE login = $1 AND password = $2;)"},
+    {query::download_user, R"(SELECT id, employee_id, permissions, admin_category_id FROM users WHERE id = $1;)"}
 };
 
 } // namespace infrastructure

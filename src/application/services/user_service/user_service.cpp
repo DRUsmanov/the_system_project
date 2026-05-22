@@ -6,4 +6,8 @@ std::optional<domain::User> UserService::Login (const domain::UserLoginData& use
     return user_repository_->DownloadUser(user_login_data);
 }
 
+std::optional<domain::User> UserService::GetUser(const domain::UserId &user_id) const {
+    return user_repository_->DownloadUser(user_id);
+}
+
 } // namespace application
