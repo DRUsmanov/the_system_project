@@ -34,7 +34,6 @@ serial id PK
 int employee_id FK
 varchar(100) login
 varchar(100) password
-bigint permissions
 int admin_category_id FK
 }
 
