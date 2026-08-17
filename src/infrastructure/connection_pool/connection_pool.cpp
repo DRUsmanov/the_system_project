@@ -1,7 +1,8 @@
 #include "connection_pool.h"
+
 #include "querys.h"
 
-infrastructure::ConnectionPool::ConnectionWrapper infrastructure::ConnectionPool::GetConnection() {
+infrastructure::ConnectionPool::ConnectionWrapper infrastructure::ConnectionPool::getConnection() {
     std::unique_lock lock{mutex_};
 
     cond_var_.wait(lock, [this] {
@@ -11,7 +12,7 @@ infrastructure::ConnectionPool::ConnectionWrapper infrastructure::ConnectionPool
     return {std::move(pool_[used_connections_++]), *this};
 }
 
-void infrastructure::ConnectionPool::ReturnConnection(ConnectionPool::ConnectionPtr&& conn) {
+void infrastructure::ConnectionPool::returnConnection(ConnectionPool::ConnectionPtr&& conn) {
     {
         std::lock_guard lock{mutex_};
         assert(used_connections_ != 0);
@@ -21,9 +22,9 @@ void infrastructure::ConnectionPool::ReturnConnection(ConnectionPool::Connection
     cond_var_.notify_one();
 }
 
-std::shared_ptr<pqxx::connection> infrastructure::ConnectionFactory::operator()() const{
+std::shared_ptr<pqxx::connection> infrastructure::ConnectionFactory::operator()() const {
     auto conn = std::make_shared<pqxx::connection>(db_url_);
-    for (const auto& [query_name, query] : infrastructure::querys){
+    for (const auto& [query_name, query] : infrastructure::querys) {
         conn->prepare(query_name, query);
     }
     return conn;

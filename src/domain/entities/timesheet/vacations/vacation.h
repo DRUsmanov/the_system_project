@@ -1,22 +1,23 @@
 #pragma once
 
-#include "utils/tagged.h"
 #include "domain/value_data/types.h"
+#include "utils/tagged.h"
 
 namespace domain {
 
 namespace detail {
-    struct VacationIdTag{};
-} // namespace detail
+struct VacationIdTag {};
+}  // namespace detail
 
 using VacationId = utils::Tagged<int, detail::VacationIdTag>;
 using VacationIdHasher = utils::TaggedHasher<VacationId>;
 
-struct Vacation{
+struct Vacation {
+    VacationId vacation_id;
     Date start;
     Date end;
 
-    bool IsVacationDay(const Date& date) const {
+    bool isVacationDay(const Date& date) const {
         return !(date < start || date > end);
     }
 };
@@ -30,5 +31,5 @@ struct VacationHasher {
 bool operator==(const Vacation& vacation1, const Vacation& vacation2) {
     return vacation1.start == vacation2.start && vacation1.end == vacation2.end;
 }
-    
-} // namespace domain
+
+}  // namespace domain

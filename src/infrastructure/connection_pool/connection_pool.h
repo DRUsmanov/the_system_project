@@ -1,15 +1,13 @@
 #pragma once
 
-#include <memory>
-#include <mutex>
 #include <condition_variable>
 #include <cstdlib>
-#include <stdexcept>
 #include <cstring>
 #include <iostream>
-
+#include <memory>
+#include <mutex>
 #include <pqxx/pqxx>
-
+#include <stdexcept>
 
 namespace infrastructure {
 
@@ -22,14 +20,14 @@ struct ConnectionConfig {
 
 class ConnectionFactory {
 public:
-    explicit ConnectionFactory(ConnectionConfig connection_config)
-        : db_url_{connection_config.db_url} {
-        if (db_url_.empty()){
+    explicit ConnectionFactory(ConnectionConfig connection_config) : db_url_{connection_config.db_url} {
+        if (db_url_.empty()) {
             throw std::runtime_error("DB URL is not specified");
         }
     }
 
-    std::shared_ptr<pqxx::connection> operator()() const; 
+    std::shared_ptr<pqxx::connection> operator()() const;
+
 private:
     std::string db_url_;
 };
@@ -41,10 +39,8 @@ class ConnectionPool {
 public:
     class ConnectionWrapper {
     public:
-        ConnectionWrapper(std::shared_ptr<pqxx::connection>&& conn, PoolType& pool) noexcept
-            : conn_{std::move(conn)}
-            , pool_{&pool} {
-        }
+        ConnectionWrapper(std::shared_ptr<pqxx::connection>&& conn, PoolType& pool) noexcept :
+            conn_{std::move(conn)}, pool_{&pool} {}
 
         ConnectionWrapper(const ConnectionWrapper&) = delete;
         ConnectionWrapper& operator=(const ConnectionWrapper&) = delete;
@@ -63,7 +59,7 @@ public:
 
         ~ConnectionWrapper() {
             if (conn_) {
-                pool_->ReturnConnection(std::move(conn_));
+                pool_->returnConnection(std::move(conn_));
             }
         }
 
@@ -81,10 +77,10 @@ public:
         }
     }
 
-    ConnectionWrapper GetConnection();
+    ConnectionWrapper getConnection();
 
 private:
-    void ReturnConnection(ConnectionPtr&& conn);
+    void returnConnection(ConnectionPtr&& conn);
 
     std::mutex mutex_;
     std::condition_variable cond_var_;
@@ -92,4 +88,4 @@ private:
     size_t used_connections_ = 0;
 };
 
-} // namespace infrastructure
+}  // namespace infrastructure

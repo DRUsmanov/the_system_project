@@ -1,18 +1,18 @@
 #include "work_schedule.h"
 
-size_t domain::WorkSchedule::GetCycleSize() const noexcept {
+size_t domain::WorkSchedule::getCycleSize() const noexcept {
     return cycle_size_;
 }
 
-const domain::Date& domain::WorkSchedule::GetStartCycleDate() const noexcept {
+const domain::Date& domain::WorkSchedule::getStartCycleDate() const noexcept {
     return start_cycle_date_;
 }
 
-bool domain::WorkSchedule::IsWorksOnHolidays() const noexcept {
+bool domain::WorkSchedule::isWorksOnHolidays() const noexcept {
     return is_works_on_holidays_;
 }
 
-const domain::WorkSchedule::DayData &domain::WorkSchedule::GetDayDataByDate(std::chrono::year_month_day date) const {
+const domain::WorkSchedule::DayData& domain::WorkSchedule::getDayDataByDate(std::chrono::year_month_day date) const {
     using namespace std::chrono;
 
     auto day_index = (sys_days{date} - sys_days{start_cycle_date_}).count() % cycle_size_;

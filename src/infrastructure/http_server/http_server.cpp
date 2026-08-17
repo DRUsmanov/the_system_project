@@ -4,55 +4,53 @@ namespace http_server {
 
 using namespace std::literals;
 
-// ##### SessionBase #####     
-void SessionBase::Run(){
-    net::dispatch(
-        stream_.get_executor(),
-        beast::bind_front_handler(&SessionBase::Read, SharedThis())
-    );
+// ##### SessionBase #####
+void SessionBase::run() {
+    net::dispatch(stream_.get_executor(), beast::bind_front_handler(&SessionBase::read, shared_from_this()));
 }
 
-void SessionBase::Read(){
+void SessionBase::read() {
     request_ = {};
     stream_.expires_after(30s);
-    http::async_read(stream_, buffer_, request_,
-        beast::bind_front_handler(&SessionBase::OnRead, SharedThis())
-    );
+    http::async_read(stream_, buffer_, request_, beast::bind_front_handler(&SessionBase::onRead, shared_from_this()));
 }
 
-void SessionBase::OnRead(beast::error_code ec, [[maybe_unused]]std::size_t bytes_read){
-    if (ec == http::error::end_of_stream){
-        return Close();
+void SessionBase::onRead(beast::error_code ec, [[maybe_unused]] std::size_t bytes_read) {
+    if (ec == http::error::end_of_stream) {
+        return stop();
     }
 
-    if (ec){
-        return ReportError(ec, "read"sv);
+    if (ec) {
+        reportError(ec, "read"sv);
+        return;
     }
 
-    HandleRequest(std::move(request_));
+    handleRequest(std::move(request_));
 }
 
-void SessionBase::OnWrite(bool close, beast::error_code ec, [[maybe_unused]]std::size_t bytes_written){
-    if (ec){
-        return ReportError(ec, "write"sv);
+void SessionBase::onWrite(bool close, beast::error_code ec, [[maybe_unused]] std::size_t bytes_written) {
+    if (ec) {
+        reportError(ec, "write"sv);
+        return;
     }
 
-    if (close){
-        return Close();
+    if (close) {
+        stop();
+        return;
     }
 
-    Read();
+    read();
 }
 
-void SessionBase::Close(){
+void SessionBase::stop() {
     beast::error_code ec;
     stream_.socket().shutdown(tcp::socket::shutdown_send, ec);
-    if (ec){
-        return ReportError(ec, "close"sv);
+    if (ec) {
+        return reportError(ec, "close"sv);
     }
 }
 
-const beast::tcp_stream& SessionBase::Stream() const{
+const beast::tcp_stream& SessionBase::stream() const {
     return stream_;
 }
 

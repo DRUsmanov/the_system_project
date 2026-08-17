@@ -1,17 +1,15 @@
 #include "json_formater.h"
 
 #include <boost/json.hpp>
-#include <iterator>
-#include <vector>
-#include <iostream>
-#include <utility>
-#include <stdexcept>
-#include <optional>
-#include <sstream>
 #include <chrono>
 #include <fstream>
-#include <chrono>
 #include <iostream>
+#include <iterator>
+#include <optional>
+#include <sstream>
+#include <stdexcept>
+#include <utility>
+#include <vector>
 
 namespace infrastructure {
 
@@ -19,7 +17,7 @@ using namespace std::literals;
 namespace json = boost::json;
 namespace sys = boost::system;
 
-json::object ParseString(std::string str){
+json::object parseString(std::string str) {
     return json::parse(str).as_object();
 }
 

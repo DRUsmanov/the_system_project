@@ -1,18 +1,16 @@
 // Управляет пользователями системы
 #pragma once
 
-#include "domain/entities/user/user.h"
-
-
 #include <optional>
 
-namespace domain{
+#include "domain/entities/user/user.h"
 
-class UsersRepositoryInterface{
+namespace domain {
+
+class UsersRepositoryInterface {
 public:
-    virtual std::optional<User> LoginUser(const UserLoginData& login_data) const = 0;
-    virtual std::optional<User> DownloadUser(const UserId& user_id) const = 0;
+    virtual std::optional<User> loginUser(const UserLoginData& user_login_data) const = 0;
+    virtual std::optional<User> downloadUser(const UserId& user_id) const = 0;
 };
 
-} // namspace domain
-
+}  // namespace domain

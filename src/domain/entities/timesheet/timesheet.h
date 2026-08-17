@@ -1,18 +1,18 @@
 #pragma once
 
-#include "domain/value_data/types.h"
-#include "domain/entities/shop/employee/employee.h"
-#include "domain/entities/shop/department/department.h"
-#include "domain/entities/shop/staff_position/staff_position.h"
-#include "domain/entities/timesheet/work_schedules/work_schedule.h"
-#include "domain/entities/timesheet/leave_types/leave_type.h"
-#include "domain/entities/timesheet/admin_categorys/admin_category.h"
-#include "domain/entities/shop/shop.h"
-
-#include <string>
 #include <optional>
+#include <string>
 #include <unordered_map>
 #include <utility>
+
+#include "domain/entities/shop/department/department.h"
+#include "domain/entities/shop/employee/employee.h"
+#include "domain/entities/shop/shop.h"
+#include "domain/entities/shop/staff_position/staff_position.h"
+#include "domain/entities/timesheet/admin_categorys/admin_category.h"
+#include "domain/entities/timesheet/leave_types/leave_type.h"
+#include "domain/entities/timesheet/work_schedules/work_schedule.h"
+#include "domain/value_data/types.h"
 
 namespace domain {
 
@@ -59,27 +59,30 @@ public:
         std::optional<LeaveType> leave_type;
         std::optional<std::string> comment;
 
-        static DayData CreateWorkingDayData(const WorkSchedule::DayData& work_schedule_day_data
-                                            , DepartmentId department_id, StaffPositionId staff_position_id
-                                            , WorkScheduleId work_schedule_id);
-        static DayData CreateNonWorkingDayData(LeaveType leave_type
-                                                , DepartmentId department_id, StaffPositionId staff_position_id
-                                                , WorkScheduleId work_schedule_id);
-        
+        static DayData createWorkingDayData(const WorkSchedule::DayData& work_schedule_day_data,
+                                            DepartmentId department_id,
+                                            StaffPositionId staff_position_id,
+                                            WorkScheduleId work_schedule_id);
+        static DayData createNonWorkingDayData(LeaveType leave_type,
+                                               DepartmentId department_id,
+                                               StaffPositionId staff_position_id,
+                                               WorkScheduleId work_schedule_id);
 
-        bool IsWorkingDay() const noexcept;
-        bool IsNightWorkingDay() const noexcept;
+        bool isWorkingDay() const noexcept;
+        bool isNightWorkingDay() const noexcept;
     };
 
     using DaysData = std::unordered_map<DayDataKey, domain::Timesheet::DayData>;
     using TimesheetData = std::unordered_map<domain::EmployeeId, DaysData, domain::EmployeeIdHasher>;
 
-    bool IsEmpty() const;
-    bool AddEmployeeDayData(EmployeeId employee_id, domain::Date date
-                            , AdminCategoryId admin_category_id, const DayData& day_data);
+    bool isEmpty() const;
+    bool addEmployeeDayData(EmployeeId employee_id,
+                            domain::Date date,
+                            AdminCategoryId admin_category_id,
+                            const DayData& day_data);
 
 private:
     TimesheetData data_;
 };
-    
-} // namespace domain
+
+}  // namespace domain

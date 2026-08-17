@@ -6,7 +6,8 @@ namespace infrastructure {
 
 class UserServiceFactory : application::UserServiceFactoryInterface {
 public:
-    std::shared_ptr<application::UserServiceInterface> CreateUserService(std::shared_ptr<application::UowInterface> uow) const override;
+    std::shared_ptr<application::UserServiceInterface> createUserService(
+        std::shared_ptr<application::UowInterface> uow) const override;
 };
-    
-} // namespace infrastructure
+
+}  // namespace infrastructure

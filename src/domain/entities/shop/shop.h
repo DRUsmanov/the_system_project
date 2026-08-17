@@ -1,11 +1,11 @@
 #pragma once
 
+#include <unordered_map>
+
 #include "domain/entities/shop/department/department.h"
 #include "domain/entities/shop/employee/employee.h"
 #include "domain/entities/shop/staff_position/staff_position.h"
 #include "domain/entities/timesheet/work_schedules/work_schedule.h"
-
-#include <unordered_map>
 
 namespace domain {
 
@@ -19,10 +19,10 @@ public:
 
     using EmployeeAssignments = std::unordered_map<EmployeeId, EmployeeAssignment, EmployeeIdHasher>;
 
-    const EmployeeAssignments& GetEmployeeAssignments() const;
-    
+    const EmployeeAssignments& getEmployeeAssignments() const;
+
 private:
     EmployeeAssignments employee_assignments_;
 };
-    
-} // namespace domain
+
+}  // namespace domain

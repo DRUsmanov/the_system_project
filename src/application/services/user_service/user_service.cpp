@@ -2,12 +2,12 @@
 
 namespace application {
 
-std::optional<domain::User> UserService::Login (const domain::UserLoginData& user_login_data) const {
-    return user_repository_->DownloadUser(user_login_data);
+std::optional<domain::User> UserService::login(const domain::UserLoginData& user_login_data) const {
+    return user_repository_->loginUser(user_login_data);
 }
 
-std::optional<domain::User> UserService::GetUser(const domain::UserId &user_id) const {
-    return user_repository_->DownloadUser(user_id);
+std::optional<domain::User> UserService::getUser(const domain::UserId& user_id) const {
+    return user_repository_->downloadUser(user_id);
 }
 
-} // namespace application
+}  // namespace application

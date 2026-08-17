@@ -13,9 +13,5 @@ namespace detail {
 
 using AdminCategoryId = utils::Tagged<int, detail::AdminCategoryIdTag>;
 using AdminCategoryIdHasher = utils::TaggedHasher<AdminCategoryId>;
-
-struct AdminCategory {
-    int admin_category_id;
-};
     
 } // namespace domain

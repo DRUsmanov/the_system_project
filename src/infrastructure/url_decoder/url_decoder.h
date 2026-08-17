@@ -4,6 +4,6 @@
 
 namespace infrastructure {
 
-std::string DecodeUrl(std::string_view encoded_url);
+std::string decodeUrl(std::string_view encoded_url);
 
-} // namespace infrastructure
+}  // namespace infrastructure

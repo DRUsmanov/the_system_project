@@ -15,6 +15,5 @@ namespace detail {
 
 using HolidayId = utils::Tagged<int, detail::HolidayIdtag>;
 using HolidayIdHasher = utils::TaggedHasher<HolidayId>;
-
-    
+   
 } // namespace domain

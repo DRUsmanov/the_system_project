@@ -1,22 +1,23 @@
 #pragma once
 
+#include <chrono>
+#include <memory>
+#include <optional>
+
 #include "timesheet_service_interface.h"
 
-#include <chrono>
-#include <optional>
-#include <memory>
+namespace application {
 
-namespace application{
-
-class TimesheetService : public TimesheetServiceInterface{
+class TimesheetService : public TimesheetServiceInterface {
 public:
-    TimesheetService(std::shared_ptr<domain::TimeSheetRepositoryInterface> timesheet_repository)
-    : timesheet_repository_{timesheet_repository} { }
+    TimesheetService(std::shared_ptr<domain::TimeSheetRepositoryInterface> timesheet_repository) :
+        timesheet_repository_{timesheet_repository} {}
 
-    std::optional<domain::Timesheet> GetTimesheet(domain::DepartmentId department_id, domain::AdminCategoryId admin_category_id
-                                    , std::chrono::year_month year_month) const override;
-    domain::Timesheet GenerateTimesheet(const domain::Shop& shop, std::chrono::year year) override;
-    bool AddTimesheet(const domain::Timesheet& timesheet) override;
+    std::optional<domain::Timesheet> getTimesheet(domain::DepartmentId department_id,
+                                                  domain::AdminCategoryId admin_category_id,
+                                                  std::chrono::year_month year_month) const override;
+    bool generateTimesheetForShop(const domain::Shop& shop, std::chrono::year year) override;
+    bool generateTimesheetForNewEmployee(domain::DepartmentId department_id, const domain::Employee& employee) override;
 
 private:
     struct TimesheetGenerationContext {
@@ -32,13 +33,15 @@ private:
         const domain::ExtraHolidays& extra_holidays;
         const domain::Vacations& vacations;
     };
-
-    bool GenerateEmployeeVacationsInTimesheet(domain::Timesheet& timesheet, const TimesheetGenerationContext& generation_context);
-    bool GenerateHolidaysInTimesheet(domain::Timesheet& timesheet, const TimesheetGenerationContext& generation_context);
-    bool GenerateWorkingDayInTimesheet(domain::Timesheet& timesheet, const TimesheetGenerationContext& generation_context);
+    bool addTimesheet(const domain::Timesheet& timesheet);
+    bool generateEmployeeVacationsInTimesheet(domain::Timesheet& timesheet,
+                                              const TimesheetGenerationContext& generation_context);
+    bool generateHolidaysInTimesheet(domain::Timesheet& timesheet,
+                                     const TimesheetGenerationContext& generation_context);
+    bool generateWorkingDayInTimesheet(domain::Timesheet& timesheet,
+                                       const TimesheetGenerationContext& generation_context);
 
     std::shared_ptr<domain::TimeSheetRepositoryInterface> timesheet_repository_;
 };
 
-} // namespace application
-
+}  // namespace application

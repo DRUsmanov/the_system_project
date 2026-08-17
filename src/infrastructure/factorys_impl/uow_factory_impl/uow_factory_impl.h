@@ -8,12 +8,12 @@ namespace infrastructure {
 
 class UowFactory : public application::UowFactoryInterface {
 public:
-    UowFactory(ConnectionPool& connection_pool)
-    : connection_pool_{connection_pool} { }
+    UowFactory(ConnectionPool& connection_pool) : connection_pool_{connection_pool} {}
 
-    std::shared_ptr<application::UowInterface> CreateUow() const override;
+    std::shared_ptr<application::UowInterface> createUow() const override;
+
 private:
     ConnectionPool& connection_pool_;
 };
-    
-} // namespace infrastructure
+
+}  // namespace infrastructure

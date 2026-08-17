@@ -1,23 +1,25 @@
 #pragma once
 
-#include "shop_service_interface.h"
-#include "domain/interfaces/repositorys/shop_repository_interface.h"
-
 #include <chrono>
 #include <memory>
 
-namespace application{
+#include "domain/interfaces/repositorys/shop_repository_interface.h"
+#include "shop_service_interface.h"
+
+namespace application {
 
 class ShopService : public ShopServiceInterface {
 public:
-    ShopService(std::shared_ptr<domain::ShopRepositoryInterface> shop_repository)
-    : shop_repository_{shop_repository} { }
+    ShopService(std::shared_ptr<domain::ShopRepositoryInterface> shop_repository) : shop_repository_{shop_repository} {}
 
-    domain::Shop GetShop() const override;
+    domain::Shop getShop() const override;
+    bool addEmployee(const domain::Employee& employee,
+                     domain::DepartmentId department_id,
+                     domain::StaffPositionId staff_position_id,
+                     domain::WorkScheduleId work_schedule_id) override;
 
 private:
     std::shared_ptr<domain::ShopRepositoryInterface> shop_repository_;
 };
 
-} // namespace application
-
+}  // namespace application

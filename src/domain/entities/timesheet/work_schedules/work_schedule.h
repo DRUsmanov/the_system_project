@@ -1,15 +1,15 @@
 #pragma once
 
-#include "utils/tagged.h"
-#include "domain/value_data/types.h"
-
 #include <chrono>
+
+#include "domain/value_data/types.h"
+#include "utils/tagged.h"
 
 namespace domain {
 
 namespace detail {
-    struct WorkScheduleIdTag{};
-} // namespace detail
+struct WorkScheduleIdTag {};
+}  // namespace detail
 
 using WorkScheduleId = utils::Tagged<int, detail::WorkScheduleIdTag>;
 using WorkScheduleIdHasher = utils::TaggedHasher<WorkScheduleId>;
@@ -27,38 +27,34 @@ public:
         std::optional<Time> rest_start;
         std::optional<Time> rest_end;
 
-        bool IsWorkingDay() const noexcept{
+        bool isWorkingDay() const noexcept {
             return work_time.has_value();
         }
 
-        bool IsNightWorkingDay() const noexcept {
+        bool isNightWorkingDay() const noexcept {
             return night_work_time.has_value();
         }
     };
 
-    WorkSchedule(
-        size_t cycle_size,
-        const Date& start_cycle_date,
-        bool is_works_on_holidays,
-        const std::vector<DayData>& cycle
-    )
-    : cycle_size_{cycle_size}
-    , start_cycle_date_{start_cycle_date}
-    , is_works_on_holidays_{is_works_on_holidays}
-    , cycle_{std::move(cycle)} { }
+    WorkSchedule(size_t cycle_size,
+                 const Date& start_cycle_date,
+                 bool is_works_on_holidays,
+                 const std::vector<DayData>& cycle) :
+        cycle_size_{cycle_size}, start_cycle_date_{start_cycle_date}, is_works_on_holidays_{is_works_on_holidays},
+        cycle_{std::move(cycle)} {}
 
-    size_t GetCycleSize() const noexcept;
-    const Date& GetStartCycleDate() const noexcept;
-    bool IsWorksOnHolidays() const noexcept;
-    const DayData& GetDayDataByDate(std::chrono::year_month_day date) const;
+    size_t getCycleSize() const noexcept;
+    const Date& getStartCycleDate() const noexcept;
+    bool isWorksOnHolidays() const noexcept;
+    const DayData& getDayDataByDate(std::chrono::year_month_day date) const;
     const DayData& operator[](size_t index) const;
+
 private:
+    WorkScheduleId work_schedule_id;
     size_t cycle_size_;
     Date start_cycle_date_;
     bool is_works_on_holidays_;
     std::vector<DayData> cycle_;
 };
-    
-} // namespace domain
 
-
+}  // namespace domain

@@ -11,28 +11,25 @@ constexpr std::string EMPLOYEE_ID{"employee_id"};
 constexpr std::string ISSUER{"The system server"};
 constexpr std::string TYPE{"JWT"};
 
-TokenManager::Token TokenManager::CreateToken(int user_id, int employee_id) const {
+TokenManager::Token TokenManager::createToken(int user_id, int employee_id) const {
     try {
         auto token = jwt::create()
-        .set_issuer(ISSUER)
-        .set_type(TYPE)
-        .set_payload_claim(USER_ID, jwt::claim(std::to_string(user_id)))
-        .set_payload_claim(EMPLOYEE_ID, jwt::claim(std::to_string(employee_id)))
-        .sign(jwt::algorithm::hs256{SECRET_KEY});
+                         .set_issuer(ISSUER)
+                         .set_type(TYPE)
+                         .set_payload_claim(USER_ID, jwt::claim(std::to_string(user_id)))
+                         .set_payload_claim(EMPLOYEE_ID, jwt::claim(std::to_string(employee_id)))
+                         .sign(jwt::algorithm::hs256{SECRET_KEY});
 
         return token;
-    }
-    catch(const std::exception& ex){
+    } catch (const std::exception& ex) {
         return std::nullopt;
     }
 }
 
-TokenManager::Payload TokenManager::GetPayloadFromToken(std::string_view token) const {
-    try{
+TokenManager::Payload TokenManager::getPayloadFromToken(std::string_view token) const {
+    try {
         auto decode_token = jwt::decode(std::string(token));
-        auto verifier = jwt::verify()
-            .allow_algorithm(jwt::algorithm::hs256{SECRET_KEY})
-            .with_issuer(ISSUER);
+        auto verifier = jwt::verify().allow_algorithm(jwt::algorithm::hs256{SECRET_KEY}).with_issuer(ISSUER);
 
         verifier.verify(decode_token);
 
@@ -44,8 +41,7 @@ TokenManager::Payload TokenManager::GetPayloadFromToken(std::string_view token) 
         payload[EMPLOYEE_ID] = employee_id;
 
         return payload;
-    }
-    catch(const std::exception& ex){
+    } catch (const std::exception& ex) {
         return std::nullopt;
     }
 }

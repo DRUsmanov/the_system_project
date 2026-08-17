@@ -2,26 +2,28 @@
 
 #include <exception>
 
-bool domain::Timesheet::IsEmpty() const {
+bool domain::Timesheet::isEmpty() const {
     return data_.empty();
 }
 
-bool domain::Timesheet::AddEmployeeDayData(EmployeeId employee_id, domain::Date date,
-                                           AdminCategoryId admin_category_id, const DayData &day_data) {
+bool domain::Timesheet::addEmployeeDayData(EmployeeId employee_id,
+                                           domain::Date date,
+                                           AdminCategoryId admin_category_id,
+                                           const DayData& day_data) {
     try {
         auto& employee_days_data = data_[employee_id];
         auto [it, inserted] = employee_days_data.try_emplace(DayDataKey{date, admin_category_id}, day_data);
         return inserted;
-    }
-    catch (const std::exception& ex){
+    } catch (const std::exception& ex) {
         return false;
     }
 }
 
-domain::Timesheet::DayData domain::Timesheet::DayData::CreateWorkingDayData(const WorkSchedule::DayData &work_schedule_day_data
-                                                                            , DepartmentId department_id
-                                                                            , StaffPositionId staff_position_id
-                                                                            , WorkScheduleId work_schedule_id) {
+domain::Timesheet::DayData domain::Timesheet::DayData::createWorkingDayData(
+    const WorkSchedule::DayData& work_schedule_day_data,
+    DepartmentId department_id,
+    StaffPositionId staff_position_id,
+    WorkScheduleId work_schedule_id) {
     DayData working_day_data;
 
     working_day_data.department_id = department_id;
@@ -45,10 +47,10 @@ domain::Timesheet::DayData domain::Timesheet::DayData::CreateWorkingDayData(cons
     return working_day_data;
 }
 
-domain::Timesheet::DayData domain::Timesheet::DayData::CreateNonWorkingDayData(LeaveType leave_type
-                                                                            , DepartmentId department_id
-                                                                            , StaffPositionId staff_position_id
-                                                                            , WorkScheduleId work_schedule_id) {
+domain::Timesheet::DayData domain::Timesheet::DayData::createNonWorkingDayData(LeaveType leave_type,
+                                                                               DepartmentId department_id,
+                                                                               StaffPositionId staff_position_id,
+                                                                               WorkScheduleId work_schedule_id) {
     DayData non_working_day_data;
 
     non_working_day_data.department_id = department_id;
@@ -70,14 +72,12 @@ domain::Timesheet::DayData domain::Timesheet::DayData::CreateNonWorkingDayData(L
     non_working_day_data.comment = std::nullopt;
 
     return non_working_day_data;
-
 }
 
-bool domain::Timesheet::DayData::IsWorkingDay() const noexcept
-{
+bool domain::Timesheet::DayData::isWorkingDay() const noexcept {
     return work_time.has_value();
 }
 
-bool domain::Timesheet::DayData::IsNightWorkingDay() const noexcept {
+bool domain::Timesheet::DayData::isNightWorkingDay() const noexcept {
     return night_work_time.has_value();
 }

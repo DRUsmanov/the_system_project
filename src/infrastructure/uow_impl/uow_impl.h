@@ -7,14 +7,12 @@ namespace infrastructure {
 
 class Uow : public application::UowInterface {
 public:
-    Uow(ConnectionPool::ConnectionWrapper&& connection_wrapper)
-    : connection_wrapper_{std::move(connection_wrapper)} { }
+    Uow(ConnectionPool::ConnectionWrapper&& connection_wrapper) : connection_wrapper_{std::move(connection_wrapper)} {}
 
-    pqxx::connection& GetConnection();
+    pqxx::connection& getConnection();
+
 private:
     ConnectionPool::ConnectionWrapper connection_wrapper_;
 };
-    
-} // namespace infrastructure
 
-
+}  // namespace infrastructure

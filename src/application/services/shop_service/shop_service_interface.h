@@ -1,17 +1,21 @@
 #pragma once
 
-#include "domain/entities/shop/shop.h"
-
 #include <chrono>
 
-namespace application{
+#include "domain/entities/shop/employee/employee.h"
+#include "domain/entities/shop/shop.h"
 
-class ShopServiceInterface{
+namespace application {
+
+class ShopServiceInterface {
 public:
     virtual ~ShopServiceInterface() = default;
 
-    virtual domain::Shop GetShop() const = 0; // Далее можно добавить перегрузки с id при расширении программы
+    virtual domain::Shop getShop() const = 0;
+    virtual bool addEmployee(const domain::Employee& employee,
+                             domain::DepartmentId department_id,
+                             domain::StaffPositionId staff_position_id,
+                             domain::WorkScheduleId work_schedule_id) = 0;
 };
 
-} // namespace application
-
+}  // namespace application

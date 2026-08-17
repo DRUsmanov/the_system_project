@@ -1,21 +1,21 @@
 #pragma once
 
+#include <memory>
+
 #include "domain/interfaces/repositorys/users_repository_interface.h"
 #include "infrastructure/uow_impl/uow_impl.h"
-
-#include <memory>
 
 namespace infrastructure {
 
 class UserRepository : public domain::UsersRepositoryInterface {
 public:
-    UserRepository(std::shared_ptr<Uow> uow)
-    : uow_{uow} { }
+    UserRepository(std::shared_ptr<Uow> uow) : uow_{uow} {}
 
-    std::optional<domain::User> LoginUser(const domain::UserLoginData& login_data) const override;
-    std::optional<domain::User> DownloadUser(const domain::UserId& user_id) const override;
+    std::optional<domain::User> loginUser(const domain::UserLoginData& user_login_data) const override;
+    std::optional<domain::User> downloadUser(const domain::UserId& user_id) const override;
+
 private:
     std::shared_ptr<Uow> uow_;
 };
 
-} // namespace infrastructure
+}  // namespace infrastructure

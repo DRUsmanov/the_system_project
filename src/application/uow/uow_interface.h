@@ -6,7 +6,7 @@ class UowInterface {
 public:
     virtual ~UowInterface() = default;
 
-    virtual void Commit() = 0;
-};    
-    
-} // namespace application
+    virtual void commit() = 0;
+};
+
+}  // namespace application

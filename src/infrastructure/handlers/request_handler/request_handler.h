@@ -1,26 +1,26 @@
 #pragma once
 
-#include "infrastructure/handlers/login_request_handler/login_request_handler.h"
-#include "infrastructure/handlers/shop_request_handler/shop_request_handler.h"
-#include "infrastructure/logger/logger.h"
-#include "infrastructure/url_decoder/url_decoder.h"
-#include "infrastructure/token_manager/token_manager.h"
-#include "application/application_manager_interface.h"
-#include "infrastructure/handlers/file_sender/file_sender.h"
-
 #include <boost/asio/ip/tcp.hpp>
 #include <boost/asio/strand.hpp>
 #include <boost/beast/core.hpp>
 #include <boost/beast/http.hpp>
 #include <boost/url/url_view.hpp>
-#include <string_view>
-#include <memory>
-#include <unordered_map>
-#include <iostream>
-#include <functional>
 #include <chrono>
-#include <variant>
 #include <exception>
+#include <functional>
+#include <iostream>
+#include <memory>
+#include <string_view>
+#include <unordered_map>
+#include <variant>
+
+#include "application/application_manager_interface.h"
+#include "infrastructure/handlers/file_sender/file_sender.h"
+#include "infrastructure/handlers/login_request_handler/login_request_handler.h"
+#include "infrastructure/handlers/shop_request_handler/shop_request_handler.h"
+#include "infrastructure/logger/logger.h"
+#include "infrastructure/token_manager/token_manager.h"
+#include "infrastructure/url_decoder/url_decoder.h"
 
 namespace infrastructure {
 
@@ -40,23 +40,26 @@ using Response = std::variant<std::monostate, StringResponse, FileResponse>;
  */
 
 template <typename SomeRequestHandler>
-class LoggingRequestHandler{
+class LoggingRequestHandler {
 public:
-    LoggingRequestHandler(SomeRequestHandler& handler)
-    : handler_{handler}{ }
+    LoggingRequestHandler(SomeRequestHandler& handler) : handler_{handler} {}
 
     template <typename Body, typename Allocator, typename Send>
-    void operator()(http::request<Body, http::basic_fields<Allocator>>&& req, Send&& send, const beast::tcp_stream& stream){
-        logger::LogRequest(req, stream);
+    void operator()(http::request<Body, http::basic_fields<Allocator>>&& req,
+                    Send&& send,
+                    const beast::tcp_stream& stream) {
+        logger::logRequest(req, stream);
 
         auto request_processing_start_time = std::chrono::steady_clock::now();
-        handler_(std::move(req), [send, request_processing_start_time](auto&& response){
+        handler_(std::move(req), [send, request_processing_start_time](auto&& response) {
             auto request_processing_end_time = std::chrono::steady_clock::now();
-            auto request_processing_time = std::chrono::duration_cast<std::chrono::milliseconds>(request_processing_end_time - request_processing_start_time);
-            logger::LogResponse(response, request_processing_time.count());
+            auto request_processing_time = std::chrono::duration_cast<std::chrono::milliseconds>(
+                request_processing_end_time - request_processing_start_time);
+            logger::logResponse(response, request_processing_time.count());
             send(std::move(response));
         });
     }
+
 private:
     SomeRequestHandler& handler_;
 };
@@ -68,61 +71,74 @@ class RequestHandler {
 public:
     using Strand = net::strand<net::io_context::executor_type>;
 
-    explicit RequestHandler(
-        const application::ApplicationManagerInterface& application_manager
-        , const FileSender& file_sender    
-    )
-    : token_manager_{std::make_shared<TokenManager>()}
-    , file_sender_{file_sender}
-    , login_request_handler_{application_manager, token_manager_}
-    , shop_request_handler_{application_manager} { }
+    explicit RequestHandler(const application::ApplicationManagerInterface& application_manager,
+                            const FileSender& file_sender) :
+        token_manager_{std::make_shared<TokenManager>()}, file_sender_{file_sender},
+        login_request_handler_{application_manager, token_manager_}, shop_request_handler_{application_manager} {}
 
     RequestHandler(const RequestHandler&) = delete;
     RequestHandler& operator=(const RequestHandler&) = delete;
 
     template <typename Body, typename Allocator, typename Send>
     void operator()(http::request<Body, http::basic_fields<Allocator>>&& req, Send&& send) {
-        const auto text_response_maker = [this, version = req.version(), keep_alive = req.keep_alive()]
-        (http::status status, std::string_view text, std::string_view content_type = content_type::APP_JSON){
-            return MakeStringResponse(status, text, version, keep_alive, content_type);
+        const auto text_response_maker = [this, version = req.version(), keep_alive = req.keep_alive()](
+                                             http::status status,
+                                             std::string_view text,
+                                             std::string_view content_type = content_type::APP_JSON) {
+            return makeStringResponse(status, text, version, keep_alive, content_type);
         };
 
-        const auto file_response_maker = [this, version = req.version(), keep_alive = req.keep_alive()]
-        (http::status status, http::file_body::value_type&& file, std::string_view content_type){
-            return MakeFileResponse(status, std::move(file), version, keep_alive, content_type);
+        const auto file_response_maker = [this, version = req.version(), keep_alive = req.keep_alive()](
+                                             http::status status,
+                                             http::file_body::value_type&& file,
+                                             std::string_view content_type) {
+            return makeFileResponse(status, std::move(file), version, keep_alive, content_type);
         };
 
         try {
-            std::string target = DecodeUrl(req.target());
+            std::string target = decodeUrl(req.target());
             req.target(target);
             std::string path = boost::urls::url_view{target}.path();
 
             if (path == API_V1_LOGIN) {
-                login_request_handler_(std::move(req), text_response_maker, file_response_maker, std::forward<decltype(send)>(send));
+                login_request_handler_(std::move(req),
+                                       text_response_maker,
+                                       file_response_maker,
+                                       std::forward<decltype(send)>(send));
                 return;
             }
 
-            auto payload = GetPayloadFromAuthorizationField(req);
+            auto payload = getPayloadFromAuthorizationField(req);
 
-            if (!payload.has_value()){
-                file_sender_(FileSender::File::LOGIN_HTML, text_response_maker, file_response_maker, std::forward<decltype(send)>(send));
+            if (!payload.has_value()) {
+                file_sender_(FileSender::File::LOGIN_HTML,
+                             text_response_maker,
+                             file_response_maker,
+                             std::forward<decltype(send)>(send));
                 return;
             }
             if (target.empty()) {
-                file_sender_(FileSender::File::INDEX_HTML, text_response_maker, file_response_maker, std::forward<decltype(send)>(send));
+                file_sender_(FileSender::File::INDEX_HTML,
+                             text_response_maker,
+                             file_response_maker,
+                             std::forward<decltype(send)>(send));
                 return;
             }
-            if (path.starts_with(API_V1_SHOP)){
-                shop_request_handler_(std::move(req), payload, text_response_maker, file_response_maker, std::forward<decltype(send)>(send));
+            if (path.starts_with(API_V1_SHOP)) {
+                shop_request_handler_(std::move(req),
+                                      payload,
+                                      text_response_maker,
+                                      file_response_maker,
+                                      std::forward<decltype(send)>(send));
                 return;
             }
             auto not_found_response = text_response_maker(http::status::not_found, NOT_FOUND, content_type::APP_JSON);
             not_found_response.set(http::field::cache_control, "no-cache");
             send(std::move(not_found_response));
             return;
-        }
-        catch(const std::exception& ex) {
-            auto server_error_response = text_response_maker(http::status::internal_server_error, SERVER_ERROR, content_type::APP_JSON);
+        } catch (const std::exception& ex) {
+            auto server_error_response =
+                text_response_maker(http::status::internal_server_error, SERVER_ERROR, content_type::APP_JSON);
             server_error_response.set(http::field::cache_control, "no-cache");
             send(std::move(server_error_response));
             return;
@@ -130,19 +146,26 @@ public:
     }
 
 private:
-    StringResponse MakeStringResponse(http::status status, std::string_view body, unsigned http_version,
-                                        bool keep_alive, std::string_view content_type);
-    FileResponse MakeFileResponse(http::status status, http::file_body::value_type&& file, unsigned http_version,
-                                        bool keep_alive, std::string_view content_type);
-    
+    StringResponse makeStringResponse(http::status status,
+                                      std::string_view body,
+                                      unsigned http_version,
+                                      bool keep_alive,
+                                      std::string_view content_type);
+    FileResponse makeFileResponse(http::status status,
+                                  http::file_body::value_type&& file,
+                                  unsigned http_version,
+                                  bool keep_alive,
+                                  std::string_view content_type);
+
     template <typename Body, typename Allocator>
-    TokenManager::Payload GetPayloadFromAuthorizationField(const http::request<Body, http::basic_fields<Allocator>>& req) const {
+    TokenManager::Payload getPayloadFromAuthorizationField(
+        const http::request<Body, http::basic_fields<Allocator>>& req) const {
         auto authorization_field_it = req.find(http::field::authorization);
         if (authorization_field_it != req.end()) {
             std::string_view authorization_field = authorization_field_it->value();
-            if (authorization_field.size() > BEARER.size() && authorization_field.starts_with(BEARER)){
+            if (authorization_field.size() > BEARER.size() && authorization_field.starts_with(BEARER)) {
                 std::string_view token = authorization_field.substr(BEARER.size());
-                return token_manager_->GetPayloadFromToken(token);
+                return token_manager_->getPayloadFromToken(token);
             }
         }
         return std::nullopt;

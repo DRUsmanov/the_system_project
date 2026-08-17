@@ -1,24 +1,24 @@
 #pragma once
 
-#include "application/dto/user_dto.h"
-#include "application/dto/timesheet_dto.h"
-#include "application/dto/employee_dto.h"
-
 #include <chrono>
 #include <optional>
 
-namespace application{
+#include "application/dto/shop_dto.h"
+#include "application/dto/timesheet_dto.h"
+#include "application/dto/user_dto.h"
 
-class ApplicationManagerInterface{
+namespace application {
+
+class ApplicationManagerInterface {
 public:
     virtual ~ApplicationManagerInterface() = default;
 
-    virtual std::optional<UserIdOutputDto> Login(const UserLoginInputDto& user_login_input_dto) const = 0;
+    virtual std::optional<UserIdOutputDto> login(const UserLoginInputDto& user_login_input_dto) const = 0;
 
-    virtual bool AddEmployee(const UserIdInputDto& user_id_input_dto, const AddEmployeeInputDto& add_employee_input_dto) const = 0;
-
-    virtual std::optional<TimesheetOutputDto> GetTimesheet(const TimesheetInputDto& timesheet_input_dto) const = 0;
-    virtual std::optional<UserIdOutputDto> GetUser(const UserLoginInputDto user_login_input_dto) const = 0;    
+    virtual bool addEmployee(const UserIdInputDto& user_id_input_dto,
+                             const AddEmployeeInputDto& add_employee_input_dto) const = 0;
+    virtual std::optional<TimesheetOutputDto> getTimesheet(const TimesheetInputDto& timesheet_input_dto) const = 0;
+    virtual std::optional<UserIdOutputDto> getUser(const UserLoginInputDto user_login_input_dto) const = 0;
 };
-    
-} // namespace application
+
+}  // namespace application

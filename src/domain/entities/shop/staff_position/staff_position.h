@@ -15,6 +15,7 @@ using StaffPositionId = utils::Tagged<int, detail::StaffPosition>;
 using StaffPositionIdHasher = utils::TaggedHasher<StaffPositionId>;
 
 struct StaffPosition {
+    StaffPositionId staff_position_id;
     std::string name;
 };
     

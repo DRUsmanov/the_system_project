@@ -15,6 +15,7 @@ using DepartmentId = utils::Tagged<int, detail::Department>;
 using DepartmentIdHasher = utils::TaggedHasher<DepartmentId>;
 
 struct Department {
+    DepartmentId department_id;
     std::string name;
 };
     
