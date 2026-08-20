@@ -3,22 +3,28 @@
 #include <chrono>
 #include <optional>
 
-#include "application/dto/shop_dto.h"
-#include "application/dto/timesheet_dto.h"
-#include "application/dto/user_dto.h"
-
+#include "domain/entities/shop/employee/employee.h"
+#include "domain/entities/shop/shop.h"
+#include "domain/entities/timesheet/timesheet.h"
+#include "domain/entities/user/user.h"
 namespace application {
 
 class ApplicationManagerInterface {
 public:
     virtual ~ApplicationManagerInterface() = default;
 
-    virtual std::optional<UserIdOutputDto> login(const UserLoginInputDto& user_login_input_dto) const = 0;
+    virtual std::optional<domain::User> login(std::string login, std::string password) const = 0;
 
-    virtual bool addEmployee(const UserIdInputDto& user_id_input_dto,
-                             const AddEmployeeInputDto& add_employee_input_dto) const = 0;
-    virtual std::optional<TimesheetOutputDto> getTimesheet(const TimesheetInputDto& timesheet_input_dto) const = 0;
-    virtual std::optional<UserIdOutputDto> getUser(const UserLoginInputDto user_login_input_dto) const = 0;
+    virtual bool addNewEmployee(const domain::UserId& user_id,
+                                const domain::Shop::EmployeeAssignment& employee_assignment,
+                                const domain::Employee& employee) const = 0;
+
+    virtual std::optional<domain::Timesheet> getTimesheet(const domain::UserId& user_id,
+                                                          const domain::AdminCategoryId& admin_category_id,
+                                                          const domain::DepartmentId& department_id,
+                                                          std::chrono::year_month year_month) const = 0;
+
+    virtual std::optional<domain::User> getUser(const domain::UserId& user_id) const = 0;
 };
 
 }  // namespace application

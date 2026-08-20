@@ -12,7 +12,7 @@ public:
     explicit UserService(std::shared_ptr<domain::UsersRepositoryInterface> user_repository) :
         user_repository_{user_repository} {}
 
-    std::optional<domain::User> login(const domain::UserLoginData& user_login_data) const override;
+    std::optional<domain::User> login(std::string login, std::string password) const override;
     std::optional<domain::User> getUser(const domain::UserId& user_id) const override;
 
 private:

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "application/dto/user_dto.h"
+#include "application/application_gateway/dto/user_dto.h"
 #include "domain/entities/user/user.h"
 
 namespace application {

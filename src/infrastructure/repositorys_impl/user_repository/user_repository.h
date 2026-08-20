@@ -11,7 +11,7 @@ class UserRepository : public domain::UsersRepositoryInterface {
 public:
     UserRepository(std::shared_ptr<Uow> uow) : uow_{uow} {}
 
-    std::optional<domain::User> loginUser(const domain::UserLoginData& user_login_data) const override;
+    std::optional<domain::User> loginUser(std::string login, std::string password) const override;
     std::optional<domain::User> downloadUser(const domain::UserId& user_id) const override;
 
 private:

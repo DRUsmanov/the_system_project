@@ -7,9 +7,9 @@
 
 using namespace infrastructure;
 
-std::optional<domain::User> UserRepository::loginUser(const domain::UserLoginData& user_login_data) const {
+std::optional<domain::User> UserRepository::loginUser(std::string login, std::string password) const {
     pqxx::work work(uow_->getConnection());
-    auto result = work.exec_params(query::LOGIN, user_login_data.login, user_login_data.password);
+    auto result = work.exec_params(query::LOGIN, login, password);
 
     if (result.size() != 1) {
         return std::nullopt;

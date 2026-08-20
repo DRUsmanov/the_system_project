@@ -1,6 +1,6 @@
 #pragma once
 
-#include "application/dto/shop_dto.h"
+#include "application/application_gateway/dto/shop_dto.h"
 #include "domain/entities/shop/department/department.h"
 #include "domain/entities/shop/employee/employee.h"
 #include "domain/entities/shop/shop.h"

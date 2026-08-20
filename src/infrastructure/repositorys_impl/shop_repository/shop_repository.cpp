@@ -1,5 +1,7 @@
 #include "shop_repository.h"
 
+#include "domain/entities/shop/employee/employee.h"
+#include "domain/entities/shop/profession/profession.h"
 #include "infrastructure/connection_pool/querys.h"
 
 using namespace infrastructure;
@@ -29,6 +31,20 @@ bool ShopRepository::uploadEmployee(const domain::Employee& employee,
                               department_id,
                               staff_position_id,
                               work_schedule_id);
+
+    if (result.size() != 1) {
+        return false;
+    }
+
+    result = work.exec_params(query::DOWNLOAD_DEFAULT_PROFESSION, staff_position_id);
+
+    if (result.size() != 1) {
+        return false;
+    }
+
+    domain::ProfessionId professions_id = result[0][0].as<domain::ProfessionId>();
+
+    result = work.exec_params(query::UPLOAD_EMPLOYEE_PROFESSIONS, employee_id, professions_id);
 
     if (result.size() != 1) {
         return false;

@@ -2,8 +2,8 @@
 
 namespace application {
 
-std::optional<domain::User> UserService::login(const domain::UserLoginData& user_login_data) const {
-    return user_repository_->loginUser(user_login_data);
+std::optional<domain::User> UserService::login(std::string login, std::string password) const {
+    return user_repository_->loginUser(login, password);
 }
 
 std::optional<domain::User> UserService::getUser(const domain::UserId& user_id) const {
