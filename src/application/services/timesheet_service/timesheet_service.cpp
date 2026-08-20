@@ -12,10 +12,10 @@
 
 using namespace application;
 
-std::optional<domain::Timesheet> TimesheetService::getTimesheet(domain::DepartmentId department_id,
-                                                                domain::AdminCategoryId admin_category_id,
-                                                                std::chrono::year_month year_month) const {
-    return timesheet_repository_->downloadTimesheet(department_id, admin_category_id, year_month);
+std::optional<domain::Timesheet> TimesheetService::getDepartmentTimesheet(domain::DepartmentId department_id,
+                                                                          domain::AdminCategoryId admin_category_id,
+                                                                          std::chrono::year_month year_month) const {
+    return timesheet_repository_->downloadDepartmentTimesheet(department_id, admin_category_id, year_month);
 }
 
 bool TimesheetService::generateEmployeeVacationsInTimesheet(domain::Timesheet& timesheet,
@@ -91,6 +91,16 @@ bool TimesheetService::generateWorkingDayInTimesheet(domain::Timesheet& timeshee
     return false;
 }
 
+std::chrono::year_month_day application::TimesheetService::getCurrentData() const {
+    using namespace std::chrono;
+    using namespace std::literals;
+
+    auto now = system_clock::now();
+    auto days = floor<std::chrono::days>(now);
+    year_month_day ymd{days};
+    return ymd;
+}
+
 bool TimesheetService::generateTimesheetForShop(const domain::Shop& shop, std::chrono::year year) {
     using namespace std::chrono;
     using namespace std::literals;
@@ -105,7 +115,7 @@ bool TimesheetService::generateTimesheetForShop(const domain::Shop& shop, std::c
     auto pre_holidays = timesheet_repository_->downloadPreHolidaysByYear(year);
     auto holidays = timesheet_repository_->downloadHolidaysByYear(year);
     auto extra_holidays = timesheet_repository_->downloadExtraHolidaysByYear(year);
-    auto vacations = timesheet_repository_->downloadVacationsByShopAndYear(shop, year);
+    auto vacations = timesheet_repository_->downloadVacationsByYear(year);
     auto system_administrator_id = timesheet_repository_->downloadSystemAdministratorId();
 
     for (const auto& [employee_id, employee_assignment] : employees_assignments) {
@@ -149,15 +159,12 @@ bool TimesheetService::generateTimesheetForShop(const domain::Shop& shop, std::c
     return addTimesheet(timesheet);
 }
 
-bool TimesheetService::generateTimesheetForNewEmployee(domain::DepartmentId department_id,
+bool TimesheetService::generateTimesheetForNewEmployee(const domain::Shop::EmployeeAssignment& employee_assignment,
                                                        const domain::Employee& employee) {
     using namespace std::chrono;
     using namespace std::literals;
 
-    auto now = system_clock::now();
-    auto days = floor<std::chrono::days>(now);
-    year_month_day ymd{days};
-    auto year = ymd.year();
+    auto year = getCurrentData().year();
 
     domain::Timesheet timesheet;
 
@@ -165,18 +172,19 @@ bool TimesheetService::generateTimesheetForNewEmployee(domain::DepartmentId depa
     auto holidays = timesheet_repository_->downloadHolidaysByYear(year);
     auto extra_holidays = timesheet_repository_->downloadExtraHolidaysByYear(year);
     auto system_administrator_id = timesheet_repository_->downloadSystemAdministratorId();
+    auto work_schedule = timesheet_repository_->downloadWorkScheduleById(employee_assignment.work_schedule_id);
+    auto vacations = timesheet_repository_->downloadVacationsByEmployeeIdAndYear(employee.employee_id, year);
 
     auto start_date = sys_days{year / January / 1};
     auto end_date = sys_days{year / December / 31};
 
-    // TODO
     for (auto date = start_date; date <= end_date; date += std::chrono::days{1}) {
         TimesheetGenerationContext generation_context{system_administrator_id,
                                                       date,
-                                                      employee_id,
-                                                      department_id,
-                                                      staff_position_id,
-                                                      work_schedule_id,
+                                                      employee.employee_id,
+                                                      employee_assignment.department_id,
+                                                      employee_assignment.staff_position_id,
+                                                      employee_assignment.work_schedule_id,
                                                       work_schedule,
                                                       pre_holidays,
                                                       holidays,
@@ -193,6 +201,8 @@ bool TimesheetService::generateTimesheetForNewEmployee(domain::DepartmentId depa
 
         generateWorkingDayInTimesheet(timesheet, generation_context);
     }
+
+    return addTimesheet(timesheet);
 }
 
 bool TimesheetService::addTimesheet(const domain::Timesheet& timesheet) {

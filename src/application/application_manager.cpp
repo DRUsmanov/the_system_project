@@ -26,7 +26,7 @@ std::optional<UserIdOutputDto> ApplicationManager::login(const UserLoginInputDto
 bool ApplicationManager::addEmployee(const UserIdInputDto& user_id_input_dto,
                                      const AddEmployeeInputDto& add_employee_input_dto) const {
     try {
-        std::pair<domain::DepartmentId, domain::Employee> department_id_with_employee =
+        std::pair<domain::Shop::EmployeeAssignment, domain::Employee> employee_assignments_with_employee =
             shop_dto_mapper_.convert(add_employee_input_dto);
         domain::UserId user_id = user_dto_mapper_.convert(user_id_input_dto);
 
@@ -44,12 +44,17 @@ bool ApplicationManager::addEmployee(const UserIdInputDto& user_id_input_dto,
             return false;
         }
 
-        if (!permission_service->checkUserAddEmployeePermission(user->user_id, department_id_with_employee.first)) {
+        if (!permission_service->checkUserAddEmployeeToDepartmentPermission(
+                user->user_id,
+                employee_assignments_with_employee.first.department_id)) {
             return false;
         }
 
-        shop_service->addEmployee(department_id_with_employee.second, );
-        // TODO: сгенерировать табель для работника
+        shop_service->addEmployee(employee_assignments_with_employee.first, employee_assignments_with_employee.second);
+        timesheet_service->generateTimesheetForNewEmployee(employee_assignments_with_employee.first,
+                                                           employee_assignments_with_employee.second);
+
+        // TODO что еще нужно добавить?
 
     } catch (std::exception& ex) {
         return false;
@@ -71,12 +76,12 @@ std::optional<application::TimesheetOutputDto> application::ApplicationManager::
         std::shared_ptr<application::ShopServiceInterface> shop_service = shop_service_factory_.createShopService(uow);
 
         std::optional<domain::Timesheet> timesheet =
-            timesheet_service->getTimesheet(department_id, admin_category_id, year_month);
+            timesheet_service->getDepartmentTimesheet(department_id, admin_category_id, year_month);
         if (!timesheet.has_value()) {
             domain::Shop shop = shop_service->getShop();
             timesheet_service->generateTimesheetForShop(shop, year_month.year());
         }
-        timesheet = timesheet_service->getTimesheet(department_id, admin_category_id, year_month);
+        timesheet = timesheet_service->getDepartmentTimesheet(department_id, admin_category_id, year_month);
         if (!timesheet.has_value()) {
             return std::nullopt;
         }

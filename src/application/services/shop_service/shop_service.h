@@ -13,10 +13,7 @@ public:
     ShopService(std::shared_ptr<domain::ShopRepositoryInterface> shop_repository) : shop_repository_{shop_repository} {}
 
     domain::Shop getShop() const override;
-    bool addEmployee(const domain::Employee& employee,
-                     domain::DepartmentId department_id,
-                     domain::StaffPositionId staff_position_id,
-                     domain::WorkScheduleId work_schedule_id) override;
+    bool addEmployee(domain::Shop::EmployeeAssignment employee_assignment, const domain::Employee& employee) override;
 
 private:
     std::shared_ptr<domain::ShopRepositoryInterface> shop_repository_;

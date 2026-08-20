@@ -29,12 +29,13 @@ public:
     virtual PreHolidays downloadPreHolidaysByYear(std::chrono::year year) const = 0;
     virtual Holidays downloadHolidaysByYear(std::chrono::year year) const = 0;
     virtual ExtraHolidays downloadExtraHolidaysByYear(std::chrono::year year) const = 0;
-    virtual Vacations downloadVacationsByShopAndYear(const Shop& shop, std::chrono::year year) const = 0;
+    virtual Vacations downloadVacationsByYear(std::chrono::year year) const = 0;
     virtual Vacations downloadVacationsByEmployeeId(EmployeeId employee_id) const = 0;
+    virtual Vacations downloadVacationsByEmployeeIdAndYear(EmployeeId employee_id, std::chrono::year year) const = 0;
     virtual AdminCategoryId downloadSystemAdministratorId() const = 0;
-    virtual std::optional<Timesheet> downloadTimesheet(domain::DepartmentId department_id,
-                                                       domain::AdminCategoryId admin_category_id,
-                                                       std::chrono::year_month year_month) const = 0;
+    virtual std::optional<Timesheet> downloadDepartmentTimesheet(domain::DepartmentId department_id,
+                                                                 domain::AdminCategoryId admin_category_id,
+                                                                 std::chrono::year_month year_month) const = 0;
 
     virtual bool uploadTimesheet(const domain::Timesheet& timesheet) = 0;
 };

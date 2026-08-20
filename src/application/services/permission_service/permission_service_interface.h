@@ -9,8 +9,8 @@ class PermissionServiceInterface {
 public:
     virtual ~PermissionServiceInterface() = default;
 
-    virtual bool checkUserAddEmployeePermission(const domain::UserId& user_id,
-                                                const domain::DepartmentId& department_id) const = 0;
+    virtual bool checkUserAddEmployeeToDepartmentPermission(const domain::UserId& user_id,
+                                                            const domain::DepartmentId& department_id) const = 0;
 };
 
 }  // namespace application

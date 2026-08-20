@@ -13,11 +13,12 @@ public:
     TimesheetService(std::shared_ptr<domain::TimeSheetRepositoryInterface> timesheet_repository) :
         timesheet_repository_{timesheet_repository} {}
 
-    std::optional<domain::Timesheet> getTimesheet(domain::DepartmentId department_id,
-                                                  domain::AdminCategoryId admin_category_id,
-                                                  std::chrono::year_month year_month) const override;
+    std::optional<domain::Timesheet> getDepartmentTimesheet(domain::DepartmentId department_id,
+                                                            domain::AdminCategoryId admin_category_id,
+                                                            std::chrono::year_month year_month) const override;
     bool generateTimesheetForShop(const domain::Shop& shop, std::chrono::year year) override;
-    bool generateTimesheetForNewEmployee(domain::DepartmentId department_id, const domain::Employee& employee) override;
+    bool generateTimesheetForNewEmployee(const domain::Shop::EmployeeAssignment& employee_assignment,
+                                         const domain::Employee& employee) override;
 
 private:
     struct TimesheetGenerationContext {
@@ -40,7 +41,9 @@ private:
                                      const TimesheetGenerationContext& generation_context);
     bool generateWorkingDayInTimesheet(domain::Timesheet& timesheet,
                                        const TimesheetGenerationContext& generation_context);
+    std::chrono::year_month_day getCurrentData() const;
 
+private:
     std::shared_ptr<domain::TimeSheetRepositoryInterface> timesheet_repository_;
 };
 

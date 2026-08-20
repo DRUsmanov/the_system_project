@@ -6,9 +6,10 @@ domain::Shop ShopService::getShop() const {
     return shop_repository_->downloadShop();
 }
 
-bool application::ShopService::addEmployee(const domain::Employee& employee,
-                                           domain::DepartmentId department_id,
-                                           domain::StaffPositionId staff_position_id,
-                                           domain::WorkScheduleId work_schedule_id) {
-    return shop_repository_->uploadEmployee(employee, department_id, staff_position_id, work_schedule_id);
+bool application::ShopService::addEmployee(domain::Shop::EmployeeAssignment employee_assignment,
+                                           const domain::Employee& employee) {
+    return shop_repository_->uploadEmployee(employee,
+                                            employee_assignment.department_id,
+                                            employee_assignment.staff_position_id,
+                                            employee_assignment.work_schedule_id);
 }
