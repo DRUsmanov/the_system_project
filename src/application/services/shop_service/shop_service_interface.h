@@ -1,6 +1,7 @@
 #pragma once
 
 #include <chrono>
+#include <optional>
 
 #include "domain/entities/shop/employee/employee.h"
 #include "domain/entities/shop/shop.h"

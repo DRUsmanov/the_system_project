@@ -6,7 +6,11 @@
 
 namespace application {
 
-struct AddEmployeeInputDto {
+// ======================================================================
+// ADD EMPLOYEE
+// ======================================================================
+
+struct AddEmployeeRequestDto {
     std::string last_name;
     std::string first_name;
     std::string patronymic;
@@ -18,11 +22,15 @@ struct AddEmployeeInputDto {
     uint64_t work_schedule_id;
 };
 
-struct EmployeeIdInputDto {
+struct AddEmployeeResponseDto {
+    bool is_added = false;
+};
+
+struct GetEmployeeRequestDto {
     uint64_t employee_id;
 };
 
-struct EmployeeOutputDto {
+struct GetEmployeeResponseDto {
     std::string last_name;
     std::string first_name;
     std::optional<std::string> patronymic;

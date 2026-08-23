@@ -34,7 +34,8 @@ private:
         const domain::ExtraHolidays& extra_holidays;
         const domain::Vacations& vacations;
     };
-    bool addTimesheet(const domain::Timesheet& timesheet);
+
+private:
     bool generateEmployeeVacationsInTimesheet(domain::Timesheet& timesheet,
                                               const TimesheetGenerationContext& generation_context);
     bool generateHolidaysInTimesheet(domain::Timesheet& timesheet,

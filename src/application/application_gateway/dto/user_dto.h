@@ -5,17 +5,18 @@
 
 namespace application {
 
-struct UserLoginInputDto {
+struct UserAccessDto {
+    uint64_t user_id;
+};
+
+struct UserLoginRequestDto {
     std::string login;
     std::string password;
 };
 
-struct UserIdInputDto {
+struct UserLoginResponseDto {
     uint64_t user_id;
-};
-
-struct UserIdOutputDto {
-    uint64_t user_id;
+    uint64_t employee_id;
 };
 
 }  // namespace application

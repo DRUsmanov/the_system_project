@@ -9,10 +9,9 @@
 using namespace infrastructure;
 
 std::optional<domain::UserPermissions> PermissionRepository::downloadUserPermissions(domain::UserId user_id) const {
-    pqxx::work work(uow_->getConnection());
-    auto result = work.exec_params(query::DOWNLOAD_USER_PERMISSIONS, *user_id);
+    auto result = uow_->execParams(query::DOWNLOAD_USER_PERMISSIONS, *user_id);
 
-    if (result.size() != 1) {
+    if (result.size() == 0) {
         return std::nullopt;
     }
 
@@ -21,8 +20,10 @@ std::optional<domain::UserPermissions> PermissionRepository::downloadUserPermiss
     for (const auto row : result) {
         auto db_deprtment_id = row[tables::permissions::DEPARTMENT_ID].as<int>();
         domain::DepartmentId department_id{db_deprtment_id};
+
         auto db_permissions = row[tables::permissions::PERMISSIONS].as<int>();
         domain::Permissions permissions{static_cast<unsigned long>(db_permissions)};
+
         user_permissions.emplace(department_id, permissions);
     }
 

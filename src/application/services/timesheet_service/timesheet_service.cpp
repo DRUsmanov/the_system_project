@@ -156,7 +156,7 @@ bool TimesheetService::generateTimesheetForShop(const domain::Shop& shop, std::c
         }
     }
 
-    return addTimesheet(timesheet);
+    return timesheet_repository_->uploadTimesheet(timesheet);
 }
 
 bool TimesheetService::generateTimesheetForNewEmployee(const domain::Shop::EmployeeAssignment& employee_assignment,
@@ -202,9 +202,5 @@ bool TimesheetService::generateTimesheetForNewEmployee(const domain::Shop::Emplo
         generateWorkingDayInTimesheet(timesheet, generation_context);
     }
 
-    return addTimesheet(timesheet);
-}
-
-bool TimesheetService::addTimesheet(const domain::Timesheet& timesheet) {
     return timesheet_repository_->uploadTimesheet(timesheet);
 }

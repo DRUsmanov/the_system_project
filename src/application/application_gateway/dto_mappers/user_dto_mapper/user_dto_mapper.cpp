@@ -2,20 +2,20 @@
 
 using namespace application;
 
-domain::UserLoginData UserDtoMapper::convert(const UserLoginInputDto& user_login_input_dto) const {
+domain::UserLoginData UserDtoMapper::convert(const UserLoginRequestDto& user_login_request_dto) const {
     domain::UserLoginData user_login_data;
-    user_login_data.login = user_login_input_dto.login;
-    user_login_data.password = user_login_input_dto.password;
+    user_login_data.login = user_login_request_dto.login;
+    user_login_data.password = user_login_request_dto.password;
     return user_login_data;
 }
 
-UserIdOutputDto application::UserDtoMapper::convert(const domain::User& user) const {
-    UserIdOutputDto user_id_output_dto;
-    user_id_output_dto.user_id = *user.user_id;
-    user_id_output_dto.employee_id = *user.employee_id;
-    return user_id_output_dto;
+UserLoginResponseDto application::UserDtoMapper::convert(const domain::User& user) const {
+    UserLoginResponseDto user_login_response_dto;
+    user_login_response_dto.user_id = *user.user_id;
+    user_login_response_dto.employee_id = *user.employee_id;
+    return user_login_response_dto;
 }
 
-domain::UserId UserDtoMapper::convert(const UserIdInputDto& user_id_input_dto) const {
-    return domain::UserId{user_id_input_dto.user_id};
+domain::UserId UserDtoMapper::convert(const UserAccessDto& user_access_dto) const {
+    return domain::UserId{user_access_dto.user_id};
 }

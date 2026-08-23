@@ -12,7 +12,7 @@ public:
     virtual ~ShopDtoMapperInterface() = default;
 
     virtual std::pair<domain::Shop::EmployeeAssignment, domain::Employee> convert(
-        const AddEmployeeInputDto& add_employee_input_dto) const = 0;
+        const AddEmployeeRequestDto& add_employee_request_dto) const = 0;
 };
 
 }  // namespace application

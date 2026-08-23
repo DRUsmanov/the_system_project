@@ -13,8 +13,14 @@ public:
     PermissionService(std::shared_ptr<domain::PermissionRepositoryInterface> permission_repository) :
         permission_repository_{permission_repository} {}
 
-    bool checkUserAddEmployeeToDepartmentPermission(const domain::UserId& user_id,
-                                                    const domain::DepartmentId& department_id) const override;
+    bool checkUserDepartmentWritePermission(const domain::UserId& user_id,
+                                            const domain::DepartmentId& department_id) const override;
+    bool checkUserDepartmentReadPermission(const domain::UserId& user_id,
+                                           const domain::DepartmentId& department_id) const override;
+
+private:
+    std::optional<domain::Permissions> getUserDepartmentPermissions(const domain::UserId& user_id,
+                                                                    const domain::DepartmentId& department_id) const;
 
 private:
     std::shared_ptr<domain::PermissionRepositoryInterface> permission_repository_;

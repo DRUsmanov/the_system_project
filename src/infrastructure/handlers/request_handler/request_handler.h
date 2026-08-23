@@ -14,7 +14,7 @@
 #include <unordered_map>
 #include <variant>
 
-#include "application/application_manager_interface.h"
+#include "application/application_manager/application_manager_interface.h"
 #include "infrastructure/handlers/file_sender/file_sender.h"
 #include "infrastructure/handlers/login_request_handler/login_request_handler.h"
 #include "infrastructure/handlers/shop_request_handler/shop_request_handler.h"

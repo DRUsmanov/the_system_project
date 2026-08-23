@@ -2,6 +2,6 @@
 
 using namespace infrastructure;
 
-pqxx::connection& Uow::getConnection() {
-    return *connection_wrapper_;
+void infrastructure::Uow::commit() {
+    work_.commit();
 }

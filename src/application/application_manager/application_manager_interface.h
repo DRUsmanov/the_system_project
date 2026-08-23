@@ -15,16 +15,14 @@ public:
 
     virtual std::optional<domain::User> login(std::string login, std::string password) const = 0;
 
-    virtual bool addNewEmployee(const domain::UserId& user_id,
-                                const domain::Shop::EmployeeAssignment& employee_assignment,
-                                const domain::Employee& employee) const = 0;
+    virtual bool addEmployee(const domain::UserId& user_id,
+                             const domain::Shop::EmployeeAssignment& employee_assignment,
+                             const domain::Employee& employee) const = 0;
 
     virtual std::optional<domain::Timesheet> getTimesheet(const domain::UserId& user_id,
                                                           const domain::AdminCategoryId& admin_category_id,
                                                           const domain::DepartmentId& department_id,
                                                           std::chrono::year_month year_month) const = 0;
-
-    virtual std::optional<domain::User> getUser(const domain::UserId& user_id) const = 0;
 };
 
 }  // namespace application

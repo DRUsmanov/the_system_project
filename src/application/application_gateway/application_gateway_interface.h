@@ -10,16 +10,14 @@ class ApplicationGatewayInterface {
 public:
     ~ApplicationGatewayInterface() = default;
 
-    virtual std::optional<UserIdOutputDto> login(const UserLoginInputDto& user_login_input_dto) const = 0;
+    virtual std::optional<UserLoginResponseDto> login(const UserLoginRequestDto& user_login_request_dto) const = 0;
 
-    virtual bool addNewEmployee(const UserIdInputDto& user_id_input_dto,
-                                const AddEmployeeInputDto& add_eployee_input_dto) const = 0;
+    virtual bool addEmployee(const UserAccessDto& user_access_dto,
+                             const AddEmployeeRequestDto& add_employee_request_dto) const = 0;
 
-    virtual std::optional<TimesheetOutputDto> getTimesheet(
-        const UserIdInputDto& user_id_input_dto,
-        const GetTimesheetInputDto& get_timesheet_input_dto) const = 0;
-
-    virtual std::optional<UserIdOutputDto> getUser(const UserIdInputDto& user_id_input_dto) const = 0;
+    virtual std::optional<GetTimesheetResponseDto> getTimesheet(
+        const UserAccessDto& user_access_dto,
+        const GetTimesheetRequestDto& get_timesheet_input_dto) const = 0;
 };
 
 }  // namespace application

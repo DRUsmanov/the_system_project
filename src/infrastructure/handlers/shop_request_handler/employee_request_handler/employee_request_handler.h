@@ -3,8 +3,8 @@
 #include <boost/beast.hpp>
 #include <string_view>
 
-#include "application/application_manager_interface.h"
-#include "application/dto/user_dto.h"
+#include "application/application_gateway/dto/user_dto.h"
+#include "application/application_manager/application_manager_interface.h"
 #include "infrastructure/json_formater/json_formater.h"
 #include "infrastructure/token_manager/token_manager.h"
 
