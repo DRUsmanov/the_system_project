@@ -3,7 +3,7 @@
 #include <chrono>
 #include <memory>
 
-#include "domain/interfaces/repositorys/permission_repository_interface.h"
+#include "domain/repositories/permission_repository_interface.h"
 #include "permission_service_interface.h"
 
 namespace application {

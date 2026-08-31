@@ -1,101 +1,114 @@
-// #include "sdk.h"
-// #include "infrastructure/connection_pool/connection_pool.h"
-// #include "infrastructure/factorys_impl/uow_factory_impl/uow_factory_impl.h"
+#include <boost/asio/io_context.hpp>
+#include <boost/asio/signal_set.hpp>
+#include <chrono>
+#include <iostream>
+#include <jwt-cpp/jwt.h>
+#include <memory>
+#include <optional>
+#include <random>
+#include <thread>
 
-// #include <boost/asio/io_context.hpp>
-// #include <boost/asio/signal_set.hpp>
-// #include <jwt-cpp/jwt.h>
-// #include <iostream>
-// #include <thread>
-// #include <memory>
-// #include <chrono>
-// #include <optional>
-// #include <random>
+#include "application/application_gateway/application_gateway.h"
+#include "application/application_manager/application_manager.h"
+#include "infrastructure/connection_pool/connection_pool.h"
+#include "infrastructure/factories_impl/permission_service_factory_impl/permission_service_factory_impl.h"
+#include "infrastructure/factories_impl/shop_service_factory_impl/shop_service_factory.h"
+#include "infrastructure/factories_impl/timesheet_service_factory_impl/timesheet_service_factory_impl.h"
+#include "infrastructure/factories_impl/uow_factory_impl/uow_factory_impl.h"
+#include "infrastructure/factories_impl/user_service_factory_impl/user_service_factory_impl.h"
+#include "infrastructure/handlers/file_sender/file_sender.h"
+#include "infrastructure/handlers/request_handler/request_handler.h"
+#include "infrastructure/http_server/http_server.h"
+#include "infrastructure/logger/logger.h"
+#include "sdk.h"
 
-// using namespace std::literals;
-// namespace net = boost::asio;
-// namespace sys = boost::system;
+using namespace std::literals;
+namespace net = boost::asio;
+namespace sys = boost::system;
 
-// namespace {
+namespace {
 
-// template <typename Fn>
-// void RunWorkers(unsigned n, const Fn& fn) {
-//     n = std::max(1u, n);
-//     std::vector<std::jthread> workers;
-//     workers.reserve(n - 1);
-//     while (--n) {
-//         workers.emplace_back(fn);
-//     }
-//     fn();
-// }
+template <typename Fn>
+void runWorkers(unsigned n, const Fn& fn) {
+    n = std::max(1u, n);
+    std::vector<std::jthread> workers;
+    workers.reserve(n - 1);
+    while (--n) {
+        workers.emplace_back(fn);
+    }
+    fn();
+}
 
-// constexpr const char DB_URL_ENV_NAME[]{"SYSTEM_DATABASE"};
+constexpr const char DB_URL_ENV_NAME[]{"SYSTEM_DATABASE"};
 
-// infrastructure::ConnectionConfig GetConfigFromEnv() {
-//     infrastructure::ConnectionConfig config;
-//     if (const auto* url = std::getenv(DB_URL_ENV_NAME)) {
-//         config.db_url = url;
-//     } else {
-//         throw std::runtime_error(DB_URL_ENV_NAME + " environment variable not found"s);
-//     }
-//     return config;
-// }
+infrastructure::ConnectionConfig getConfigFromEnv() {
+    infrastructure::ConnectionConfig config;
+    if (const auto* url = std::getenv(DB_URL_ENV_NAME)) {
+        config.db_url = url;
+    } else {
+        throw std::runtime_error(DB_URL_ENV_NAME + " environment variable not found"s);
+    }
+    return config;
+}
 
-// }  // namespace
+}  // namespace
 
-// int main(int argc, const char* argv[]) {
-//     try {
-//         infrastructure::ConnectionFactory connection_factory{GetConfigFromEnv()};
-//         const unsigned num_threads = std::thread::hardware_concurrency();
-//         infrastructure::ConnectionPool connection_pool{num_threads, connection_factory};
- 
-//         infrastructure::UowFactory uow_factory(connection_pool);
+int main(int argc, const char* argv[]) {
+    try {
+        infrastructure::ConnectionFactory connection_factory{getConfigFromEnv()};
+        const unsigned num_threads = std::thread::hardware_concurrency();
+        infrastructure::ConnectionPool connection_pool{num_threads, connection_factory};
 
-//         auto payload = jwt::
+        infrastructure::UowFactory uow_factory(connection_pool);
+        infrastructure::PermissionServiceFactory permission_service_factory;
+        infrastructure::UserServiceFactory user_service_factory;
+        infrastructure::TimesheetServiceFactory timesheet_service_factory;
+        infrastructure::ShopServiceFactory shop_service_factory;
 
-//         app::Application application(game, command_line_args.randomize_spawn_points, game_repository);
-//         serialization::Serializer serializer(game, application, command_line_args);
+        application::ApplicationManager application_manager{uow_factory,
+                                                            permission_service_factory,
+                                                            user_service_factory,
+                                                            timesheet_service_factory,
+                                                            shop_service_factory};
 
-        
-//         net::io_context ioc(num_threads);
-//         auto api_strand = net::make_strand(ioc);
+        application::ApplicationGateway application_gateway{application_manager};
 
-//         logger::InitializeBoostLogger();
+        infrastructure::FileSender file_sender{"./"};
 
-//         net::signal_set signals(ioc, SIGINT, SIGTERM);
-//         signals.async_wait([&ioc](const sys::error_code& ec, [[maybe_unused]] int signal_number){
-//             if(!ec){
-//                 logger::LogServerStop();
-//                 ioc.stop();
-//             }
-//         });
+        infrastructure::RequestHandler request_handler{application_gateway, file_sender};
 
-//         http_handler::RequestHandler handler{game, command_line_args, application, api_strand, extra_data, serializer};
-//         http_handler::LoggingRequestHandler logging_handler(handler);
+        net::io_context ioc(num_threads);
+        auto api_strand = net::make_strand(ioc);
 
-//         std::vector<ticker::sig::scoped_connection> ticker_connection;
-//         if (command_line_args.tick_period.has_value()){
-//             auto tick_period = std::chrono::milliseconds{command_line_args.tick_period.value()};
-//             auto ticker = std::make_shared<ticker::Ticker>(api_strand, tick_period);
-//             ticker_connection.emplace_back(ticker->DoOnTick([&application](std::chrono::milliseconds delta) {application.Tick(delta);}));
-//             ticker_connection.emplace_back(ticker->DoOnTick([&serializer](std::chrono::milliseconds delta) {serializer.Tick(delta);}));
-//             ticker->Start();
-//         }
+        infrastructure::initializeBoostLogger();
 
-//         const auto address = net::ip::make_address("0.0.0.0");
-//         constexpr net::ip::port_type port = 8080;
-//         http_server::ServeHttp(ioc, {address, port}, [&logging_handler](auto&& req, auto&& send, auto&& stream) {
-//             logging_handler(std::forward<decltype(req)>(req), std::forward<decltype(send)>(send), std::forward<decltype(stream)>(stream));
-//         });
+        net::signal_set signals(ioc, SIGINT, SIGTERM);
+        signals.async_wait([&ioc](const sys::error_code& ec, [[maybe_unused]] int signal_number) {
+            if (!ec) {
+                infrastructure::logServerStop();
+                ioc.stop();
+            }
+        });
 
-//         logger::LogServerStart(address, port);
-//         RunWorkers(std::max(1u, num_threads), [&ioc] {
-//             ioc.run();
-//         });
-//         serializer.SaveState();
-//     } catch (const std::exception& ex) {
-//         std::cout << ex.what() << std::endl;
-//         logger::LogServerStop(ex);
-//         return EXIT_FAILURE;
-//     }
-// }
+        infrastructure::LoggingRequestHandler logging_request_handler(request_handler);
+
+        const auto address = net::ip::make_address("0.0.0.0");
+        constexpr net::ip::port_type port = 8080;
+        infrastructure::serveHttp(ioc,
+                                  {address, port},
+                                  [&logging_request_handler](auto&& req, auto&& send, auto&& stream) {
+                                      logging_handler(std::forward<decltype(req)>(req),
+                                                      std::forward<decltype(send)>(send),
+                                                      std::forward<decltype(stream)>(stream));
+                                  });
+
+        infrastructure::logServerStart(address, port);
+        runWorkers(std::max(1u, num_threads), [&ioc] {
+            ioc.run();
+        });
+    } catch (const std::exception& ex) {
+        std::cout << ex.what() << std::endl;
+        infrastructure::logServerStop(ex);
+        return EXIT_FAILURE;
+    }
+}

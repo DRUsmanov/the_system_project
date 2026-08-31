@@ -1,6 +1,7 @@
 #include "permission_service.h"
 
 #include "domain/entities/permission/permission.h"
+
 using namespace application;
 
 bool PermissionService::checkUserDepartmentWritePermission(const domain::UserId& user_id,

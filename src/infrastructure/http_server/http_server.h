@@ -10,7 +10,7 @@
 
 #include "infrastructure/logger/logger.h"
 
-namespace http_server {
+namespace infrastructure {
 
 namespace net = boost::asio;
 using tcp = net::ip::tcp;
@@ -139,4 +139,4 @@ void serveHttp(net::io_context& ioc, const tcp::endpoint& endpoint, RequestHandl
 
     std::make_shared<MyListener>(ioc, endpoint, std::forward<RequestHandler>(handler))->run();
 }
-}  // namespace http_server
+}  // namespace infrastructure

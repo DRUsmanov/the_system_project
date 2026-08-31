@@ -4,7 +4,8 @@
 #include <memory>
 #include <optional>
 
-#include "timesheet_service_interface.h"
+#include "application/services/timesheet_service/timesheet_service_interface.h"
+#include "domain/repositories/timesheet_repository_interface.h"
 
 namespace application {
 

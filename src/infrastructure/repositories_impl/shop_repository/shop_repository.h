@@ -1,4 +1,6 @@
-#include "domain/interfaces/repositorys/shop_repository_interface.h"
+#pragma once
+
+#include "domain/repositories/shop_repository_interface.h"
 #include "infrastructure/uow_impl/uow_impl.h"
 
 namespace infrastructure {

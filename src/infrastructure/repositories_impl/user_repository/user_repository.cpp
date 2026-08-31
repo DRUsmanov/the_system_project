@@ -8,8 +8,7 @@
 using namespace infrastructure;
 
 std::optional<domain::User> UserRepository::loginUser(std::string login, std::string password) const {
-    pqxx::work work(uow_->getConnection());
-    auto result = work.exec_params(query::LOGIN, login, password);
+        auto result = uow_->execParams(query::LOGIN, login, password);
 
     if (result.size() != 1) {
         return std::nullopt;
@@ -25,8 +24,7 @@ std::optional<domain::User> UserRepository::loginUser(std::string login, std::st
 }
 
 std::optional<domain::User> UserRepository::downloadUser(const domain::UserId& user_id) const {
-    pqxx::work work(uow_->getConnection());
-    auto result = work.exec_params(query::DOWNLOAD_USER, *user_id);
+    auto result = uow_->execParams(query::DOWNLOAD_USER, *user_id);
 
     if (result.size() != 1) {
         return std::nullopt;

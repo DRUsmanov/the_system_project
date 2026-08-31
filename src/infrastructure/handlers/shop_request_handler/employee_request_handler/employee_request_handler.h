@@ -3,8 +3,8 @@
 #include <boost/beast.hpp>
 #include <string_view>
 
+#include "application/application_gateway/application_gateway_interface.h"
 #include "application/application_gateway/dto/user_dto.h"
-#include "application/application_manager/application_manager_interface.h"
 #include "infrastructure/json_formater/json_formater.h"
 #include "infrastructure/token_manager/token_manager.h"
 
@@ -20,8 +20,8 @@ using namespace std::literals;
  */
 class EmployeeRequestHandler {
 public:
-    explicit EmployeeRequestHandler(const application::ApplicationManagerInterface& application_manager) :
-        application_manager_{application_manager} {}
+    explicit EmployeeRequestHandler(application::ApplicationGatewayInterface& application_gateway) :
+        application_gateway_{application_gateway} {}
 
     template <typename Body, typename Allocator, typename TextResponseMaker, typename FileResponseMaker, typename Send>
     void operator()(http::request<Body, http::basic_fields<Allocator>>&& req,
@@ -47,6 +47,7 @@ public:
         auto method = req.method();
 
         if (method == http::verb::post) {
+            // Call gateway methode addNewEmployee
         }
 
         if (method = http::verb::delete_) {
@@ -64,7 +65,7 @@ public:
     }
 
 private:
-    const application::ApplicationManagerInterface& application_manager_;
+    application::ApplicationGatewayInterface& application_gateway_;
 
     constexpr static std::string_view API_V1_SHOP_EMPLOYEE = "/api/v1/shop/employee"sv;
 

@@ -11,7 +11,7 @@
 #include <boost/log/utility/setup/file.hpp>
 #include <variant>
 
-namespace logger {
+using namespace infrastructure;
 using namespace std::literals;
 
 BOOST_LOG_ATTRIBUTE_KEYWORD(timestamp, "TimeStamp", boost::posix_time::ptime)
@@ -67,5 +67,3 @@ void logNetError(const boost::system::error_code& err_code, const std::string& w
     data_as_object["where"] = where;
     BOOST_LOG_TRIVIAL(info) << logging::add_value(additional_data, data) << "error";
 }
-
-}  // namespace logger

@@ -33,11 +33,11 @@ public:
     virtual Vacations downloadVacationsByEmployeeId(EmployeeId employee_id) const = 0;
     virtual Vacations downloadVacationsByEmployeeIdAndYear(EmployeeId employee_id, std::chrono::year year) const = 0;
     virtual AdminCategoryId downloadSystemAdministratorId() const = 0;
-    virtual std::optional<Timesheet> downloadDepartmentTimesheet(domain::DepartmentId department_id,
-                                                                 domain::AdminCategoryId admin_category_id,
+    virtual std::optional<Timesheet> downloadDepartmentTimesheet(DepartmentId department_id,
+                                                                 AdminCategoryId admin_category_id,
                                                                  std::chrono::year_month year_month) const = 0;
 
-    virtual bool uploadTimesheet(const domain::Timesheet& timesheet) = 0;
+    virtual bool uploadTimesheet(const Timesheet& timesheet) = 0;
 };
 
 }  // namespace domain

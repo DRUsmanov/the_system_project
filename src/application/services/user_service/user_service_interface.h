@@ -4,7 +4,7 @@
 #include <string>
 
 #include "domain/entities/user/user.h"
-#include "domain/interfaces/repositorys/users_repository_interface.h"
+#include "domain/repositories/users_repository_interface.h"
 
 namespace application {
 

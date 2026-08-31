@@ -72,12 +72,12 @@ public:
         bool isNightWorkingDay() const noexcept;
     };
 
-    using DaysData = std::unordered_map<DayDataKey, domain::Timesheet::DayData>;
-    using TimesheetData = std::unordered_map<domain::EmployeeId, DaysData, domain::EmployeeIdHasher>;
+    using DaysData = std::unordered_map<DayDataKey, Timesheet::DayData, Timesheet::DayDataKeyHasher>;
+    using TimesheetData = std::unordered_map<EmployeeId, DaysData, EmployeeIdHasher>;
 
     bool isEmpty() const;
     bool addEmployeeDayData(EmployeeId employee_id,
-                            domain::Date date,
+                            Date date,
                             AdminCategoryId admin_category_id,
                             const DayData& day_data);
 

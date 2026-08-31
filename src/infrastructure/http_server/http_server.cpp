@@ -1,6 +1,6 @@
 #include "http_server.h"
 
-namespace http_server {
+using namespace infrastructure;
 
 using namespace std::literals;
 
@@ -53,5 +53,3 @@ void SessionBase::stop() {
 const beast::tcp_stream& SessionBase::stream() const {
     return stream_;
 }
-
-}  // namespace http_server

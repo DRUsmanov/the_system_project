@@ -11,13 +11,14 @@
 #include <optional>
 #include <string>
 
-namespace logger {
+namespace infrastructure {
+
 namespace logging = boost::log;
 namespace net = boost::asio;
 namespace http = boost::beast::http;
 namespace json = boost::json;
 
-void InitializeBoostLogger();
+void initializeBoostLogger();
 
 template <typename Body, typename Allocator>
 void logRequest(http::request<Body, http::basic_fields<Allocator>>& req, const boost::beast::tcp_stream& stream) {
@@ -47,4 +48,4 @@ void logServerStart(const net::ip::address& address, const net::ip::port_type& p
 void logServerStop(const std::optional<std::exception>& excp = std::nullopt);
 void logNetError(const boost::system::error_code& err_code, const std::string& where);
 
-}  // namespace logger
+}  // namespace infrastructure

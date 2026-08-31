@@ -14,7 +14,7 @@
 #include <unordered_map>
 #include <variant>
 
-#include "application/application_manager/application_manager_interface.h"
+#include "application/application_gateway/application_gateway_interface.h"
 #include "infrastructure/handlers/file_sender/file_sender.h"
 #include "infrastructure/handlers/login_request_handler/login_request_handler.h"
 #include "infrastructure/handlers/shop_request_handler/shop_request_handler.h"
@@ -71,10 +71,10 @@ class RequestHandler {
 public:
     using Strand = net::strand<net::io_context::executor_type>;
 
-    explicit RequestHandler(const application::ApplicationManagerInterface& application_manager,
+    explicit RequestHandler(application::ApplicationGatewayInterface& application_gateway,
                             const FileSender& file_sender) :
         token_manager_{std::make_shared<TokenManager>()}, file_sender_{file_sender},
-        login_request_handler_{application_manager, token_manager_}, shop_request_handler_{application_manager} {}
+        login_request_handler_{application_gateway, token_manager_}, shop_request_handler_{application_gateway} {}
 
     RequestHandler(const RequestHandler&) = delete;
     RequestHandler& operator=(const RequestHandler&) = delete;

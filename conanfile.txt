@@ -1,4 +1,6 @@
 [requires]
+boost/1.78.0
+libpqxx/7.7.4
 jwt-cpp/0.7.2
 
 [generators]

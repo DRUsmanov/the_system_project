@@ -3,7 +3,7 @@
 #include <boost/beast.hpp>
 #include <string_view>
 
-#include "application/application_manager/application_manager_interface.h"
+#include "application/application_gateway/application_gateway_interface.h"
 #include "infrastructure/handlers/shop_request_handler/employee_request_handler/employee_request_handler.h"
 #include "infrastructure/token_manager/token_manager.h"
 
@@ -19,8 +19,8 @@ using namespace std::literals;
  */
 class ShopRequestHandler {
 public:
-    explicit ShopRequestHandler(const application::ApplicationManagerInterface& application_manager) :
-        employee_request_handler_{application_manager} {}
+    explicit ShopRequestHandler(application::ApplicationGatewayInterface& application_gateway) :
+        employee_request_handler_{application_gateway} {}
 
     template <typename Body, typename Allocator, typename TextResponseMaker, typename FileResponseMaker, typename Send>
     void operator()(http::request<Body, http::basic_fields<Allocator>>&& req,

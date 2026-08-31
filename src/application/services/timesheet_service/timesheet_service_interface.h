@@ -6,7 +6,6 @@
 #include "domain/entities/shop/employee/employee.h"
 #include "domain/entities/shop/shop.h"
 #include "domain/entities/timesheet/timesheet.h"
-#include "domain/interfaces/repositorys/timesheet_repository_interface.h"
 
 namespace application {
 

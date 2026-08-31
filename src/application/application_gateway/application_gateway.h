@@ -1,20 +1,16 @@
 #pragma once
 
 #include "application/application_gateway/application_gateway_interface.h"
-#include "application/application_gateway/dto_mappers/shop_dto_mapper/shop_dto_mapper_interface.h"
+#include "application/application_gateway/dto_mappers/shop_dto_mapper/shop_dto_mapper.h"
 #include "application/application_gateway/dto_mappers/timesheet_dto_mapper/timesheet_dto_mapper_interface.h"
-#include "application/application_gateway/dto_mappers/user_dto_mapper/user_dto_mapper_interface.h"
+#include "application/application_gateway/dto_mappers/user_dto_mapper/user_dto_mapper.h"
 #include "application/application_manager/application_manager_interface.h"
 
 namespace application {
 
 class ApplicationGateway : public ApplicationGatewayInterface {
 public:
-    ApplicationGateway(ApplicationManagerInterface& application_manager,
-                       const ShopDtoMapperInterface& shop_dto_mapper,
-                       const UserDtoMapperInterface& user_dto_mapper) :
-        application_manager_{application_manager}, shop_dto_mapper_{shop_dto_mapper},
-        user_dto_mapper_{user_dto_mapper} {}
+    ApplicationGateway(ApplicationManagerInterface& application_manager) : application_manager_{application_manager} {}
 
     std::optional<UserLoginResponseDto> login(const UserLoginRequestDto& user_login_request_dto) const override;
 
@@ -27,8 +23,8 @@ public:
 
 private:
     ApplicationManagerInterface& application_manager_;
-    const ShopDtoMapperInterface& shop_dto_mapper_;
-    const UserDtoMapperInterface& user_dto_mapper_;
+    ShopDtoMapper shop_dto_mapper_;
+    UserDtoMapper user_dto_mapper_;
 };
 
 }  // namespace application

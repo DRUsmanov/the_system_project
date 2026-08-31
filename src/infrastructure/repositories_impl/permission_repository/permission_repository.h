@@ -4,7 +4,7 @@
 
 #include "domain/entities/permission/permission.h"
 #include "domain/entities/user/user.h"
-#include "domain/interfaces/repositorys/permission_repository_interface.h"
+#include "domain/repositories/permission_repository_interface.h"
 #include "infrastructure/uow_impl/uow_impl.h"
 
 namespace infrastructure {

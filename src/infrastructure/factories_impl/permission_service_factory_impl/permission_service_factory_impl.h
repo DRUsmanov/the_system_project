@@ -1,10 +1,10 @@
 #pragma once
 
-#include "application/factorys/permission_service_factory_interface.h"
+#include "application/factories/permission_service_factory_interface.h"
 
 namespace infrastructure {
 
-class PermissionServiceFactory : application::PermissionServiceFactoryInterface {
+class PermissionServiceFactory : public application::PermissionServiceFactoryInterface {
 public:
     std::shared_ptr<application::PermissionServiceInterface> createPermissionService(
         std::shared_ptr<application::UowInterface> uow) const override;

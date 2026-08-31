@@ -1,6 +1,6 @@
 #pragma once
 
-#include "application/factorys/uow_factory_interface.h"
+#include "application/factories/uow_factory_interface.h"
 #include "infrastructure/connection_pool/connection_pool.h"
 #include "infrastructure/uow_impl/uow_impl.h"
 

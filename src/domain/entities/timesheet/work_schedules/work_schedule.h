@@ -16,6 +16,7 @@ using WorkScheduleIdHasher = utils::TaggedHasher<WorkScheduleId>;
 
 class WorkSchedule {
 public:
+    WorkSchedule() = default;  // временное решение, удалить
     struct DayData {
         std::string type;
         std::optional<Time> work_start;

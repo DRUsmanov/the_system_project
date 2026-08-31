@@ -3,7 +3,7 @@
 #include <chrono>
 #include <memory>
 
-#include "domain/interfaces/repositorys/shop_repository_interface.h"
+#include "domain/repositories/shop_repository_interface.h"
 #include "shop_service_interface.h"
 
 namespace application {

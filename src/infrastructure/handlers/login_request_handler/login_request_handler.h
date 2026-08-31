@@ -4,8 +4,8 @@
 #include <memory>
 #include <string_view>
 
+#include "application/application_gateway/application_gateway_interface.h"
 #include "application/application_gateway/dto/user_dto.h"
-#include "application/application_manager/application_manager_interface.h"
 #include "infrastructure/json_formater/json_formater.h"
 #include "infrastructure/token_manager/token_manager.h"
 
@@ -22,9 +22,9 @@ using namespace std::literals;
  */
 class LoginRequestHandler {
 public:
-    explicit LoginRequestHandler(const application::ApplicationManagerInterface& application_manager,
+    explicit LoginRequestHandler(const application::ApplicationGatewayInterface& application_gateway,
                                  const std::shared_ptr<TokenManager> token_manager) :
-        application_manager_{application_manager}, token_manager_{token_manager} {}
+        application_gateway_{application_gateway}, token_manager_{token_manager} {}
 
     template <typename Body, typename Allocator, typename TextResponseMaker, typename FileResponseMaker, typename Send>
     void operator()(http::request<Body, http::basic_fields<Allocator>>&& req,
@@ -53,13 +53,14 @@ public:
             return;
         }
 
-        json::object request_body_as_object = ParseString(std::string(req.body));
+        json::object request_body_as_object = parseString(std::string(req.body));
 
-        application::UserLoginInputDto user_login_input_dto;
-        user_login_input_dto.login = std::string(request_body_as_object.at(LOGIN).as_string());
-        user_login_input_dto.password = std::string(request_body_as_object.at(PASSWORD).as_string());
+        application::UserLoginRequestDto user_login_request_dto;
+        user_login_request_dto.login = std::string(request_body_as_object.at(LOGIN).as_string());
+        user_login_request_dto.password = std::string(request_body_as_object.at(PASSWORD).as_string());
 
-        auto user_login_output_dto = application_manager_.Login(user_login_input_dto);
+        auto user_login_response_dto =
+            application_gateway_.login(user_login_request_dto.login, user_login_request_dto.password);
 
         if (!user_login_output_dto.has_value()) {
             auto unauthorized_response =
@@ -69,7 +70,7 @@ public:
             return;
         }
 
-        auto token = token_manager_->CreateToken(user_login_output_dto->user_id, user_login_output_dto->employee_id);
+        auto token = token_manager_->createToken(user_login_output_dto->user_id, user_login_output_dto->employee_id);
 
         if (!token.has_value()) {
             auto unauthorized_response =
@@ -80,14 +81,14 @@ public:
         }
 
         auto authorized_response =
-            text_response_maker(http::status::accepted, MakeAcceptedAnswer(token), content_type::APP_JSON);
+            text_response_maker(http::status::accepted, makeAcceptedAnswer(token), content_type::APP_JSON);
         authorized_response.set(http::field::cache_control, "no-cache");
         send(std::move(authorized_response));
         return;
     }
 
 private:
-    const application::ApplicationManagerInterface& application_manager_;
+    const application::ApplicationGatewayInterface& application_gateway_;
     const std::shared_ptr<TokenManager> token_manager_;
 
     constexpr static std::string_view LOGIN = "login"sv;
@@ -101,7 +102,7 @@ private:
     constexpr static std::string_view INVALID_METHOD =
         "{\"code\":\"invalid_method\", \"message\":\"Only POST method is expected\"}"sv;
 
-    std::string MakeAcceptedAnswer(const TokenManager::Token& token) {
+    std::string makeAcceptedAnswer(const TokenManager::Token& token) {
         return "{\"auth_token\":\"" + *token + "\"}";
     }
 };
