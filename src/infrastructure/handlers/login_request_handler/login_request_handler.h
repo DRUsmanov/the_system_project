@@ -4,10 +4,11 @@
 #include <memory>
 #include <string_view>
 
-#include "application/application_gateway/application_gateway_interface.h"
-#include "application/application_gateway/dto/user_dto.h"
-#include "infrastructure/json_formater/json_formater.h"
-#include "infrastructure/token_manager/token_manager.h"
+#include "application_gateway/application_gateway_interface.h"
+#include "application_gateway/dto/user_dto.h"
+#include "content_type/content_types.h"
+#include "json_formater/json_formater.h"
+#include "token_manager/token_manager.h"
 
 namespace infrastructure {
 
@@ -53,16 +54,15 @@ public:
             return;
         }
 
-        json::object request_body_as_object = parseString(std::string(req.body));
+        json::object request_body_as_object = parseString(std::string(req.body()));
 
         application::UserLoginRequestDto user_login_request_dto;
         user_login_request_dto.login = std::string(request_body_as_object.at(LOGIN).as_string());
         user_login_request_dto.password = std::string(request_body_as_object.at(PASSWORD).as_string());
 
-        auto user_login_response_dto =
-            application_gateway_.login(user_login_request_dto.login, user_login_request_dto.password);
+        auto user_login_response_dto = application_gateway_.login(user_login_request_dto);
 
-        if (!user_login_output_dto.has_value()) {
+        if (!user_login_response_dto.has_value()) {
             auto unauthorized_response =
                 text_response_maker(http::status::unauthorized, BAD_LOGIN_PASSWORD, content_type::APP_JSON);
             unauthorized_response.set(http::field::cache_control, "no-cache");
@@ -70,7 +70,8 @@ public:
             return;
         }
 
-        auto token = token_manager_->createToken(user_login_output_dto->user_id, user_login_output_dto->employee_id);
+        auto token =
+            token_manager_->createToken(user_login_response_dto->user_id, user_login_response_dto->employee_id);
 
         if (!token.has_value()) {
             auto unauthorized_response =

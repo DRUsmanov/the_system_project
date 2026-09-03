@@ -2,8 +2,8 @@
 
 #include <memory>
 
-#include "application/services/user_service/user_service_interface.h"
-#include "domain/interfaces/repositorys/users_repository_interface.h"
+#include "repositories/users_repository_interface.h"
+#include "services/user_service/user_service_interface.h"
 
 namespace application {
 

@@ -2,8 +2,8 @@
 
 #include <memory>
 
-#include "application/services/permission_service/permission_service_interface.h"
-#include "application/uow/uow_interface.h"
+#include "services/permission_service/permission_service_interface.h"
+#include "uow/uow_interface.h"
 
 namespace application {
 

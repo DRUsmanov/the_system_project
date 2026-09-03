@@ -1,6 +1,6 @@
-#include "shop_dto_mapper.h"
+#include "application_gateway/dto_mappers/shop_dto_mapper/shop_dto_mapper.h"
 
-#include "domain/value_data/types.h"
+#include "value_data/types.h"
 
 using namespace application;
 

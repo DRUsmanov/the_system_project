@@ -2,8 +2,8 @@
 
 #include <memory>
 
-#include "application/services/shop_service/shop_service_interface.h"
-#include "application/uow/uow_interface.h"
+#include "services/shop_service/shop_service_interface.h"
+#include "uow/uow_interface.h"
 
 namespace application {
 

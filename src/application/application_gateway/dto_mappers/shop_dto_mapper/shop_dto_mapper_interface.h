@@ -1,9 +1,9 @@
 #pragma once
 
-#include "application/application_gateway/dto/shop_dto.h"
-#include "domain/entities/shop/department/department.h"
-#include "domain/entities/shop/employee/employee.h"
-#include "domain/entities/shop/shop.h"
+#include "application_gateway/dto/shop_dto.h"
+#include "entities/shop/department/department.h"
+#include "entities/shop/employee/employee.h"
+#include "entities/shop/shop.h"
 
 namespace application {
 

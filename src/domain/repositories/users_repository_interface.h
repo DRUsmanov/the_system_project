@@ -4,7 +4,7 @@
 #include <optional>
 #include <string>
 
-#include "domain/entities/user/user.h"
+#include "entities/user/user.h"
 
 namespace domain {
 

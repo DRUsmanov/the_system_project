@@ -3,8 +3,8 @@
 #include <chrono>
 #include <optional>
 
-#include "domain/entities/shop/employee/employee.h"
-#include "domain/entities/shop/shop.h"
+#include "entities/shop/employee/employee.h"
+#include "entities/shop/shop.h"
 
 namespace application {
 

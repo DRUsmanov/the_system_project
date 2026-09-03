@@ -2,9 +2,10 @@
 
 #include <optional>
 
-#include "domain/entities/permission/permission.h"
-#include "domain/entities/shop/department/department.h"
-#include "domain/entities/shop/shop.h"
+#include "entities/permission/permission.h"
+#include "entities/shop/department/department.h"
+#include "entities/shop/shop.h"
+#include "entities/user/user.h"
 
 namespace domain {
 

@@ -3,10 +3,10 @@
 #include <chrono>
 #include <optional>
 
-#include "domain/entities/shop/employee/employee.h"
-#include "domain/entities/shop/shop.h"
-#include "domain/entities/timesheet/timesheet.h"
-#include "domain/entities/user/user.h"
+#include "entities/shop/employee/employee.h"
+#include "entities/shop/shop.h"
+#include "entities/timesheet/timesheet.h"
+#include "entities/user/user.h"
 namespace application {
 
 class ApplicationManagerInterface {

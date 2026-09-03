@@ -12,7 +12,7 @@
 namespace infrastructure {
 
 using namespace std::literals;
-using pqxx::operator"" _zv;
+using pqxx::operator""_zv;
 
 struct ConnectionConfig {
     std::string db_url;

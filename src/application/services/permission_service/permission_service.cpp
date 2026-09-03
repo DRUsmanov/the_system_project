@@ -1,6 +1,6 @@
-#include "permission_service.h"
+#include "services/permission_service/permission_service.h"
 
-#include "domain/entities/permission/permission.h"
+#include "entities/permission/permission.h"
 
 using namespace application;
 
@@ -41,4 +41,6 @@ std::optional<domain::Permissions> application::PermissionService::getUserDepart
 
         return it->second;
     }
+
+    return std::nullopt;
 }

@@ -2,6 +2,7 @@
 
 #include <chrono>
 #include <cstdint>
+#include <format>
 #include <sstream>
 
 namespace domain {
@@ -13,7 +14,7 @@ using Date = std::chrono::sys_days;
  * @brief Преобразует строку в дату
  * Строка должна быть задана в формате YYYY-MM-DD
  */
-Date dateFromString(std::string_view date_as_str) {
+inline Date dateFromString(std::string_view date_as_str) {
     std::istringstream ss{std::string(date_as_str)};
     char separator;
     int year;
@@ -22,6 +23,10 @@ Date dateFromString(std::string_view date_as_str) {
     ss >> year >> separator >> month >> separator >> day;
     std::chrono::year_month_day ymd{std::chrono::year{year}, std::chrono::month{month}, std::chrono::day{day}};
     return std::chrono::sys_days{ymd};
+}
+
+inline std::string dateToString(Date date) {
+    return std::format("{:%Y-%m-%d}", date);
 }
 
 struct TimeHasher {

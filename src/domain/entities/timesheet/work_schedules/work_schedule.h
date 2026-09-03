@@ -1,9 +1,10 @@
 #pragma once
 
 #include <chrono>
+#include <cstdint>
 
-#include "domain/value_data/types.h"
-#include "utils/tagged.h"
+#include "tagged.h"
+#include "value_data/types.h"
 
 namespace domain {
 
@@ -11,7 +12,7 @@ namespace detail {
 struct WorkScheduleIdTag {};
 }  // namespace detail
 
-using WorkScheduleId = utils::Tagged<int, detail::WorkScheduleIdTag>;
+using WorkScheduleId = utils::Tagged<uint64_t, detail::WorkScheduleIdTag>;
 using WorkScheduleIdHasher = utils::TaggedHasher<WorkScheduleId>;
 
 class WorkSchedule {

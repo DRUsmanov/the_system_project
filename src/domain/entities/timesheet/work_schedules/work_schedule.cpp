@@ -1,4 +1,4 @@
-#include "work_schedule.h"
+#include "entities/timesheet/work_schedules/work_schedule.h"
 
 size_t domain::WorkSchedule::getCycleSize() const noexcept {
     return cycle_size_;
@@ -16,7 +16,7 @@ const domain::WorkSchedule::DayData& domain::WorkSchedule::getDayDataByDate(std:
     using namespace std::chrono;
 
     auto day_index = (sys_days{date} - sys_days{start_cycle_date_}).count() % cycle_size_;
-    auto work_schedule_day_data = cycle_.at(day_index);
+    return cycle_.at(day_index);
 }
 
 const domain::WorkSchedule::DayData& domain::WorkSchedule::operator[](size_t index) const {

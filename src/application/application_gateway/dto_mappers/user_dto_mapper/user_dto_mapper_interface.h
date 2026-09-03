@@ -1,7 +1,7 @@
 #pragma once
 
-#include "application/application_gateway/dto/user_dto.h"
-#include "domain/entities/user/user.h"
+#include "application_gateway/dto/user_dto.h"
+#include "entities/user/user.h"
 
 namespace application {
 

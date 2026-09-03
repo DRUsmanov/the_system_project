@@ -3,10 +3,11 @@
 #include <boost/beast.hpp>
 #include <string_view>
 
-#include "application/application_gateway/application_gateway_interface.h"
-#include "application/application_gateway/dto/user_dto.h"
-#include "infrastructure/json_formater/json_formater.h"
-#include "infrastructure/token_manager/token_manager.h"
+#include "application_gateway/application_gateway_interface.h"
+#include "application_gateway/dto/user_dto.h"
+#include "content_type/content_types.h"
+#include "json_formater/json_formater.h"
+#include "token_manager/token_manager.h"
 
 namespace infrastructure {
 
@@ -50,7 +51,7 @@ public:
             // Call gateway methode addNewEmployee
         }
 
-        if (method = http::verb::delete_) {
+        if (method == http::verb::delete_) {
         }
 
         if (method == http::verb::patch) {

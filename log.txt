@@ -1,0 +1,8 @@
+[ 11%] Built target domain
+[ 38%] Built target application
+[ 41%] Building CXX object src/infrastructure/CMakeFiles/infrastructure.dir/logger/logger.cpp.o
+[ 44%] Building CXX object src/infrastructure/CMakeFiles/infrastructure.dir/url_decoder/url_decoder.cpp.o
+[ 47%] Linking CXX static library ../../lib/libinfrastructure.a
+[ 94%] Built target infrastructure
+[ 97%] Linking CXX executable bin/the_system
+[100%] Built target the_system

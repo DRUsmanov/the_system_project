@@ -1,6 +1,6 @@
 #pragma once
 
-#include "user_dto_mapper_interface.h"
+#include "application_gateway/dto_mappers/user_dto_mapper/user_dto_mapper_interface.h"
 
 namespace application {
 

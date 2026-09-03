@@ -1,8 +1,8 @@
 #pragma once
 
-#include "application/application_gateway/dto/shop_dto.h"
-#include "application/application_gateway/dto/timesheet_dto.h"
-#include "application/application_gateway/dto/user_dto.h"
+#include "application_gateway/dto/shop_dto.h"
+#include "application_gateway/dto/timesheet_dto.h"
+#include "application_gateway/dto/user_dto.h"
 
 namespace application {
 

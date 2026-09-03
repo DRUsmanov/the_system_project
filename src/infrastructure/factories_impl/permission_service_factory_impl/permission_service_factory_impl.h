@@ -1,6 +1,6 @@
 #pragma once
 
-#include "application/factories/permission_service_factory_interface.h"
+#include "factories/permission_service_factory_interface.h"
 
 namespace infrastructure {
 

@@ -14,13 +14,14 @@
 #include <unordered_map>
 #include <variant>
 
-#include "application/application_gateway/application_gateway_interface.h"
-#include "infrastructure/handlers/file_sender/file_sender.h"
-#include "infrastructure/handlers/login_request_handler/login_request_handler.h"
-#include "infrastructure/handlers/shop_request_handler/shop_request_handler.h"
-#include "infrastructure/logger/logger.h"
-#include "infrastructure/token_manager/token_manager.h"
-#include "infrastructure/url_decoder/url_decoder.h"
+#include "application_gateway/application_gateway_interface.h"
+#include "content_type/content_types.h"
+#include "handlers/file_sender/file_sender.h"
+#include "handlers/login_request_handler/login_request_handler.h"
+#include "handlers/shop_request_handler/shop_request_handler.h"
+#include "logger/logger.h"
+#include "token_manager/token_manager.h"
+#include "url_decoder/url_decoder.h"
 
 namespace infrastructure {
 
@@ -48,14 +49,14 @@ public:
     void operator()(http::request<Body, http::basic_fields<Allocator>>&& req,
                     Send&& send,
                     const beast::tcp_stream& stream) {
-        logger::logRequest(req, stream);
+        infrastructure::logRequest(req, stream);
 
         auto request_processing_start_time = std::chrono::steady_clock::now();
         handler_(std::move(req), [send, request_processing_start_time](auto&& response) {
             auto request_processing_end_time = std::chrono::steady_clock::now();
             auto request_processing_time = std::chrono::duration_cast<std::chrono::milliseconds>(
                 request_processing_end_time - request_processing_start_time);
-            logger::logResponse(response, request_processing_time.count());
+            infrastructure::logResponse(response, request_processing_time.count());
             send(std::move(response));
         });
     }

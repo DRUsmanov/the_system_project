@@ -2,8 +2,8 @@
 
 #include <memory>
 
-#include "application/services/timesheet_service/timesheet_service_interface.h"
-#include "application/uow/uow_interface.h"
+#include "services/timesheet_service/timesheet_service_interface.h"
+#include "uow/uow_interface.h"
 
 namespace application {
 

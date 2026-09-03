@@ -2,10 +2,10 @@
 
 #include <memory>
 
-#include "domain/entities/permission/permission.h"
-#include "domain/entities/user/user.h"
-#include "domain/repositories/permission_repository_interface.h"
-#include "infrastructure/uow_impl/uow_impl.h"
+#include "entities/permission/permission.h"
+#include "entities/user/user.h"
+#include "repositories/permission_repository_interface.h"
+#include "uow_impl/uow_impl.h"
 
 namespace infrastructure {
 

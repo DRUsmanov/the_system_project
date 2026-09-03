@@ -2,8 +2,8 @@
 
 #include <memory>
 
-#include "domain/repositories/users_repository_interface.h"
-#include "infrastructure/uow_impl/uow_impl.h"
+#include "repositories/users_repository_interface.h"
+#include "uow_impl/uow_impl.h"
 
 namespace infrastructure {
 

@@ -2,24 +2,25 @@
 #include <boost/asio/signal_set.hpp>
 #include <chrono>
 #include <iostream>
-#include <jwt-cpp/jwt.h>
+// #include <jwt-cpp/jwt.h>
+// #include <jwt-cpp/traits/boost-json/defaults.h>
 #include <memory>
 #include <optional>
 #include <random>
 #include <thread>
 
-#include "application/application_gateway/application_gateway.h"
-#include "application/application_manager/application_manager.h"
-#include "infrastructure/connection_pool/connection_pool.h"
-#include "infrastructure/factories_impl/permission_service_factory_impl/permission_service_factory_impl.h"
-#include "infrastructure/factories_impl/shop_service_factory_impl/shop_service_factory.h"
-#include "infrastructure/factories_impl/timesheet_service_factory_impl/timesheet_service_factory_impl.h"
-#include "infrastructure/factories_impl/uow_factory_impl/uow_factory_impl.h"
-#include "infrastructure/factories_impl/user_service_factory_impl/user_service_factory_impl.h"
-#include "infrastructure/handlers/file_sender/file_sender.h"
-#include "infrastructure/handlers/request_handler/request_handler.h"
-#include "infrastructure/http_server/http_server.h"
-#include "infrastructure/logger/logger.h"
+#include "application_gateway/application_gateway.h"
+#include "application_manager/application_manager.h"
+#include "connection_pool/connection_pool.h"
+#include "factories_impl/permission_service_factory_impl/permission_service_factory_impl.h"
+#include "factories_impl/shop_service_factory_impl/shop_service_factory.h"
+#include "factories_impl/timesheet_service_factory_impl/timesheet_service_factory_impl.h"
+#include "factories_impl/uow_factory_impl/uow_factory_impl.h"
+#include "factories_impl/user_service_factory_impl/user_service_factory_impl.h"
+#include "handlers/file_sender/file_sender.h"
+#include "handlers/request_handler/request_handler.h"
+#include "http_server/http_server.h"
+#include "logger/logger.h"
 #include "sdk.h"
 
 using namespace std::literals;
@@ -97,9 +98,9 @@ int main(int argc, const char* argv[]) {
         infrastructure::serveHttp(ioc,
                                   {address, port},
                                   [&logging_request_handler](auto&& req, auto&& send, auto&& stream) {
-                                      logging_handler(std::forward<decltype(req)>(req),
-                                                      std::forward<decltype(send)>(send),
-                                                      std::forward<decltype(stream)>(stream));
+                                      logging_request_handler(std::forward<decltype(req)>(req),
+                                                              std::forward<decltype(send)>(send),
+                                                              std::forward<decltype(stream)>(stream));
                                   });
 
         infrastructure::logServerStart(address, port);

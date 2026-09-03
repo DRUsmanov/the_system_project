@@ -1,6 +1,8 @@
-#include "token_manager.h"
+#include "token_manager/token_manager.h"
 
 #include <exception>
+#include <jwt-cpp/jwt.h>
+#include <jwt-cpp/traits/boost-json/defaults.h>
 
 using namespace infrastructure;
 
@@ -11,7 +13,7 @@ constexpr std::string EMPLOYEE_ID{"employee_id"};
 constexpr std::string ISSUER{"The system server"};
 constexpr std::string TYPE{"JWT"};
 
-TokenManager::Token TokenManager::createToken(int user_id, int employee_id) const {
+TokenManager::Token TokenManager::createToken(uint64_t user_id, uint64_t employee_id) const {
     try {
         auto token = jwt::create()
                          .set_issuer(ISSUER)
@@ -33,10 +35,10 @@ TokenManager::Payload TokenManager::getPayloadFromToken(std::string_view token) 
 
         verifier.verify(decode_token);
 
-        int user_id = std::stoi(decode_token.get_payload_claim(USER_ID).as_string());
-        int employee_id = std::stoi(decode_token.get_payload_claim(EMPLOYEE_ID).as_string());
+        uint64_t user_id = std::stoi(decode_token.get_payload_claim(USER_ID).as_string());
+        uint64_t employee_id = std::stoi(decode_token.get_payload_claim(EMPLOYEE_ID).as_string());
 
-        std::unordered_map<std::string, int> payload;
+        std::unordered_map<std::string, uint64_t> payload;
         payload[USER_ID] = user_id;
         payload[EMPLOYEE_ID] = employee_id;
 

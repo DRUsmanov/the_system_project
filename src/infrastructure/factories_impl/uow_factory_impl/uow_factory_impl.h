@@ -1,8 +1,8 @@
 #pragma once
 
-#include "application/factories/uow_factory_interface.h"
-#include "infrastructure/connection_pool/connection_pool.h"
-#include "infrastructure/uow_impl/uow_impl.h"
+#include "connection_pool/connection_pool.h"
+#include "factories/uow_factory_interface.h"
+#include "uow_impl/uow_impl.h"
 
 namespace infrastructure {
 

@@ -5,14 +5,14 @@
 #include <unordered_map>
 #include <utility>
 
-#include "domain/entities/shop/department/department.h"
-#include "domain/entities/shop/employee/employee.h"
-#include "domain/entities/shop/shop.h"
-#include "domain/entities/shop/staff_position/staff_position.h"
-#include "domain/entities/timesheet/admin_categorys/admin_category.h"
-#include "domain/entities/timesheet/leave_types/leave_type.h"
-#include "domain/entities/timesheet/work_schedules/work_schedule.h"
-#include "domain/value_data/types.h"
+#include "entities/shop/department/department.h"
+#include "entities/shop/employee/employee.h"
+#include "entities/shop/shop.h"
+#include "entities/shop/staff_position/staff_position.h"
+#include "entities/timesheet/admin_categorys/admin_category.h"
+#include "entities/timesheet/leave_types/leave_type.h"
+#include "entities/timesheet/work_schedules/work_schedule.h"
+#include "value_data/types.h"
 
 namespace domain {
 

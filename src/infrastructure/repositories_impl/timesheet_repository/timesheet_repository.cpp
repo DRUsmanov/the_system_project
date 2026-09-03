@@ -1,4 +1,4 @@
-#include "timesheet_repository.h"
+#include "repositories_impl/timesheet_repository/timesheet_repository.h"
 
 using namespace infrastructure;
 
@@ -29,6 +29,10 @@ domain::Vacations TimesheetRepository::downloadVacationsByEmployeeId(domain::Emp
 domain::Vacations TimesheetRepository::downloadVacationsByEmployeeIdAndYear(domain::EmployeeId employee_id,
                                                                             std::chrono::year year) const {
     return domain::Vacations();
+}
+
+domain::AdminCategoryId infrastructure::TimesheetRepository::downloadSystemAdministratorId() const {
+    return domain::AdminCategoryId();
 }
 
 std::optional<domain::Timesheet> TimesheetRepository::downloadDepartmentTimesheet(

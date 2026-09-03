@@ -3,8 +3,8 @@
 #include <cstdint>
 #include <optional>
 
-#include "domain/value_data/types.h"
-#include "utils/tagged.h"
+#include "tagged.h"
+#include "value_data/types.h"
 
 namespace domain {
 
@@ -12,9 +12,9 @@ namespace detail {
 struct Employee {};
 }  // namespace detail
 
-using EmployeeId = utils::Tagged<int, detail::Employee>;
+using EmployeeId = utils::Tagged<uint64_t, detail::Employee>;
 using EmployeeIdHasher = utils::TaggedHasher<EmployeeId>;
-using EmployeeNumber = uint8_t;
+using EmployeeNumber = uint64_t;
 
 struct Employee {
     EmployeeId employee_id;

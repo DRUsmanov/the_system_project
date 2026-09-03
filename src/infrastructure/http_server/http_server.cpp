@@ -1,4 +1,4 @@
-#include "http_server.h"
+#include "http_server/http_server.h"
 
 using namespace infrastructure;
 
@@ -6,13 +6,13 @@ using namespace std::literals;
 
 // ##### SessionBase #####
 void SessionBase::run() {
-    net::dispatch(stream_.get_executor(), beast::bind_front_handler(&SessionBase::read, shared_from_this()));
+    net::dispatch(stream_.get_executor(), beast::bind_front_handler(&SessionBase::read, sharedThis()));
 }
 
 void SessionBase::read() {
     request_ = {};
     stream_.expires_after(30s);
-    http::async_read(stream_, buffer_, request_, beast::bind_front_handler(&SessionBase::onRead, shared_from_this()));
+    http::async_read(stream_, buffer_, request_, beast::bind_front_handler(&SessionBase::onRead, sharedThis()));
 }
 
 void SessionBase::onRead(beast::error_code ec, [[maybe_unused]] std::size_t bytes_read) {

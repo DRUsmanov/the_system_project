@@ -7,8 +7,9 @@
 #include <boost/beast/core.hpp>
 #include <boost/beast/http.hpp>
 #include <iostream>
+#include <memory>
 
-#include "infrastructure/logger/logger.h"
+#include "logger/logger.h"
 
 namespace infrastructure {
 
@@ -24,7 +25,7 @@ inline void reportError(beast::error_code ec, std::string_view what) {
 }
 
 // ##### SessionBase #####
-class SessionBase : std::enable_shared_from_this<SessionBase> {
+class SessionBase {
 public:
     SessionBase(const SessionBase&) = delete;
     SessionBase& operator=(const SessionBase&) = delete;
@@ -35,6 +36,8 @@ protected:
     using HttpRequest = http::request<http::string_body>;
 
     explicit SessionBase(tcp::socket&& socket) : stream_(std::move(socket)) {}
+
+    virtual std::shared_ptr<SessionBase> sharedThis() = 0;
 
     template <typename Body, typename Field>
     void write(http::response<Body, Field>&& response) {
@@ -66,7 +69,7 @@ private:
 
 // ##### Session #####
 template <typename RequestHandler>
-    class Session : public SessionBase > {
+class Session : public SessionBase, public std::enable_shared_from_this<Session<RequestHandler>> {
 public:
     template <typename Handler>
     Session(tcp::socket&& socket, Handler&& request_handler) :
@@ -74,10 +77,10 @@ public:
 
 private:
     std::shared_ptr<SessionBase> sharedThis() override {
-        return this->;
-    }
+        return this->shared_from_this();
+    };
 
-    void HandleRequest(HttpRequest&& request) override {
+    void handleRequest(HttpRequest&& request) override {
         request_handler_(
             std::move(request),
             [self = this->shared_from_this()](auto&& response) {
@@ -120,7 +123,7 @@ private:
         using namespace std::literals;
 
         if (ec) {
-            logger::logNetError(ec, "accept");
+            infrastructure::logNetError(ec, "accept");
         }
 
         asyncRunSession(std::move(socket));

@@ -1,7 +1,7 @@
 #pragma once
 
-#include "domain/repositories/shop_repository_interface.h"
-#include "infrastructure/uow_impl/uow_impl.h"
+#include "repositories/shop_repository_interface.h"
+#include "uow_impl/uow_impl.h"
 
 namespace infrastructure {
 

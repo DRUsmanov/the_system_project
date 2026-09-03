@@ -1,14 +1,16 @@
-#include "user_repository.h"
+#include "repositories_impl/user_repository/user_repository.h"
 
-#include "domain/entities/shop/employee/employee.h"
-#include "domain/entities/timesheet/admin_categorys/admin_category.h"
-#include "domain/entities/user/user.h"
-#include "infrastructure/connection_pool/querys.h"
+#include <cstdint>
+
+#include "connection_pool/querys.h"
+#include "entities/shop/employee/employee.h"
+#include "entities/timesheet/admin_categorys/admin_category.h"
+#include "entities/user/user.h"
 
 using namespace infrastructure;
 
 std::optional<domain::User> UserRepository::loginUser(std::string login, std::string password) const {
-        auto result = uow_->execParams(query::LOGIN, login, password);
+    auto result = uow_->execParams(query::LOGIN, login, password);
 
     if (result.size() != 1) {
         return std::nullopt;
@@ -16,9 +18,9 @@ std::optional<domain::User> UserRepository::loginUser(std::string login, std::st
 
     domain::User user;
 
-    user.user_id = domain::UserId{result.at(0)[tables::users::ID].as<int>()};
-    user.employee_id = domain::EmployeeId{result.at(0)[tables::users::EMPLOYEE_ID].as<int>()};
-    user.admin_category_id = domain::AdminCategoryId{result.at(0)[tables::users::ADMIN_CATEGORY].as<int>()};
+    user.user_id = domain::UserId{result.at(0)[tables::users::ID].as<uint64_t>()};
+    user.employee_id = domain::EmployeeId{result.at(0)[tables::users::EMPLOYEE_ID].as<uint64_t>()};
+    user.admin_category_id = domain::AdminCategoryId{result.at(0)[tables::users::ADMIN_CATEGORY].as<uint64_t>()};
 
     return user;
 }
@@ -32,9 +34,9 @@ std::optional<domain::User> UserRepository::downloadUser(const domain::UserId& u
 
     domain::User user;
 
-    user.user_id = domain::UserId{result.at(0)[tables::users::ID].as<int>()};
-    user.employee_id = domain::EmployeeId{result.at(0)[tables::users::EMPLOYEE_ID].as<int>()};
-    user.admin_category_id = domain::AdminCategoryId{result.at(0)[tables::users::ADMIN_CATEGORY].as<int>()};
+    user.user_id = domain::UserId{result.at(0)[tables::users::ID].as<uint64_t>()};
+    user.employee_id = domain::EmployeeId{result.at(0)[tables::users::EMPLOYEE_ID].as<uint64_t>()};
+    user.admin_category_id = domain::AdminCategoryId{result.at(0)[tables::users::ADMIN_CATEGORY].as<uint64_t>()};
 
     return user;
 }

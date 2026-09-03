@@ -1,10 +1,10 @@
 #pragma once
 
-#include "application/application_gateway/application_gateway_interface.h"
-#include "application/application_gateway/dto_mappers/shop_dto_mapper/shop_dto_mapper.h"
-#include "application/application_gateway/dto_mappers/timesheet_dto_mapper/timesheet_dto_mapper_interface.h"
-#include "application/application_gateway/dto_mappers/user_dto_mapper/user_dto_mapper.h"
-#include "application/application_manager/application_manager_interface.h"
+#include "application_gateway/application_gateway_interface.h"
+#include "application_gateway/dto_mappers/shop_dto_mapper/shop_dto_mapper.h"
+#include "application_gateway/dto_mappers/timesheet_dto_mapper/timesheet_dto_mapper_interface.h"
+#include "application_gateway/dto_mappers/user_dto_mapper/user_dto_mapper.h"
+#include "application_manager/application_manager_interface.h"
 
 namespace application {
 

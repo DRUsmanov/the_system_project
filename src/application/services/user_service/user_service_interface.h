@@ -3,8 +3,8 @@
 #include <optional>
 #include <string>
 
-#include "domain/entities/user/user.h"
-#include "domain/repositories/users_repository_interface.h"
+#include "entities/user/user.h"
+#include "repositories/users_repository_interface.h"
 
 namespace application {
 

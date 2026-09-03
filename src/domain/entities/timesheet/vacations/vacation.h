@@ -1,7 +1,9 @@
 #pragma once
 
-#include "domain/value_data/types.h"
-#include "utils/tagged.h"
+#include <cstdint>
+
+#include "tagged.h"
+#include "value_data/types.h"
 
 namespace domain {
 
@@ -9,7 +11,7 @@ namespace detail {
 struct VacationIdTag {};
 }  // namespace detail
 
-using VacationId = utils::Tagged<int, detail::VacationIdTag>;
+using VacationId = utils::Tagged<uint64_t, detail::VacationIdTag>;
 using VacationIdHasher = utils::TaggedHasher<VacationId>;
 
 struct Vacation {

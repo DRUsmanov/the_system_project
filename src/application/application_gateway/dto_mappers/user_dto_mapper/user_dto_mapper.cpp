@@ -1,4 +1,4 @@
-#include "user_dto_mapper.h"
+#include "application_gateway/dto_mappers/user_dto_mapper/user_dto_mapper.h"
 
 using namespace application;
 

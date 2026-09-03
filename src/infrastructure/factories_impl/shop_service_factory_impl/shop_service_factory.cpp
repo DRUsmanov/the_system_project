@@ -1,12 +1,12 @@
 #include "shop_service_factory.h"
 
-#include "application/services/shop_service/shop_service.h"
-#include "infrastructure/repositorys_impl/shop_repository/shop_repository.h"
+#include "repositories_impl/shop_repository/shop_repository.h"
+#include "services/shop_service/shop_service.h"
 
 using namespace infrastructure;
 
 std::shared_ptr<application::ShopServiceInterface> ShopServiceFactory::createShopService(
     std::shared_ptr<application::UowInterface> uow) const {
-    auto shop_repository = std::make_shared<ShopRepository>(uow);
+    auto shop_repository = std::make_shared<ShopRepository>(std::shared_ptr<Uow>(dynamic_cast<Uow*>(uow.get())));
     return std::make_shared<application::ShopService>(shop_repository);
 }

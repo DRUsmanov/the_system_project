@@ -1,14 +1,14 @@
-#include "timesheet_service.h"
+#include "services/timesheet_service/timesheet_service.h"
 
 #include <chrono>
 #include <exception>
 #include <unordered_map>
 #include <vector>
 
-#include "domain/entities/timesheet/leave_types/leave_type.h"
-#include "domain/entities/timesheet/timesheet.h"
-#include "domain/entities/timesheet/work_schedules/work_schedule.h"
-#include "domain/value_data/types.h"
+#include "entities/timesheet/leave_types/leave_type.h"
+#include "entities/timesheet/timesheet.h"
+#include "entities/timesheet/work_schedules/work_schedule.h"
+#include "value_data/types.h"
 
 using namespace application;
 
@@ -39,6 +39,8 @@ bool TimesheetService::generateEmployeeVacationsInTimesheet(domain::Timesheet& t
             return true;
         }
     }
+
+    return false;
 }
 
 bool TimesheetService::generateHolidaysInTimesheet(domain::Timesheet& timesheet,

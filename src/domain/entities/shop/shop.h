@@ -2,10 +2,10 @@
 
 #include <unordered_map>
 
-#include "domain/entities/shop/department/department.h"
-#include "domain/entities/shop/employee/employee.h"
-#include "domain/entities/shop/staff_position/staff_position.h"
-#include "domain/entities/timesheet/work_schedules/work_schedule.h"
+#include "entities/shop/department/department.h"
+#include "entities/shop/employee/employee.h"
+#include "entities/shop/staff_position/staff_position.h"
+#include "entities/timesheet/work_schedules/work_schedule.h"
 
 namespace domain {
 

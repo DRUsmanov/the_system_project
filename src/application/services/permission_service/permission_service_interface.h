@@ -1,7 +1,7 @@
 #pragma once
 
-#include "domain/entities/shop/department/department.h"
-#include "domain/entities/user/user.h"
+#include "entities/shop/department/department.h"
+#include "entities/user/user.h"
 
 namespace application {
 

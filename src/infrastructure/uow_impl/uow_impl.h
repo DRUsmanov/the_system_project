@@ -3,8 +3,8 @@
 #include <memory>
 #include <pqxx/pqxx>
 
-#include "application/uow/uow_interface.h"
-#include "infrastructure/connection_pool/connection_pool.h"
+#include "connection_pool/connection_pool.h"
+#include "uow/uow_interface.h"
 
 namespace infrastructure {
 
@@ -15,14 +15,14 @@ public:
 
     Uow(const Uow&) = delete;
     Uow& operator=(const Uow&) = delete;
-    Uow(Uow&&) = default;
-    Uow& operator=(Uow&&) = default;
+    Uow(Uow&&) = delete;
+    Uow& operator=(Uow&&) = delete;
 
     void commit() override;
 
     template <typename... Args>
     pqxx::result execParams(const std::string& query, Args&&... args) {
-        return work_.exec_params(query, std::forward<Args>(args)...);
+        return work_.exec(query, pqxx::params{std::forward<Args>(args)...});
     }
 
 private:

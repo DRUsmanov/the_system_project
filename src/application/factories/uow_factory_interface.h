@@ -2,7 +2,7 @@
 
 #include <memory>
 
-#include "application/uow/uow_interface.h"
+#include "uow/uow_interface.h"
 
 namespace application {
 

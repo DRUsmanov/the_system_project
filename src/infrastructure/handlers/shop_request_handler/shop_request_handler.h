@@ -3,9 +3,9 @@
 #include <boost/beast.hpp>
 #include <string_view>
 
-#include "application/application_gateway/application_gateway_interface.h"
-#include "infrastructure/handlers/shop_request_handler/employee_request_handler/employee_request_handler.h"
-#include "infrastructure/token_manager/token_manager.h"
+#include "application_gateway/application_gateway_interface.h"
+#include "handlers/shop_request_handler/employee_request_handler/employee_request_handler.h"
+#include "token_manager/token_manager.h"
 
 namespace infrastructure {
 

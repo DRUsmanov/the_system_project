@@ -1,4 +1,4 @@
-#include "shop_service.h"
+#include "services/shop_service/shop_service.h"
 
 using namespace application;
 

@@ -5,13 +5,13 @@
 #include <unordered_map>
 #include <unordered_set>
 
-#include "domain/entities/timesheet/admin_categorys/admin_category.h"
-#include "domain/entities/timesheet/holidays/holiday.h"
-#include "domain/entities/timesheet/leave_types/leave_type.h"
-#include "domain/entities/timesheet/timesheet.h"
-#include "domain/entities/timesheet/vacations/vacation.h"
-#include "domain/entities/timesheet/work_schedules/work_schedule.h"
-#include "domain/value_data/types.h"
+#include "entities/timesheet/admin_categorys/admin_category.h"
+#include "entities/timesheet/holidays/holiday.h"
+#include "entities/timesheet/leave_types/leave_type.h"
+#include "entities/timesheet/timesheet.h"
+#include "entities/timesheet/vacations/vacation.h"
+#include "entities/timesheet/work_schedules/work_schedule.h"
+#include "value_data/types.h"
 
 namespace domain {
 

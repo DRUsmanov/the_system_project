@@ -1,4 +1,4 @@
-#include "logger.h"
+#include "logger/logger.h"
 
 #include <boost/date_time.hpp>
 #include <boost/json.hpp>
@@ -31,7 +31,7 @@ void consoleLogFormatter(logging::record_view const& rec, logging::formatting_os
     strm << "\"message\":\"" << rec[logging::expressions::smessage] << "\"}";
 }
 
-void initializeBoostLogger() {
+void infrastructure::initializeBoostLogger() {
     logging::add_common_attributes();
 
     logging::core::get()->set_filter(logging::trivial::severity >= logging::trivial::info);
@@ -39,7 +39,7 @@ void initializeBoostLogger() {
     logging::add_console_log(std::cout, keywords::format = &consoleLogFormatter, keywords::auto_flush = true);
 }
 
-void logServerStart(const net::ip::address& address, const net::ip::port_type& port) {
+void infrastructure::logServerStart(const net::ip::address& address, const net::ip::port_type& port) {
     json::value data = json::object();
     json::object& data_as_object = data.as_object();
     data_as_object["port"] = port;
@@ -47,7 +47,7 @@ void logServerStart(const net::ip::address& address, const net::ip::port_type& p
     BOOST_LOG_TRIVIAL(info) << logging::add_value(additional_data, data) << "server started";
 }
 
-void logServerStop(const std::optional<std::exception>& excp) {
+void infrastructure::logServerStop(const std::optional<std::exception>& excp) {
     json::value data = json::object();
     json::object& data_as_object = data.as_object();
     if (excp.has_value()) {
@@ -59,7 +59,7 @@ void logServerStop(const std::optional<std::exception>& excp) {
     BOOST_LOG_TRIVIAL(info) << logging::add_value(additional_data, data) << "server exited";
 }
 
-void logNetError(const boost::system::error_code& err_code, const std::string& where) {
+void infrastructure::logNetError(const boost::system::error_code& err_code, const std::string& where) {
     json::value data = json::object();
     json::object& data_as_object = data.as_object();
     data_as_object["code"] = err_code.value();

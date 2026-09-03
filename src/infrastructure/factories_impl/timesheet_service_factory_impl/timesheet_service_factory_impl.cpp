@@ -1,6 +1,6 @@
 #include "timesheet_service_factory_impl.h"
 
-#include "infrastructure/repositorys_impl/timesheet_repository/"
+#include "repositories_impl/timesheet_repository/timesheet_repository.h"
 
 using namespace infrastructure;
 

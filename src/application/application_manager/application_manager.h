@@ -2,12 +2,12 @@
 
 #include <chrono>
 
-#include "application/factories/permission_service_factory_interface.h"
-#include "application/factories/shop_service_factory_interface.h"
-#include "application/factories/timesheet_service_factory_interface.h"
-#include "application/factories/uow_factory_interface.h"
-#include "application/factories/user_service_factory_interface.h"
-#include "application_manager_interface.h"
+#include "application_manager/application_manager_interface.h"
+#include "factories/permission_service_factory_interface.h"
+#include "factories/shop_service_factory_interface.h"
+#include "factories/timesheet_service_factory_interface.h"
+#include "factories/uow_factory_interface.h"
+#include "factories/user_service_factory_interface.h"
 
 namespace application {
 

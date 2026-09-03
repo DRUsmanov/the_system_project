@@ -1,6 +1,6 @@
 #pragma once
 
-#include "application/factories/timesheet_service_factory_interface.h"
+#include "factories/timesheet_service_factory_interface.h"
 
 namespace infrastructure {
 

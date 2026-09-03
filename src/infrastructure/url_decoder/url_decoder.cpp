@@ -5,7 +5,7 @@
 
 using namespace infrastructure;
 
-std::string decodeUrl(std::string_view encoded_url) {
+std::string infrastructure::decodeUrl(std::string_view encoded_url) {
     boost::urls::url_view encoded_url_view{encoded_url};
 
     std::string decoded_url;
