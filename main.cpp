@@ -20,7 +20,7 @@
 #include "handlers/file_sender/file_sender.h"
 #include "handlers/request_handler/request_handler.h"
 #include "http_server/http_server.h"
-#include "logger/logger.h"
+#include "logger.h"
 #include "sdk.h"
 
 using namespace std::literals;

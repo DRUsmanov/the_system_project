@@ -14,9 +14,6 @@ namespace http = beast::http;
 namespace sys = boost::system;
 using namespace std::literals;
 
-/**
- * @brief Обрабатывает запросы с сущностями подразделения
- */
 class ShopRequestHandler {
 public:
     explicit ShopRequestHandler(application::ApplicationGatewayInterface& application_gateway) :
@@ -32,6 +29,12 @@ public:
         target.remove_prefix(API_V1_SHOP.size());
 
         if (target == EMPLOYEE) {
+            employee_request_handler_(std::move(req),
+                                      payload,
+                                      text_response_maker,
+                                      file_response_maker,
+                                      std::forward<decltype(send)>(send));
+            return;
         }
     }
 
@@ -42,7 +45,8 @@ private:
     constexpr static std::string_view EMPLOYEE = "employee"sv;
 
     constexpr static std::string_view UNAUTHORIZED = "{\"code\":\"unauthorized\", \"message\":\"Bad token\"}"sv;
-    constexpr static std::string_view BAD_REQUEST = "{\"code\":\"bad_request\", \"message\":\"Bad request\"}"sv;
+    constexpr static std::string_view BAD_REQUEST =
+        "{\"code\":\"bad_request\", \"message\":\"Bad request from shop_request_handler\"}"sv;
     constexpr static std::string_view INVALID_METHOD =
         "{\"code\":\"invalidMethod\", \"message\":\"Only POST, DELETE, PATCH method is expected\"}"sv;
     constexpr static std::string_view SERVER_ERROR = "{\"code\": \"server_error\", \"message\": \"Server error\"}"sv;

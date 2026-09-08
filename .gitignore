@@ -50,3 +50,6 @@
 *.tmp
 mermaid_diagrams.md
 build/
+
+log.txt
+CMakeUserPresets.json

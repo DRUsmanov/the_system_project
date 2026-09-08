@@ -19,7 +19,7 @@
 #include "handlers/file_sender/file_sender.h"
 #include "handlers/login_request_handler/login_request_handler.h"
 #include "handlers/shop_request_handler/shop_request_handler.h"
-#include "logger/logger.h"
+#include "logger.h"
 #include "token_manager/token_manager.h"
 #include "url_decoder/url_decoder.h"
 
@@ -35,10 +35,6 @@ using StringRequest = http::request<http::string_body>;
 using StringResponse = http::response<http::string_body>;
 using FileResponse = http::response<http::file_body>;
 using Response = std::variant<std::monostate, StringResponse, FileResponse>;
-
-/**
- * @brief Добавляет к обработчику запросов логирование
- */
 
 template <typename SomeRequestHandler>
 class LoggingRequestHandler {
@@ -138,6 +134,7 @@ public:
             send(std::move(not_found_response));
             return;
         } catch (const std::exception& ex) {
+            infrastructure::logException(ex);
             auto server_error_response =
                 text_response_maker(http::status::internal_server_error, SERVER_ERROR, content_type::APP_JSON);
             server_error_response.set(http::field::cache_control, "no-cache");

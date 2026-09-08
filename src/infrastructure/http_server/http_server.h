@@ -9,7 +9,7 @@
 #include <iostream>
 #include <memory>
 
-#include "logger/logger.h"
+#include "logger.h"
 
 namespace infrastructure {
 

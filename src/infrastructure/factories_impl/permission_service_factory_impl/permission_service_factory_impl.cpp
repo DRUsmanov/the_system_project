@@ -7,7 +7,6 @@ using namespace infrastructure;
 
 std::shared_ptr<application::PermissionServiceInterface> PermissionServiceFactory::createPermissionService(
     std::shared_ptr<application::UowInterface> uow) const {
-    auto permission_repository =
-        std::make_shared<PermissionRepository>(std::shared_ptr<Uow>(dynamic_cast<Uow*>(uow.get())));
+    auto permission_repository = std::make_shared<PermissionRepository>(std::dynamic_pointer_cast<Uow>(uow));
     return std::make_shared<application::PermissionService>(permission_repository);
 }

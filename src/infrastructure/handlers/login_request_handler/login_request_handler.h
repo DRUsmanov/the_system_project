@@ -15,12 +15,9 @@ namespace infrastructure {
 namespace beast = boost::beast;
 namespace http = beast::http;
 namespace sys = boost::system;
+
 using namespace std::literals;
 
-/**
- * @brief Обрабатывает запросы аутентификации пользователя, авторизованные пользователи перенаправляются на главную
- * страницу
- */
 class LoginRequestHandler {
 public:
     explicit LoginRequestHandler(const application::ApplicationGatewayInterface& application_gateway,
@@ -92,6 +89,7 @@ private:
     const application::ApplicationGatewayInterface& application_gateway_;
     const std::shared_ptr<TokenManager> token_manager_;
 
+private:
     constexpr static std::string_view LOGIN = "login"sv;
     constexpr static std::string_view PASSWORD = "password"sv;
     constexpr static std::string_view API_V1_LOGIN = "/api/v1/login"sv;
@@ -99,7 +97,8 @@ private:
         "{\"code\":\"unauthorized\", \"message\":\"Bad login or password\"}"sv;
     constexpr static std::string_view BAD_TOKEN =
         "{\"code\":\"unauthorized\", \"message\":\"Can't create token. Try again\"}"sv;
-    constexpr static std::string_view BAD_REQUEST = "{\"code\":\"bad_request\", \"message\":\"Bad request\"}"sv;
+    constexpr static std::string_view BAD_REQUEST =
+        "{\"code\":\"bad_request\", \"message\":\"Bad request from login_request_handler\"}"sv;
     constexpr static std::string_view INVALID_METHOD =
         "{\"code\":\"invalid_method\", \"message\":\"Only POST method is expected\"}"sv;
 

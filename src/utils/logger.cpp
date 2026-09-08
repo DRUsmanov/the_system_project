@@ -1,4 +1,6 @@
-#include "logger/logger.h"
+#define _GNU_SOURCE
+
+#include "logger.h"
 
 #include <boost/date_time.hpp>
 #include <boost/json.hpp>
@@ -9,6 +11,7 @@
 #include <boost/log/utility/setup/common_attributes.hpp>
 #include <boost/log/utility/setup/console.hpp>
 #include <boost/log/utility/setup/file.hpp>
+#include <boost/stacktrace.hpp>
 #include <variant>
 
 using namespace infrastructure;
@@ -65,5 +68,16 @@ void infrastructure::logNetError(const boost::system::error_code& err_code, cons
     data_as_object["code"] = err_code.value();
     data_as_object["text"] = err_code.message();
     data_as_object["where"] = where;
+    BOOST_LOG_TRIVIAL(info) << logging::add_value(additional_data, data) << "error";
+}
+
+void infrastructure::logException(const std::exception& ex) {
+    json::value data = json::object();
+    json::object& data_as_object = data.as_object();
+
+    std::ostringstream os;
+    os << boost::stacktrace::stacktrace();
+
+    data_as_object["stacktrace"] = os.str();
     BOOST_LOG_TRIVIAL(info) << logging::add_value(additional_data, data) << "error";
 }

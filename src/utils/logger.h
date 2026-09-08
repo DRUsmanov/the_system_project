@@ -47,5 +47,6 @@ void logResponse(const http::response<ResponseType>& response, int request_proce
 void logServerStart(const net::ip::address& address, const net::ip::port_type& port);
 void logServerStop(const std::optional<std::exception>& excp = std::nullopt);
 void logNetError(const boost::system::error_code& err_code, const std::string& where);
+void logException(const std::exception& ex);
 
 }  // namespace infrastructure

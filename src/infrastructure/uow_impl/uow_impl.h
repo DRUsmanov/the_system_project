@@ -22,7 +22,7 @@ public:
 
     template <typename... Args>
     pqxx::result execParams(const std::string& query, Args&&... args) {
-        return work_.exec(query, pqxx::params{std::forward<Args>(args)...});
+        return work_.exec(pqxx::prepped{query}, pqxx::params{std::forward<Args>(args)...});
     }
 
 private:

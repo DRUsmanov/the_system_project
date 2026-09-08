@@ -16,9 +16,6 @@ namespace http = beast::http;
 namespace sys = boost::system;
 using namespace std::literals;
 
-/**
- * @brief Обрабатывает запросы по добавлению, изменению и удалению работников
- */
 class EmployeeRequestHandler {
 public:
     explicit EmployeeRequestHandler(application::ApplicationGatewayInterface& application_gateway) :
@@ -35,7 +32,7 @@ public:
 
         if (auto content_type_header_it = req.find(http::field::content_type);
             content_type_header_it == req.end() || content_type_header_it->value() != content_type::APP_JSON ||
-            target.empty()) {
+            !target.empty()) {
             auto bad_request_response =
                 text_response_maker(http::status::bad_request, BAD_REQUEST, content_type::APP_JSON);
             bad_request_response.set(http::field::cache_control, "no-cache");
@@ -43,12 +40,29 @@ public:
             return;
         }
 
-        json::object request_body_as_object = parseString(std::string(req.body));
+        json::object request_body_as_object = parseString(std::string{req.body()});
 
         auto method = req.method();
 
+        application::UserAccessDto user_access_dto;
+        user_access_dto.user_id = payload.value().at(keys::USER_ID);
+
         if (method == http::verb::post) {
-            // Call gateway methode addNewEmployee
+            auto add_employee_request_dto = makeAddEmployeeRequestDto(request_body_as_object);
+            auto is_added = application_gateway_.addEmployee(user_access_dto, add_employee_request_dto);
+            if (is_added) {
+                auto employee_success_added_response =
+                    text_response_maker(http::status::created, EMPLOYEE_SUCCESS_ADDED, content_type::APP_JSON);
+                employee_success_added_response.set(http::field::cache_control, "no-cache");
+                send(std::move(employee_success_added_response));
+                return;
+            } else {
+                auto employee_failed_added_response =
+                    text_response_maker(http::status::conflict, EMPLOYEE_FAILED_ADDED, content_type::APP_JSON);
+                employee_failed_added_response.set(http::field::cache_control, "no-cache");
+                send(std::move(employee_failed_added_response));
+                return;
+            }
         }
 
         if (method == http::verb::delete_) {
@@ -68,13 +82,19 @@ public:
 private:
     application::ApplicationGatewayInterface& application_gateway_;
 
-    constexpr static std::string_view API_V1_SHOP_EMPLOYEE = "/api/v1/shop/employee"sv;
+private:
+    application::AddEmployeeRequestDto makeAddEmployeeRequestDto(const json::object& request_body_as_object) const;
 
-    constexpr static std::string_view UNAUTHORIZED = "{\"code\":\"unauthorized\", \"message\":\"Bad token\"}"sv;
-    constexpr static std::string_view BAD_REQUEST = "{\"code\":\"bad_request\", \"message\":\"Bad request\"}"sv;
+private:
+    constexpr static std::string_view API_V1_SHOP_EMPLOYEE = "/api/v1/shop/employee"sv;
+    constexpr static std::string_view EMPLOYEE_SUCCESS_ADDED = "{\"result\":true}";
+    constexpr static std::string_view EMPLOYEE_FAILED_ADDED = "{\"result\":false}";
+    constexpr static std::string_view BAD_REQUEST =
+        "{\"code\":\"bad_request\", \"message\":\"Bad request from employee_request_handler\"}"sv;
     constexpr static std::string_view INVALID_METHOD =
         "{\"code\":\"invalidMethod\", \"message\":\"Only POST, DELETE, PATCH method is expected\"}"sv;
-    constexpr static std::string_view SERVER_ERROR = "{\"code\": \"server_error\", \"message\": \"Server error\"}"sv;
+    constexpr static std::string_view SERVER_ERROR =
+        "{\"code\": \"server_error\", \"message\": \"Server error from employee_request_handler\"}"sv;
 };
 
 }  // namespace infrastructure

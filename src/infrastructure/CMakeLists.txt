@@ -1,3 +1,5 @@
+add_definitions(-D_GNU_SOURCE)
+
 file(GLOB_RECURSE INFRASTRUCTURE "*.h" "*.cpp")
 
 add_library(infrastructure STATIC ${INFRASTRUCTURE})
@@ -5,6 +7,7 @@ add_library(infrastructure STATIC ${INFRASTRUCTURE})
 target_include_directories(infrastructure PUBLIC ${SRC_ROOT}/infrastructure)
 
 target_link_libraries(infrastructure PUBLIC
+    utils
     application
     Boost::boost
     Boost::system

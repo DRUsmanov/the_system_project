@@ -7,7 +7,7 @@ namespace infrastructure {
 
 std::shared_ptr<application::UserServiceInterface> UserServiceFactory::createUserService(
     std::shared_ptr<application::UowInterface> uow) const {
-    auto user_repository = std::make_shared<UserRepository>(std::shared_ptr<Uow>(dynamic_cast<Uow*>(uow.get())));
+    auto user_repository = std::make_shared<UserRepository>(std::dynamic_pointer_cast<Uow>(uow));
     return std::make_shared<application::UserService>(user_repository);
 }
 

@@ -1,6 +1,9 @@
 #include "application_manager/application_manager.h"
 
 #include <exception>
+#include <iostream>
+
+#include "logger.h"
 
 using namespace application;
 
@@ -11,6 +14,7 @@ std::optional<domain::User> ApplicationManager::login(std::string login, std::st
 
         return user_service->login(login, password);
     } catch (std::exception& ex) {
+        infrastructure::logException(ex);
         return std::nullopt;
     }
 }
@@ -32,6 +36,7 @@ bool ApplicationManager::addEmployee(const domain::UserId& user_id,
             return false;
         }
 
+        // TODO: Here some problem. Segmentation fault
         if (!timesheet_service->generateTimesheetForNewEmployee(employee_assignment, employee)) {
             return false;
         }
@@ -40,6 +45,7 @@ bool ApplicationManager::addEmployee(const domain::UserId& user_id,
 
         return true;
     } catch (std::exception& ex) {
+        infrastructure::logException(ex);
         return false;
     }
 }
@@ -70,6 +76,7 @@ std::optional<domain::Timesheet> ApplicationManager::getTimesheet(const domain::
         timesheet_service->generateTimesheetForShop(shop, year_month.year());
         return timesheet_service->getDepartmentTimesheet(department_id, admin_category_id, year_month);
     } catch (std::exception& ex) {
+        infrastructure::logException(ex);
         return std::nullopt;
     }
 }

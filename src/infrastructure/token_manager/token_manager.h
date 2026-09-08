@@ -2,10 +2,19 @@
 
 #include <cstdint>
 #include <optional>
-#include <string_view>
+#include <string>
 #include <unordered_map>
 
 namespace infrastructure {
+
+namespace keys {
+
+constexpr std::string USER_ID{"user_id"};
+constexpr std::string EMPLOYEE_ID{"employee_id"};
+constexpr std::string ISSUER{"The system server"};
+constexpr std::string TYPE{"JWT"};
+
+}  // namespace keys
 
 class TokenManager {
 public:
