@@ -1,11 +1,13 @@
 #include "services/permission_service/permission_service.h"
 
 #include "entities/permission/permission.h"
+#include "logger.h"
 
 using namespace application;
 
 bool PermissionService::checkUserDepartmentWritePermission(const domain::UserId& user_id,
                                                            const domain::DepartmentId& department_id) const {
+    utils::logFunctionStart(utils::FUNCTION_INFO);
     auto user_department_permissions = getUserDepartmentPermissions(user_id, department_id);
 
     if (user_department_permissions.has_value()) {
@@ -18,6 +20,7 @@ bool PermissionService::checkUserDepartmentWritePermission(const domain::UserId&
 bool application::PermissionService::checkUserDepartmentReadPermission(
     const domain::UserId& user_id,
     const domain::DepartmentId& department_id) const {
+    utils::logFunctionStart(utils::FUNCTION_INFO);
     auto user_department_permissions = getUserDepartmentPermissions(user_id, department_id);
 
     if (user_department_permissions.has_value()) {
@@ -30,6 +33,7 @@ bool application::PermissionService::checkUserDepartmentReadPermission(
 std::optional<domain::Permissions> application::PermissionService::getUserDepartmentPermissions(
     const domain::UserId& user_id,
     const domain::DepartmentId& department_id) const {
+    utils::logFunctionStart(utils::FUNCTION_INFO);
     std::optional<domain::UserPermissions> user_permissions = permission_repository_->downloadUserPermissions(user_id);
 
     if (user_permissions.has_value()) {

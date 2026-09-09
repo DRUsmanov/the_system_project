@@ -30,17 +30,17 @@ private:
         const domain::StaffPositionId& staff_position_id;
         const domain::WorkScheduleId& work_schedule_id;
         const domain::WorkSchedule& work_schedule;
-        const domain::PreHolidays& pre_holidays;
-        const domain::Holidays& holidays;
-        const domain::ExtraHolidays& extra_holidays;
-        const domain::Vacations& vacations;
+        std::optional<const domain::PreHolidays> pre_holidays;
+        std::optional<const domain::Holidays> holidays;
+        std::optional<const domain::ExtraHolidays> extra_holidays;
+        std::optional<const domain::Vacations> vacations;
     };
 
 private:
     bool generateEmployeeVacationsInTimesheet(domain::Timesheet& timesheet,
                                               const TimesheetGenerationContext& generation_context);
-    bool generateHolidaysInTimesheet(domain::Timesheet& timesheet,
-                                     const TimesheetGenerationContext& generation_context);
+    bool generateHolidaysAndPreHolidaysInTimesheet(domain::Timesheet& timesheet,
+                                                   const TimesheetGenerationContext& generation_context);
     bool generateWorkingDayInTimesheet(domain::Timesheet& timesheet,
                                        const TimesheetGenerationContext& generation_context);
     std::chrono::year_month_day getCurrentData() const;

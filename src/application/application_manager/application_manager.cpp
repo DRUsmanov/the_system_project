@@ -8,20 +8,22 @@
 using namespace application;
 
 std::optional<domain::User> ApplicationManager::login(std::string login, std::string password) const {
+    utils::logFunctionStart(utils::FUNCTION_INFO);
     try {
         auto uow = uow_factory_.createUow();
         auto user_service = user_service_factory_.createUserService(uow);
 
         return user_service->login(login, password);
     } catch (std::exception& ex) {
-        infrastructure::logException(ex);
+        utils::logException(ex);
         return std::nullopt;
     }
 }
 
 bool ApplicationManager::addEmployee(const domain::UserId& user_id,
                                      const domain::Shop::EmployeeAssignment& employee_assignment,
-                                     const domain::Employee& employee) const {
+                                     domain::Employee& employee) const {
+    utils::logFunctionStart(utils::FUNCTION_INFO);
     try {
         auto uow = uow_factory_.createUow();
         auto timesheet_service = timesheet_service_factory_.createTimesheetService(uow);
@@ -32,11 +34,14 @@ bool ApplicationManager::addEmployee(const domain::UserId& user_id,
             return false;
         }
 
-        if (!shop_service->addNewEmployee(employee_assignment, employee)) {
+        auto employee_id = shop_service->addNewEmployee(employee_assignment, employee);
+
+        if (!employee_id) {
             return false;
         }
 
-        // TODO: Here some problem. Segmentation fault
+        employee.employee_id = employee_id.value();
+
         if (!timesheet_service->generateTimesheetForNewEmployee(employee_assignment, employee)) {
             return false;
         }
@@ -45,7 +50,7 @@ bool ApplicationManager::addEmployee(const domain::UserId& user_id,
 
         return true;
     } catch (std::exception& ex) {
-        infrastructure::logException(ex);
+        utils::logException(ex);
         return false;
     }
 }
@@ -54,6 +59,7 @@ std::optional<domain::Timesheet> ApplicationManager::getTimesheet(const domain::
                                                                   const domain::AdminCategoryId& admin_category_id,
                                                                   const domain::DepartmentId& department_id,
                                                                   std::chrono::year_month year_month) const {
+    utils::logFunctionStart(utils::FUNCTION_INFO);
     try {
         auto uow = uow_factory_.createUow();
         auto timesheet_service = timesheet_service_factory_.createTimesheetService(uow);
@@ -76,7 +82,7 @@ std::optional<domain::Timesheet> ApplicationManager::getTimesheet(const domain::
         timesheet_service->generateTimesheetForShop(shop, year_month.year());
         return timesheet_service->getDepartmentTimesheet(department_id, admin_category_id, year_month);
     } catch (std::exception& ex) {
-        infrastructure::logException(ex);
+        utils::logException(ex);
         return std::nullopt;
     }
 }

@@ -1,8 +1,10 @@
 #include "connection_pool.h"
 
+#include "logger.h"
 #include "querys.h"
 
 infrastructure::ConnectionPool::ConnectionWrapper infrastructure::ConnectionPool::getConnection() {
+    utils::logFunctionStart(utils::FUNCTION_INFO);
     std::unique_lock lock{mutex_};
 
     cond_var_.wait(lock, [this] {
@@ -13,6 +15,7 @@ infrastructure::ConnectionPool::ConnectionWrapper infrastructure::ConnectionPool
 }
 
 void infrastructure::ConnectionPool::returnConnection(ConnectionPool::ConnectionPtr&& conn) {
+    utils::logFunctionStart(utils::FUNCTION_INFO);
     {
         std::lock_guard lock{mutex_};
         assert(used_connections_ != 0);
@@ -23,6 +26,7 @@ void infrastructure::ConnectionPool::returnConnection(ConnectionPool::Connection
 }
 
 std::shared_ptr<pqxx::connection> infrastructure::ConnectionFactory::operator()() const {
+    utils::logFunctionStart(utils::FUNCTION_INFO);
     auto conn = std::make_shared<pqxx::connection>(db_url_);
     for (const auto& [query_name, query] : infrastructure::querys) {
         conn->prepare(query_name, query);

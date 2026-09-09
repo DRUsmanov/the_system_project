@@ -10,10 +10,11 @@ public:
     ShopRepository(std::shared_ptr<Uow> uow) : uow_{uow} {}
 
     domain::Shop downloadShop() const override;
-    bool uploadEmployee(const domain::Employee& employee,
-                        domain::DepartmentId department_id,
-                        domain::StaffPositionId staff_position_id,
-                        domain::WorkScheduleId work_schedule_id) override;
+    std::optional<domain::EmployeeId> uploadEmployee(const domain::Employee& employee,
+                                                     domain::DepartmentId department_id,
+                                                     domain::StaffPositionId staff_position_id,
+                                                     domain::WorkScheduleId work_schedule_id) override;
+    std::optional<domain::Employee> downloadEmployee(domain::EmployeeId employee_id) const override;
 
 private:
     std::shared_ptr<Uow> uow_;

@@ -123,7 +123,7 @@ private:
         using namespace std::literals;
 
         if (ec) {
-            infrastructure::logNetError(ec, "accept");
+            utils::logNetError(ec, "accept");
         }
 
         asyncRunSession(std::move(socket));

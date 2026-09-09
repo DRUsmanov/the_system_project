@@ -25,19 +25,22 @@ class TimeSheetRepositoryInterface {
 public:
     virtual ~TimeSheetRepositoryInterface() = default;
 
-    virtual WorkSchedule downloadWorkScheduleById(WorkScheduleId id) const = 0;
-    virtual PreHolidays downloadPreHolidaysByYear(std::chrono::year year) const = 0;
-    virtual Holidays downloadHolidaysByYear(std::chrono::year year) const = 0;
-    virtual ExtraHolidays downloadExtraHolidaysByYear(std::chrono::year year) const = 0;
-    virtual Vacations downloadVacationsByYear(std::chrono::year year) const = 0;
-    virtual Vacations downloadVacationsByEmployeeId(EmployeeId employee_id) const = 0;
-    virtual Vacations downloadVacationsByEmployeeIdAndYear(EmployeeId employee_id, std::chrono::year year) const = 0;
-    virtual AdminCategoryId downloadSystemAdministratorId() const = 0;
+    virtual std::optional<WorkSchedule> downloadWorkScheduleById(WorkScheduleId work_schedule_id) const = 0;
+    virtual std::optional<PreHolidays> downloadPreHolidaysByYear(std::chrono::year year) const = 0;
+    virtual std::optional<Holidays> downloadHolidaysByYear(std::chrono::year year) const = 0;
+    virtual std::optional<ExtraHolidays> downloadExtraHolidaysByYear(std::chrono::year year) const = 0;
+    virtual std::optional<Vacations> downloadVacationsByYear(std::chrono::year year) const = 0;
+    virtual std::optional<Vacations> downloadVacationsByEmployeeId(EmployeeId employee_id) const = 0;
+    virtual std::optional<Vacations> downloadVacationsByEmployeeIdAndYear(EmployeeId employee_id,
+                                                                          std::chrono::year year) const = 0;
+    virtual std::optional<AdminCategoryId> downloadSystemAdministratorId() const = 0;
     virtual std::optional<Timesheet> downloadDepartmentTimesheet(DepartmentId department_id,
                                                                  AdminCategoryId admin_category_id,
                                                                  std::chrono::year_month year_month) const = 0;
 
-    virtual bool uploadTimesheet(const Timesheet& timesheet) = 0;
+    virtual bool uploadTimesheet(const Timesheet& timesheet,
+                                 AdminCategoryId admin_category_id,
+                                 std::optional<EmployeeId> admin_employee_id = std::nullopt) = 0;
 };
 
 }  // namespace domain

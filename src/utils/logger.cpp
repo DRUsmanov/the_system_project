@@ -11,10 +11,10 @@
 #include <boost/log/utility/setup/common_attributes.hpp>
 #include <boost/log/utility/setup/console.hpp>
 #include <boost/log/utility/setup/file.hpp>
-#include <boost/stacktrace.hpp>
 #include <variant>
 
-using namespace infrastructure;
+namespace utils {
+
 using namespace std::literals;
 
 BOOST_LOG_ATTRIBUTE_KEYWORD(timestamp, "TimeStamp", boost::posix_time::ptime)
@@ -34,7 +34,7 @@ void consoleLogFormatter(logging::record_view const& rec, logging::formatting_os
     strm << "\"message\":\"" << rec[logging::expressions::smessage] << "\"}";
 }
 
-void infrastructure::initializeBoostLogger() {
+void initializeBoostLogger() {
     logging::add_common_attributes();
 
     logging::core::get()->set_filter(logging::trivial::severity >= logging::trivial::info);
@@ -42,7 +42,7 @@ void infrastructure::initializeBoostLogger() {
     logging::add_console_log(std::cout, keywords::format = &consoleLogFormatter, keywords::auto_flush = true);
 }
 
-void infrastructure::logServerStart(const net::ip::address& address, const net::ip::port_type& port) {
+void logServerStart(const net::ip::address& address, const net::ip::port_type& port) {
     json::value data = json::object();
     json::object& data_as_object = data.as_object();
     data_as_object["port"] = port;
@@ -50,7 +50,7 @@ void infrastructure::logServerStart(const net::ip::address& address, const net::
     BOOST_LOG_TRIVIAL(info) << logging::add_value(additional_data, data) << "server started";
 }
 
-void infrastructure::logServerStop(const std::optional<std::exception>& excp) {
+void logServerStop(const std::optional<std::exception>& excp) {
     json::value data = json::object();
     json::object& data_as_object = data.as_object();
     if (excp.has_value()) {
@@ -62,7 +62,7 @@ void infrastructure::logServerStop(const std::optional<std::exception>& excp) {
     BOOST_LOG_TRIVIAL(info) << logging::add_value(additional_data, data) << "server exited";
 }
 
-void infrastructure::logNetError(const boost::system::error_code& err_code, const std::string& where) {
+void logNetError(const boost::system::error_code& err_code, const std::string& where) {
     json::value data = json::object();
     json::object& data_as_object = data.as_object();
     data_as_object["code"] = err_code.value();
@@ -71,13 +71,27 @@ void infrastructure::logNetError(const boost::system::error_code& err_code, cons
     BOOST_LOG_TRIVIAL(info) << logging::add_value(additional_data, data) << "error";
 }
 
-void infrastructure::logException(const std::exception& ex) {
+void logException(const std::exception& ex) {
     json::value data = json::object();
     json::object& data_as_object = data.as_object();
-
-    std::ostringstream os;
-    os << boost::stacktrace::stacktrace();
-
-    data_as_object["stacktrace"] = os.str();
+    data_as_object["exception"] = ex.what();
     BOOST_LOG_TRIVIAL(info) << logging::add_value(additional_data, data) << "error";
 }
+
+void logFunctionStart(const FunctionInfo& func_info) {
+    json::value data = json::object();
+    json::object& data_as_object = data.as_object();
+    data_as_object["file"] = func_info.file;
+    data_as_object["function"] = func_info.function;
+    BOOST_LOG_TRIVIAL(info) << logging::add_value(additional_data, data) << "==>";
+}
+
+void logFunctionEnd(const FunctionInfo& func_info) {
+    json::value data = json::object();
+    json::object& data_as_object = data.as_object();
+    data_as_object["file"] = func_info.file;
+    data_as_object["function"] = func_info.function;
+    BOOST_LOG_TRIVIAL(info) << logging::add_value(additional_data, data) << "<==";
+}
+
+}  // namespace utils

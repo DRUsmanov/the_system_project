@@ -45,14 +45,14 @@ public:
     void operator()(http::request<Body, http::basic_fields<Allocator>>&& req,
                     Send&& send,
                     const beast::tcp_stream& stream) {
-        infrastructure::logRequest(req, stream);
+        utils::logRequest(req, stream);
 
         auto request_processing_start_time = std::chrono::steady_clock::now();
         handler_(std::move(req), [send, request_processing_start_time](auto&& response) {
             auto request_processing_end_time = std::chrono::steady_clock::now();
             auto request_processing_time = std::chrono::duration_cast<std::chrono::milliseconds>(
                 request_processing_end_time - request_processing_start_time);
-            infrastructure::logResponse(response, request_processing_time.count());
+            utils::logResponse(response, request_processing_time.count());
             send(std::move(response));
         });
     }
@@ -134,7 +134,7 @@ public:
             send(std::move(not_found_response));
             return;
         } catch (const std::exception& ex) {
-            infrastructure::logException(ex);
+            utils::logException(ex);
             auto server_error_response =
                 text_response_maker(http::status::internal_server_error, SERVER_ERROR, content_type::APP_JSON);
             server_error_response.set(http::field::cache_control, "no-cache");

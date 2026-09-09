@@ -81,12 +81,12 @@ int main(int argc, const char* argv[]) {
         net::io_context ioc(num_threads);
         auto api_strand = net::make_strand(ioc);
 
-        infrastructure::initializeBoostLogger();
+        utils::initializeBoostLogger();
 
         net::signal_set signals(ioc, SIGINT, SIGTERM);
         signals.async_wait([&ioc](const sys::error_code& ec, [[maybe_unused]] int signal_number) {
             if (!ec) {
-                infrastructure::logServerStop();
+                utils::logServerStop();
                 ioc.stop();
             }
         });
@@ -103,13 +103,13 @@ int main(int argc, const char* argv[]) {
                                                               std::forward<decltype(stream)>(stream));
                                   });
 
-        infrastructure::logServerStart(address, port);
+        utils::logServerStart(address, port);
         runWorkers(std::max(1u, num_threads), [&ioc] {
             ioc.run();
         });
     } catch (const std::exception& ex) {
         std::cout << ex.what() << std::endl;
-        infrastructure::logServerStop(ex);
+        utils::logServerStop(ex);
         return EXIT_FAILURE;
     }
 }

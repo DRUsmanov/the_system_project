@@ -12,10 +12,11 @@ public:
     virtual ~ShopRepositoryInterface() = default;
 
     virtual Shop downloadShop() const = 0;
-    virtual bool uploadEmployee(const domain::Employee& employee,
-                                domain::DepartmentId department_id,
-                                domain::StaffPositionId staff_position_id,
-                                domain::WorkScheduleId work_schedule_id) = 0;
+    virtual std::optional<EmployeeId> uploadEmployee(const Employee& employee,
+                                                     DepartmentId department_id,
+                                                     StaffPositionId staff_position_id,
+                                                     WorkScheduleId work_schedule_id) = 0;
+    virtual std::optional<Employee> downloadEmployee(EmployeeId employee_id) const = 0;
 };
 
 }  // namespace domain

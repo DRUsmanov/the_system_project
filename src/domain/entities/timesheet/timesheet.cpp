@@ -19,6 +19,14 @@ bool domain::Timesheet::addEmployeeDayData(EmployeeId employee_id,
     }
 }
 
+domain::Timesheet::TimesheetData::const_iterator domain::Timesheet::begin() const {
+    return data_.begin();
+}
+
+domain::Timesheet::TimesheetData::const_iterator domain::Timesheet::end() const {
+    return data_.end();
+}
+
 domain::Timesheet::DayData domain::Timesheet::DayData::createWorkingDayData(
     const WorkSchedule::DayData& work_schedule_day_data,
     DepartmentId department_id,

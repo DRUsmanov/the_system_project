@@ -30,7 +30,7 @@ struct VacationHasher {
     }
 };
 
-bool operator==(const Vacation& vacation1, const Vacation& vacation2) {
+inline bool operator==(const Vacation& vacation1, const Vacation& vacation2) {
     return vacation1.start == vacation2.start && vacation1.end == vacation2.end;
 }
 

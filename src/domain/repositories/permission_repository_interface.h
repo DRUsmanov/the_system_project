@@ -13,7 +13,7 @@ class PermissionRepositoryInterface {
 public:
     virtual ~PermissionRepositoryInterface() = default;
 
-    virtual std::optional<UserPermissions> downloadUserPermissions(domain::UserId user_id) const = 0;
+    virtual std::optional<UserPermissions> downloadUserPermissions(UserId user_id) const = 0;
 };
 
 }  // namespace domain

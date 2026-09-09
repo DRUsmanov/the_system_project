@@ -5,6 +5,8 @@
 #include <format>
 #include <sstream>
 
+// TODO: Может вынести в utils?
+
 namespace domain {
 
 using Time = std::chrono::minutes;
@@ -22,11 +24,27 @@ inline Date dateFromString(std::string_view date_as_str) {
     unsigned int day;
     ss >> year >> separator >> month >> separator >> day;
     std::chrono::year_month_day ymd{std::chrono::year{year}, std::chrono::month{month}, std::chrono::day{day}};
-    return std::chrono::sys_days{ymd};
+    return Date{ymd};
 }
 
 inline std::string dateToString(Date date) {
     return std::format("{:%Y-%m-%d}", date);
+}
+
+inline Time timeFromString(std::string_view time_as_string) {
+    std::istringstream ss{std::string(time_as_string)};
+    char separator;
+    int hours;
+    int minutes;
+    ss >> hours >> separator >> minutes;
+    return Time{hours * 60 + minutes};
+}
+
+inline std::string timeToString(Time time) {
+    auto total_minutes = time.count();
+    int hours = total_minutes / 60;
+    int minutes = total_minutes % 60;
+    return std::format("{:02d}:{:02d}", hours, minutes);
 }
 
 struct TimeHasher {

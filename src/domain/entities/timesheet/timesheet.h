@@ -80,6 +80,8 @@ public:
                             Date date,
                             AdminCategoryId admin_category_id,
                             const DayData& day_data);
+    TimesheetData::const_iterator begin() const;
+    TimesheetData::const_iterator end() const;
 
 private:
     TimesheetData data_;

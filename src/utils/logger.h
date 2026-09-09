@@ -11,12 +11,22 @@
 #include <optional>
 #include <string>
 
-namespace infrastructure {
+namespace utils {
 
 namespace logging = boost::log;
 namespace net = boost::asio;
 namespace http = boost::beast::http;
 namespace json = boost::json;
+
+struct FunctionInfo {
+    std::string file;
+    std::string function;
+};
+
+#define FUNCTION_INFO          \
+    FunctionInfo {             \
+        __FILE__, __FUNCTION__ \
+    }
 
 void initializeBoostLogger();
 
@@ -48,5 +58,6 @@ void logServerStart(const net::ip::address& address, const net::ip::port_type& p
 void logServerStop(const std::optional<std::exception>& excp = std::nullopt);
 void logNetError(const boost::system::error_code& err_code, const std::string& where);
 void logException(const std::exception& ex);
+void logFunctionStart(const FunctionInfo& func_info);
 
-}  // namespace infrastructure
+}  // namespace utils

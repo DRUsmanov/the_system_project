@@ -7,10 +7,12 @@
 #include "entities/shop/department/department.h"
 #include "entities/user/user.h"
 #include "json_formater/json_formater.h"
+#include "logger.h"
 
 using namespace infrastructure;
 
 std::optional<domain::UserPermissions> PermissionRepository::downloadUserPermissions(domain::UserId user_id) const {
+    utils::logFunctionStart(utils::FUNCTION_INFO);
     auto result = uow_->execParams(query::DOWNLOAD_USER_PERMISSIONS, *user_id);
 
     if (result.size() == 0) {
@@ -20,10 +22,10 @@ std::optional<domain::UserPermissions> PermissionRepository::downloadUserPermiss
     domain::UserPermissions user_permissions;
 
     for (const auto row : result) {
-        auto db_deprtment_id = row[tables::permissions::DEPARTMENT_ID].as<uint64_t>();
+        auto db_deprtment_id = row.at(tables::permissions::DEPARTMENT_ID).as<uint64_t>();
         domain::DepartmentId department_id{db_deprtment_id};
 
-        auto db_permissions = row[tables::permissions::PERMISSIONS].as<uint64_t>();
+        auto db_permissions = row.at(tables::permissions::PERMISSIONS).as<uint64_t>();
         domain::Permissions permissions{static_cast<unsigned long>(db_permissions)};
 
         user_permissions.emplace(department_id, permissions);
