@@ -6,11 +6,11 @@
 
 namespace infrastructure {
 
-class UowFactory : public application::UowFactoryInterface {
+class UowFactory : public domain::UowFactoryInterface {
 public:
     UowFactory(ConnectionPool& connection_pool) : connection_pool_{connection_pool} {}
 
-    std::shared_ptr<application::UowInterface> createUow() const override;
+    std::shared_ptr<domain::UowInterface> createUow() const override;
 
 private:
     ConnectionPool& connection_pool_;

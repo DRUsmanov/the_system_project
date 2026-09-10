@@ -1,11 +1,18 @@
 [  5%] Built target utils
-[ 16%] Built target domain
-[ 19%] Building CXX object src/application/CMakeFiles/application.dir/services/timesheet_service/timesheet_service.cpp.o
-[ 22%] Linking CXX static library ../../lib/libapplication.a
+[ 27%] Built target domain
 [ 41%] Built target application
-[ 44%] Building CXX object src/infrastructure/CMakeFiles/infrastructure.dir/factories_impl/timesheet_service_factory_impl/timesheet_service_factory_impl.cpp.o
-[ 47%] Building CXX object src/infrastructure/CMakeFiles/infrastructure.dir/repositories_impl/timesheet_repository/timesheet_repository.cpp.o
-[ 50%] Linking CXX static library ../../lib/libinfrastructure.a
+[ 44%] Building CXX object src/infrastructure/CMakeFiles/infrastructure.dir/factories_impl/permission_service_factory_impl/permission_service_factory_impl.cpp.o
+[ 47%] Building CXX object src/infrastructure/CMakeFiles/infrastructure.dir/factories_impl/shop_service_factory_impl/shop_service_factory.cpp.o
+[ 50%] Building CXX object src/infrastructure/CMakeFiles/infrastructure.dir/factories_impl/timesheet_service_factory_impl/timesheet_service_factory_impl.cpp.o
+[ 52%] Building CXX object src/infrastructure/CMakeFiles/infrastructure.dir/factories_impl/uow_factory_impl/uow_factory_impl.cpp.o
+[ 55%] Building CXX object src/infrastructure/CMakeFiles/infrastructure.dir/repositories_impl/permission_repository/permission_repository.cpp.o
+[ 58%] Building CXX object src/infrastructure/CMakeFiles/infrastructure.dir/repositories_impl/shop_repository/shop_repository.cpp.o
+[ 61%] Building CXX object src/infrastructure/CMakeFiles/infrastructure.dir/factories_impl/user_service_factory_impl/user_service_factory_impl.cpp.o
+[ 63%] Building CXX object src/infrastructure/CMakeFiles/infrastructure.dir/repositories_impl/timesheet_repository/timesheet_repository.cpp.o
+[ 66%] Building CXX object src/infrastructure/CMakeFiles/infrastructure.dir/repositories_impl/user_repository/user_repository.cpp.o
+[ 69%] Building CXX object src/infrastructure/CMakeFiles/infrastructure.dir/uow_impl/uow_impl.cpp.o
+[ 72%] Linking CXX static library ../../lib/libinfrastructure.a
 [ 94%] Built target infrastructure
-[ 97%] Linking CXX executable bin/the_system
+[ 97%] Building CXX object CMakeFiles/the_system.dir/main.cpp.o
+[100%] Linking CXX executable bin/the_system
 [100%] Built target the_system

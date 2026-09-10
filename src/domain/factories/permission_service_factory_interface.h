@@ -5,7 +5,7 @@
 #include "services/permission_service/permission_service_interface.h"
 #include "uow/uow_interface.h"
 
-namespace application {
+namespace domain {
 
 class PermissionServiceFactoryInterface {
 public:
@@ -15,4 +15,4 @@ public:
         std::shared_ptr<UowInterface> uow) const = 0;
 };
 
-}  // namespace application
+}  // namespace domain

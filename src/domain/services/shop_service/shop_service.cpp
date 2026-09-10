@@ -2,15 +2,14 @@
 
 #include "logger.h"
 
-using namespace application;
+using namespace domain;
 
-domain::Shop ShopService::getShop() const {
+Shop ShopService::getShop() const {
     return shop_repository_->downloadShop();
 }
 
-std::optional<domain::EmployeeId> application::ShopService::addNewEmployee(
-    domain::Shop::EmployeeAssignment employee_assignment,
-    const domain::Employee& employee) {
+std::optional<EmployeeId> ShopService::addNewEmployee(Shop::EmployeeAssignment employee_assignment,
+                                                      const Employee& employee) {
     utils::logFunctionStart(utils::FUNCTION_INFO);
     return shop_repository_->uploadEmployee(employee,
                                             employee_assignment.department_id,

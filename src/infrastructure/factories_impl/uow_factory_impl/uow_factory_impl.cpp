@@ -4,7 +4,7 @@
 
 using namespace infrastructure;
 
-std::shared_ptr<application::UowInterface> UowFactory::createUow() const {
+std::shared_ptr<domain::UowInterface> UowFactory::createUow() const {
     utils::logFunctionStart(utils::FUNCTION_INFO);
     return std::make_shared<Uow>(connection_pool_.getConnection());
 }

@@ -8,7 +8,7 @@
 
 namespace infrastructure {
 
-class Uow : public application::UowInterface {
+class Uow : public domain::UowInterface {
 public:
     Uow(ConnectionPool::ConnectionWrapper&& connection_wrapper) :
         connection_wrapper_{std::move(connection_wrapper)}, work_{*connection_wrapper_} {}

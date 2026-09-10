@@ -4,10 +4,10 @@
 
 namespace infrastructure {
 
-class TimesheetServiceFactory : public application::TimesheetServiceFactoryInterface {
+class TimesheetServiceFactory : public domain::TimesheetServiceFactoryInterface {
 public:
-    std::shared_ptr<application::TimesheetServiceInterface> createTimesheetService(
-        std::shared_ptr<application::UowInterface> uow) const override;
+    std::shared_ptr<domain::TimesheetServiceInterface> createTimesheetService(
+        std::shared_ptr<domain::UowInterface> uow) const override;
 };
 
 }  // namespace infrastructure

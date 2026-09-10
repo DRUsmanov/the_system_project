@@ -1,6 +1,6 @@
 #pragma once
 
-namespace application {
+namespace domain {
 
 class UowInterface {
 public:
@@ -9,4 +9,4 @@ public:
     virtual void commit() = 0;
 };
 
-}  // namespace application
+}  // namespace domain

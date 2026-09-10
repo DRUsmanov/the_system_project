@@ -2,16 +2,14 @@
 
 #include "logger.h"
 
-namespace application {
+using namespace domain;
 
-std::optional<domain::User> UserService::login(std::string login, std::string password) const {
+std::optional<User> UserService::login(std::string login, std::string password) const {
     utils::logFunctionStart(utils::FUNCTION_INFO);
     return user_repository_->loginUser(login, password);
 }
 
-std::optional<domain::User> UserService::getUser(const domain::UserId& user_id) const {
+std::optional<User> UserService::getUser(const UserId& user_id) const {
     utils::logFunctionStart(utils::FUNCTION_INFO);
     return user_repository_->downloadUser(user_id);
 }
-
-}  // namespace application

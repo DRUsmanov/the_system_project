@@ -4,7 +4,7 @@
 
 #include "uow/uow_interface.h"
 
-namespace application {
+namespace domain {
 
 class UowFactoryInterface {
 public:
@@ -13,4 +13,4 @@ public:
     virtual std::shared_ptr<UowInterface> createUow() const = 0;
 };
 
-}  // namespace application
+}  // namespace domain

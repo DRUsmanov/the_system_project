@@ -1,0 +1,51 @@
+#pragma once
+
+#include <chrono>
+#include <memory>
+#include <optional>
+
+#include "repositories/timesheet_repository_interface.h"
+#include "services/timesheet_service/timesheet_service_interface.h"
+
+namespace domain {
+
+class TimesheetService : public TimesheetServiceInterface {
+public:
+    TimesheetService(std::shared_ptr<TimeSheetRepositoryInterface> timesheet_repository) :
+        timesheet_repository_{timesheet_repository} {}
+
+    std::optional<Timesheet> getDepartmentTimesheet(DepartmentId department_id,
+                                                    AdminCategoryId admin_category_id,
+                                                    std::chrono::year_month year_month) const override;
+    bool generateTimesheetForShop(const Shop& shop, std::chrono::year year) override;
+    bool generateTimesheetForNewEmployee(const Shop::EmployeeAssignment& employee_assignment,
+                                         const Employee& employee) override;
+
+private:
+    struct TimesheetGenerationContext {
+        const AdminCategoryId& admin_category_id;
+        const Date& date;
+        const EmployeeId& employee_id;
+        const DepartmentId& department_id;
+        const StaffPositionId& staff_position_id;
+        const WorkScheduleId& work_schedule_id;
+        const WorkSchedule& work_schedule;
+        std::optional<const PreHolidays> pre_holidays;
+        std::optional<const Holidays> holidays;
+        std::optional<const ExtraHolidays> extra_holidays;
+        std::optional<const Vacations> vacations;
+    };
+
+private:
+    bool generateEmployeeVacationsInTimesheet(Timesheet& timesheet,
+                                              const TimesheetGenerationContext& generation_context);
+    bool generateHolidaysAndPreHolidaysInTimesheet(Timesheet& timesheet,
+                                                   const TimesheetGenerationContext& generation_context);
+    bool generateWorkingDayInTimesheet(Timesheet& timesheet, const TimesheetGenerationContext& generation_context);
+    std::chrono::year_month_day getCurrentDate() const;
+
+private:
+    std::shared_ptr<TimeSheetRepositoryInterface> timesheet_repository_;
+};
+
+}  // namespace domain

@@ -13,11 +13,11 @@ namespace application {
 
 class ApplicationManager : public ApplicationManagerInterface {
 public:
-    ApplicationManager(const UowFactoryInterface& uow_factory,
-                       const PermissionServiceFactoryInterface& permission_service_factory,
-                       const UserServiceFactoryInterface& user_service_factory,
-                       const TimesheetServiceFactoryInterface& timesheet_service_factory,
-                       const ShopServiceFactoryInterface& shop_service_factory) :
+    ApplicationManager(const domain::UowFactoryInterface& uow_factory,
+                       const domain::PermissionServiceFactoryInterface& permission_service_factory,
+                       const domain::UserServiceFactoryInterface& user_service_factory,
+                       const domain::TimesheetServiceFactoryInterface& timesheet_service_factory,
+                       const domain::ShopServiceFactoryInterface& shop_service_factory) :
         uow_factory_{uow_factory}, permission_service_factory_{permission_service_factory},
         user_service_factory_{user_service_factory}, timesheet_service_factory_{timesheet_service_factory},
         shop_service_factory_{shop_service_factory} {}
@@ -34,11 +34,11 @@ public:
                                                   std::chrono::year_month year_month) const override;
 
 private:
-    const UowFactoryInterface& uow_factory_;
-    const PermissionServiceFactoryInterface& permission_service_factory_;
-    const UserServiceFactoryInterface& user_service_factory_;
-    const TimesheetServiceFactoryInterface& timesheet_service_factory_;
-    const ShopServiceFactoryInterface& shop_service_factory_;
+    const domain::UowFactoryInterface& uow_factory_;
+    const domain::PermissionServiceFactoryInterface& permission_service_factory_;
+    const domain::UserServiceFactoryInterface& user_service_factory_;
+    const domain::TimesheetServiceFactoryInterface& timesheet_service_factory_;
+    const domain::ShopServiceFactoryInterface& shop_service_factory_;
 };
 
 }  // namespace application

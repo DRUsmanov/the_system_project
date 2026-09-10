@@ -11,16 +11,16 @@
 #include "logger.h"
 #include "value_data/types.h"
 
-using namespace application;
+using namespace domain;
 
-std::optional<domain::Timesheet> TimesheetService::getDepartmentTimesheet(domain::DepartmentId department_id,
-                                                                          domain::AdminCategoryId admin_category_id,
-                                                                          std::chrono::year_month year_month) const {
+std::optional<Timesheet> TimesheetService::getDepartmentTimesheet(DepartmentId department_id,
+                                                                  AdminCategoryId admin_category_id,
+                                                                  std::chrono::year_month year_month) const {
     utils::logFunctionStart(utils::FUNCTION_INFO);
     return timesheet_repository_->downloadDepartmentTimesheet(department_id, admin_category_id, year_month);
 }
 
-bool TimesheetService::generateEmployeeVacationsInTimesheet(domain::Timesheet& timesheet,
+bool TimesheetService::generateEmployeeVacationsInTimesheet(Timesheet& timesheet,
                                                             const TimesheetGenerationContext& generation_context) {
     utils::logFunctionStart(utils::FUNCTION_INFO);
     if (!generation_context.vacations.has_value()) {
@@ -33,11 +33,10 @@ bool TimesheetService::generateEmployeeVacationsInTimesheet(domain::Timesheet& t
 
     for (const auto& vacation : it->second) {
         if (vacation.isVacationDay(generation_context.date)) {
-            auto vacation_day_data =
-                domain::Timesheet::DayData::createNonWorkingDayData(domain::LeaveType::VACATION,
-                                                                    generation_context.department_id,
-                                                                    generation_context.staff_position_id,
-                                                                    generation_context.work_schedule_id);
+            auto vacation_day_data = Timesheet::DayData::createNonWorkingDayData(LeaveType::VACATION,
+                                                                                 generation_context.department_id,
+                                                                                 generation_context.staff_position_id,
+                                                                                 generation_context.work_schedule_id);
             timesheet.addEmployeeDayData(generation_context.employee_id,
                                          generation_context.date,
                                          generation_context.admin_category_id,
@@ -49,51 +48,57 @@ bool TimesheetService::generateEmployeeVacationsInTimesheet(domain::Timesheet& t
     return false;
 }
 
-bool TimesheetService::generateHolidaysAndPreHolidaysInTimesheet(domain::Timesheet& timesheet,
+bool TimesheetService::generateHolidaysAndPreHolidaysInTimesheet(Timesheet& timesheet,
                                                                  const TimesheetGenerationContext& generation_context) {
     utils::logFunctionStart(utils::FUNCTION_INFO);
     const auto& work_schedule_day_data = generation_context.work_schedule.getDayDataByDate(generation_context.date);
 
-    if (!generation_context.work_schedule.isWorksOnHolidays()) {
-        if (!generation_context.holidays.has_value()) {
-            return false;
-        }
-        if (generation_context.pre_holidays.value().contains(generation_context.date)) {
-            auto pre_holidays_day_data =
-                domain::Timesheet::DayData::createWorkingDayData(work_schedule_day_data,
-                                                                 generation_context.department_id,
-                                                                 generation_context.staff_position_id,
-                                                                 generation_context.work_schedule_id);
-
-            pre_holidays_day_data.work_end.value() -= std::chrono::hours{1};
-            pre_holidays_day_data.work_time.value() -= std::chrono::hours{1};
-
-            timesheet.addEmployeeDayData(generation_context.employee_id,
-                                         generation_context.date,
-                                         generation_context.admin_category_id,
-                                         pre_holidays_day_data);
-            return true;
-        } else if (generation_context.holidays.value().contains(generation_context.date)) {
-            // Не добавляем день в табель
-            return true;
-        } else if (generation_context.extra_holidays.value().contains(generation_context.date)) {
-            // Не добавляем день в табель
-            return true;
-        }
+    if (generation_context.work_schedule.isWorksOnHolidays()) {
+        return false;
     }
+
+    if (generation_context.pre_holidays.has_value() &&
+        generation_context.pre_holidays.value().contains(generation_context.date)) {
+        auto pre_holidays_day_data = Timesheet::DayData::createWorkingDayData(work_schedule_day_data,
+                                                                              generation_context.department_id,
+                                                                              generation_context.staff_position_id,
+                                                                              generation_context.work_schedule_id);
+
+        pre_holidays_day_data.work_end.value() -= std::chrono::hours{1};
+        pre_holidays_day_data.work_time.value() -= std::chrono::hours{1};
+
+        timesheet.addEmployeeDayData(generation_context.employee_id,
+                                     generation_context.date,
+                                     generation_context.admin_category_id,
+                                     pre_holidays_day_data);
+        return true;
+    }
+
+    if (generation_context.holidays.has_value() &&
+        generation_context.holidays.value().contains(generation_context.date)) {
+        // Не добавляем день в табель
+        return true;
+    }
+
+    if (generation_context.extra_holidays.has_value() &&
+        generation_context.extra_holidays.value().contains(generation_context.date)) {
+        // Не добавляем день в табель
+        return true;
+    }
+
     return false;
 }
 
-bool TimesheetService::generateWorkingDayInTimesheet(domain::Timesheet& timesheet,
+bool TimesheetService::generateWorkingDayInTimesheet(Timesheet& timesheet,
                                                      const TimesheetGenerationContext& generation_context) {
     utils::logFunctionStart(utils::FUNCTION_INFO);
     const auto& work_schedule_day_data = generation_context.work_schedule.getDayDataByDate(generation_context.date);
 
     if (work_schedule_day_data.isWorkingDay()) {
-        auto working_day_data = domain::Timesheet::DayData::createWorkingDayData(work_schedule_day_data,
-                                                                                 generation_context.department_id,
-                                                                                 generation_context.staff_position_id,
-                                                                                 generation_context.work_schedule_id);
+        auto working_day_data = Timesheet::DayData::createWorkingDayData(work_schedule_day_data,
+                                                                         generation_context.department_id,
+                                                                         generation_context.staff_position_id,
+                                                                         generation_context.work_schedule_id);
 
         timesheet.addEmployeeDayData(generation_context.employee_id,
                                      generation_context.date,
@@ -104,7 +109,7 @@ bool TimesheetService::generateWorkingDayInTimesheet(domain::Timesheet& timeshee
     return false;
 }
 
-std::chrono::year_month_day application::TimesheetService::getCurrentData() const {
+std::chrono::year_month_day TimesheetService::getCurrentDate() const {
     utils::logFunctionStart(utils::FUNCTION_INFO);
     using namespace std::chrono;
     using namespace std::literals;
@@ -115,14 +120,13 @@ std::chrono::year_month_day application::TimesheetService::getCurrentData() cons
     return ymd;
 }
 
-bool TimesheetService::generateTimesheetForShop(const domain::Shop& shop, std::chrono::year year) {
+bool TimesheetService::generateTimesheetForShop(const Shop& shop, std::chrono::year year) {
     utils::logFunctionStart(utils::FUNCTION_INFO);
     using namespace std::chrono;
     using namespace std::literals;
-    using WorkSchedules =
-        std::unordered_map<domain::WorkScheduleId, domain::WorkSchedule, domain::WorkScheduleIdHasher>;
+    using WorkSchedules = std::unordered_map<WorkScheduleId, WorkSchedule, WorkScheduleIdHasher>;
 
-    domain::Timesheet timesheet;
+    Timesheet timesheet;
     WorkSchedules work_schedules_cache;
 
     const auto& employees_assignments = shop.getEmployeeAssignments();
@@ -182,29 +186,29 @@ bool TimesheetService::generateTimesheetForShop(const domain::Shop& shop, std::c
     return timesheet_repository_->uploadTimesheet(timesheet, *system_administrator_id);
 }
 
-bool TimesheetService::generateTimesheetForNewEmployee(const domain::Shop::EmployeeAssignment& employee_assignment,
-                                                       const domain::Employee& employee) {
+bool TimesheetService::generateTimesheetForNewEmployee(const Shop::EmployeeAssignment& employee_assignment,
+                                                       const Employee& employee) {
     utils::logFunctionStart(utils::FUNCTION_INFO);
     using namespace std::chrono;
     using namespace std::literals;
 
-    auto year = getCurrentData().year();
+    Timesheet timesheet;
 
-    domain::Timesheet timesheet;
+    auto employment_year = std::chrono::year_month_day{employee.employment_date}.year();
 
-    auto pre_holidays = timesheet_repository_->downloadPreHolidaysByYear(year);
-    auto holidays = timesheet_repository_->downloadHolidaysByYear(year);
-    auto extra_holidays = timesheet_repository_->downloadExtraHolidaysByYear(year);
+    auto pre_holidays = timesheet_repository_->downloadPreHolidaysByYear(employment_year);
+    auto holidays = timesheet_repository_->downloadHolidaysByYear(employment_year);
+    auto extra_holidays = timesheet_repository_->downloadExtraHolidaysByYear(employment_year);
     auto system_administrator_id = timesheet_repository_->downloadSystemAdministratorId();
     auto work_schedule = timesheet_repository_->downloadWorkScheduleById(employee_assignment.work_schedule_id);
-    auto vacations = timesheet_repository_->downloadVacationsByEmployeeIdAndYear(employee.employee_id, year);
+    auto vacations = timesheet_repository_->downloadVacationsByEmployeeIdAndYear(employee.employee_id, employment_year);
 
     if (!system_administrator_id || !work_schedule) {
         return false;
     }
 
-    auto start_date = sys_days{year / January / 1};
-    auto end_date = sys_days{year / December / 31};
+    auto start_date = employee.employment_date;
+    auto end_date = employment_year / December / 31;
 
     for (auto date = start_date; date <= end_date; date += std::chrono::days{1}) {
         TimesheetGenerationContext generation_context{*system_administrator_id,

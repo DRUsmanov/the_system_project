@@ -4,10 +4,10 @@
 
 namespace infrastructure {
 
-class ShopServiceFactory : public application::ShopServiceFactoryInterface {
+class ShopServiceFactory : public domain::ShopServiceFactoryInterface {
 public:
-    std::shared_ptr<application::ShopServiceInterface> createShopService(
-        std::shared_ptr<application::UowInterface> uow) const override;
+    std::shared_ptr<domain::ShopServiceInterface> createShopService(
+        std::shared_ptr<domain::UowInterface> uow) const override;
 };
 
 }  // namespace infrastructure

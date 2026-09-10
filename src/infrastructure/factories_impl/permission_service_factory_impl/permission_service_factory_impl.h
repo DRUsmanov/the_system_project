@@ -4,10 +4,10 @@
 
 namespace infrastructure {
 
-class PermissionServiceFactory : public application::PermissionServiceFactoryInterface {
+class PermissionServiceFactory : public domain::PermissionServiceFactoryInterface {
 public:
-    std::shared_ptr<application::PermissionServiceInterface> createPermissionService(
-        std::shared_ptr<application::UowInterface> uow) const override;
+    std::shared_ptr<domain::PermissionServiceInterface> createPermissionService(
+        std::shared_ptr<domain::UowInterface> uow) const override;
 };
 
 }  // namespace infrastructure
