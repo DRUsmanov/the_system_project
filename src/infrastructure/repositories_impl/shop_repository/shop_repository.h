@@ -15,6 +15,9 @@ public:
                                                      domain::StaffPositionId staff_position_id,
                                                      domain::WorkScheduleId work_schedule_id) override;
     std::optional<domain::Employee> downloadEmployee(domain::EmployeeId employee_id) const override;
+    std::optional<domain::Shop::EmployeeAssignment> downloadEmployeeAssignment(
+        domain::EmployeeId employee_id) const override;
+    bool removeEmployee(domain::EmployeeId employee_id) override;
 
 private:
     std::shared_ptr<Uow> uow_;

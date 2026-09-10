@@ -20,9 +20,10 @@ std::optional<domain::User> ApplicationManager::login(std::string login, std::st
     }
 }
 
-bool ApplicationManager::addEmployee(const domain::UserId& user_id,
-                                     const domain::Shop::EmployeeAssignment& employee_assignment,
-                                     domain::Employee& employee) const {
+std::optional<domain::EmployeeId> ApplicationManager::addEmployee(
+    const domain::UserId& user_id,
+    const domain::Shop::EmployeeAssignment& employee_assignment,
+    domain::Employee& employee) const {
     utils::logFunctionStart(utils::FUNCTION_INFO);
     try {
         auto uow = uow_factory_.createUow();
@@ -31,18 +32,49 @@ bool ApplicationManager::addEmployee(const domain::UserId& user_id,
         auto permission_service = permission_service_factory_.createPermissionService(uow);
 
         if (!permission_service->checkUserDepartmentWritePermission(user_id, employee_assignment.department_id)) {
-            return false;
+            return std::nullopt;
         }
 
         auto employee_id = shop_service->addNewEmployee(employee_assignment, employee);
 
         if (!employee_id) {
-            return false;
+            return std::nullopt;
         }
 
         employee.employee_id = employee_id.value();
 
         if (!timesheet_service->generateTimesheetForNewEmployee(employee_assignment, employee)) {
+            return std::nullopt;
+        }
+
+        uow->commit();
+
+        return employee_id;
+    } catch (std::exception& ex) {
+        utils::logException(ex);
+        return std::nullopt;
+    }
+}
+
+bool ApplicationManager::removeEmployee(const domain::UserId& user_id, domain::EmployeeId employee_id) const {
+    utils::logFunctionStart(utils::FUNCTION_INFO);
+    try {
+        auto uow = uow_factory_.createUow();
+        auto shop_service = shop_service_factory_.createShopService(uow);
+        auto permission_service = permission_service_factory_.createPermissionService(uow);
+
+        auto employee_assignment = shop_service->getEmployeeAssignment(employee_id);
+
+        if (!employee_assignment.has_value()) {
+            return false;
+        }
+
+        if (!permission_service->checkUserDepartmentWritePermission(user_id,
+                                                                    employee_assignment.value().department_id)) {
+            return false;
+        }
+
+        if (!shop_service->removeEmployee(employee_id)) {
             return false;
         }
 

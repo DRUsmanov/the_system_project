@@ -24,9 +24,10 @@ public:
 
     std::optional<domain::User> login(std::string login, std::string password) const override;
 
-    bool addEmployee(const domain::UserId& user_id,
-                     const domain::Shop::EmployeeAssignment& employee_assignment,
-                     domain::Employee& employee) const override;
+    std::optional<domain::EmployeeId> addEmployee(const domain::UserId& user_id,
+                                                  const domain::Shop::EmployeeAssignment& employee_assignment,
+                                                  domain::Employee& employee) const override;
+    bool removeEmployee(const domain::UserId& user_id, domain::EmployeeId employee_id) const override;
 
     std::optional<domain::Timesheet> getTimesheet(const domain::UserId& user_id,
                                                   const domain::AdminCategoryId& admin_category_id,

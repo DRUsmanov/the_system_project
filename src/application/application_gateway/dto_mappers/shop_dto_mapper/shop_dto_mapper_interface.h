@@ -13,6 +13,9 @@ public:
 
     virtual std::pair<domain::Shop::EmployeeAssignment, domain::Employee> convert(
         const AddEmployeeRequestDto& add_employee_request_dto) const = 0;
+    virtual AddEmployeeResponseDto convert(domain::EmployeeId employee_id) const = 0;
+    virtual domain::EmployeeId convert(const RemoveEmployeeRequestDto& remove_employee_request_dto) const = 0;
+    virtual RemoveEmployeeResponseDto convert(bool is_employee_removed) const = 0;
 };
 
 }  // namespace application

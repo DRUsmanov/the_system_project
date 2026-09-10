@@ -14,8 +14,12 @@ public:
 
     std::optional<UserLoginResponseDto> login(const UserLoginRequestDto& user_login_request_dto) const override;
 
-    bool addEmployee(const UserAccessDto& user_access_dto,
-                     const AddEmployeeRequestDto& add_employee_request_dto) const override;
+    std::optional<AddEmployeeResponseDto> addEmployee(
+        const UserAccessDto& user_access_dto,
+        const AddEmployeeRequestDto& add_employee_request_dto) const override;
+    std::optional<RemoveEmployeeResponseDto> removeEmployee(
+        const UserAccessDto& user_access_dto,
+        const RemoveEmployeeRequestDto& remove_employee_request_dto) const override;
 
     std::optional<GetTimesheetResponseDto> getTimesheet(
         const UserAccessDto& user_access_dto,

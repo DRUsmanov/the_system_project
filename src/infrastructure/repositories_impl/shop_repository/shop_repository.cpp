@@ -70,11 +70,55 @@ std::optional<domain::Employee> ShopRepository::downloadEmployee(domain::Employe
     utils::logFunctionStart(utils::FUNCTION_INFO);
     auto result = uow_->execParams(query::DOWNLOAD_EMPLOYEE_BY_EMPLOYEE_ID, *employee_id);
 
-    if (result.size() > 0) {
+    if (result.size() != 1) {
         return std::nullopt;
     }
 
+    std::string last_name{result.at(0).at(tables::employees::LAST_NAME).as<std::string>()};
+    std::string first_name{result.at(0).at(tables::employees::FIRST_NAME).as<std::string>()};
+    std::string patronymic{result.at(0).at(tables::employees::PATRONYMIC).as<std::string>()};
+    domain::Date birth_date{domain::dateFromString(result.at(0).at(tables::employees::BIRTH_DATE).as<std::string>())};
+    domain::Date employment_date{
+        domain::dateFromString(result.at(0).at(tables::employees::EMPLOYMENT_DATE).as<std::string>())};
+    domain::EmployeeNumber employee_number{result.at(0).at(tables::employees::EMPLOYEE_NUMBER).as<uint64_t>()};
+
     domain::Employee employee;
-    // TODO: пока в ней нет необходимости
-    return std::nullopt;
+    employee.employee_id = employee_id;
+    employee.last_name = last_name;
+    employee.first_name = first_name;
+    employee.patronymic = patronymic;
+    employee.birth_date = birth_date;
+    employee.employment_date = employment_date;
+    employee.employee_number = employee_number;
+
+    return employee;
+}
+
+std::optional<domain::Shop::EmployeeAssignment> ShopRepository::downloadEmployeeAssignment(
+    domain::EmployeeId employee_id) const {
+    utils::logFunctionStart(utils::FUNCTION_INFO);
+    auto result = uow_->execParams(query::DOWNLOAD_EMPLOYEE_ASSIGNMENT, *employee_id);
+
+    if (result.size() != 1) {
+        return std::nullopt;
+    }
+
+    domain::DepartmentId department_id{result.at(0).at(tables::staffing_assignments::DEPARTMENT_ID).as<uint64_t>()};
+    domain::StaffPositionId staff_position_id{
+        result.at(0).at(tables::staffing_assignments::STAFF_POSITION_ID).as<uint64_t>()};
+    domain::WorkScheduleId work_schedule_id{
+        result.at(0).at(tables::staffing_assignments::WORK_SCHEDULE_ID).as<uint64_t>()};
+
+    domain::Shop::EmployeeAssignment employee_assignment;
+    employee_assignment.department_id = department_id;
+    employee_assignment.staff_position_id = staff_position_id;
+    employee_assignment.work_schedule_id = work_schedule_id;
+
+    return employee_assignment;
+}
+
+bool infrastructure::ShopRepository::removeEmployee(domain::EmployeeId employee_id) {
+    utils::logFunctionStart(utils::FUNCTION_INFO);
+    auto result = uow_->execParams(query::REMOVE_EMPLOYEE, *employee_id);
+    return result.affected_rows() == 1;
 }

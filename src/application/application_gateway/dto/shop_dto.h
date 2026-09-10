@@ -23,20 +23,36 @@ struct AddEmployeeRequestDto {
 };
 
 struct AddEmployeeResponseDto {
-    bool is_added = false;
-};
-
-struct GetEmployeeRequestDto {
     uint64_t employee_id;
 };
 
-struct GetEmployeeResponseDto {
-    std::string last_name;
-    std::string first_name;
-    std::optional<std::string> patronymic;
-    std::chrono::sys_days birth_date;
-    std::chrono::sys_days employment_date;
-    uint64_t employee_number;
+// ======================================================================
+// REMOVE EMPLOYEE
+// ======================================================================
+
+struct RemoveEmployeeRequestDto {
+    uint64_t employee_id;
 };
+
+struct RemoveEmployeeResponseDto {
+    bool is_removed = false;
+};
+
+// ======================================================================
+// GET EMPLOYEE
+// ======================================================================
+
+// struct GetEmployeeRequestDto {
+//     uint64_t employee_id;
+// };
+
+// struct GetEmployeeResponseDto {
+//     std::string last_name;
+//     std::string first_name;
+//     std::optional<std::string> patronymic;
+//     std::chrono::sys_days birth_date;
+//     std::chrono::sys_days employment_date;
+//     uint64_t employee_number;
+// };
 
 }  // namespace application

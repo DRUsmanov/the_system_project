@@ -21,4 +21,8 @@ json::object parseString(std::string str) {
     return json::parse(str).as_object();
 }
 
+std::string serializeObject(json::object object) {
+    return json::serialize(object);
+}
+
 }  // namespace infrastructure

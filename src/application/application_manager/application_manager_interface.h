@@ -15,9 +15,10 @@ public:
 
     virtual std::optional<domain::User> login(std::string login, std::string password) const = 0;
 
-    virtual bool addEmployee(const domain::UserId& user_id,
-                             const domain::Shop::EmployeeAssignment& employee_assignment,
-                             domain::Employee& employee) const = 0;
+    virtual std::optional<domain::EmployeeId> addEmployee(const domain::UserId& user_id,
+                                                          const domain::Shop::EmployeeAssignment& employee_assignment,
+                                                          domain::Employee& employee) const = 0;
+    virtual bool removeEmployee(const domain::UserId& user_id, domain::EmployeeId employee_id) const = 0;
 
     virtual std::optional<domain::Timesheet> getTimesheet(const domain::UserId& user_id,
                                                           const domain::AdminCategoryId& admin_category_id,

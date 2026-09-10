@@ -15,6 +15,9 @@ public:
     virtual Shop getShop() const = 0;
     virtual std::optional<EmployeeId> addNewEmployee(Shop::EmployeeAssignment employee_assignment,
                                                      const Employee& employee) = 0;
+    virtual std::optional<Employee> getEmployee(EmployeeId employee_id) const = 0;
+    virtual std::optional<Shop::EmployeeAssignment> getEmployeeAssignment(EmployeeId employee_id) const = 0;
+    virtual bool removeEmployee(EmployeeId employee_id) const = 0;
 };
 
 }  // namespace domain

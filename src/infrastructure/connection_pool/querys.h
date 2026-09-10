@@ -22,6 +22,8 @@ constexpr std::string DOWNLOAD_WORK_SCHEDULE{"dload_work_schedule"};
 constexpr std::string DOWNLOAD_VACATIONS_BY_YEAR{"dload_vacations_year"};
 constexpr std::string DOWNLOAD_EMPLOYEE_VACATIONS_BY_YEAR{"dload_vac_empl_year"};
 constexpr std::string UPLOAD_TIMESHEET{"upload_timesheet"};
+constexpr std::string DOWNLOAD_EMPLOYEE_ASSIGNMENT{"dload_empl_assignment"};
+constexpr std::string REMOVE_EMPLOYEE{"rm_employee"};
 }  // namespace query
 
 namespace tables {
@@ -168,6 +170,10 @@ inline const std::unordered_map<std::string, std::string> querys{
     {query::UPLOAD_TIMESHEET,
      R"(INSERT INTO timesheet (employee_id, department_id, staff_position_id, date, work_start, work_end, work_time,
      night_work_start, night_work_end, night_work_time, rest_start, rest_end, leave_type, admin_category_id, admin_employee_id, comment)
-     VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16) RETURNING id;)"}};
+     VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16) RETURNING id;)"},
+    {query::DOWNLOAD_EMPLOYEE_ASSIGNMENT,
+     R"(SELECT id, employee_id, department_id, staff_position_id, work_schedule_id FROM staffing_assignments
+     WHERE employee_id = $1;)"},
+    {query::REMOVE_EMPLOYEE, R"(DELETE FROM employees WHERE id=$1;)"}};
 
 }  // namespace infrastructure

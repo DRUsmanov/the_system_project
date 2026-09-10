@@ -49,16 +49,17 @@ public:
 
         if (method == http::verb::post) {
             auto add_employee_request_dto = makeAddEmployeeRequestDto(request_body_as_object);
-            auto is_added = application_gateway_.addEmployee(user_access_dto, add_employee_request_dto);
-            if (is_added) {
+            auto result = application_gateway_.addEmployee(user_access_dto, add_employee_request_dto);
+            if (result.has_value()) {
                 auto employee_success_added_response =
-                    text_response_maker(http::status::created, EMPLOYEE_SUCCESS_ADDED, content_type::APP_JSON);
+                    text_response_maker(http::status::created, makeAddEmployeeResponse(result), content_type::APP_JSON);
                 employee_success_added_response.set(http::field::cache_control, "no-cache");
                 send(std::move(employee_success_added_response));
                 return;
             } else {
-                auto employee_failed_added_response =
-                    text_response_maker(http::status::conflict, EMPLOYEE_FAILED_ADDED, content_type::APP_JSON);
+                auto employee_failed_added_response = text_response_maker(http::status::conflict,
+                                                                          makeAddEmployeeResponse(result),
+                                                                          content_type::APP_JSON);
                 employee_failed_added_response.set(http::field::cache_control, "no-cache");
                 send(std::move(employee_failed_added_response));
                 return;
@@ -66,6 +67,23 @@ public:
         }
 
         if (method == http::verb::delete_) {
+            auto remove_employee_request_dto = makeRemoveEmployeeRequestDto(request_body_as_object);
+            auto result = application_gateway_.removeEmployee(user_access_dto, remove_employee_request_dto);
+            if (result) {
+                auto employee_success_removed_response = text_response_maker(http::status::accepted,
+                                                                             makeRemoveEmployeeResponse(result),
+                                                                             content_type::APP_JSON);
+                employee_success_removed_response.set(http::field::cache_control, "no-cache");
+                send(std::move(employee_success_removed_response));
+                return;
+            } else {
+                auto employee_failed_removed_response = text_response_maker(http::status::conflict,
+                                                                            makeRemoveEmployeeResponse(result),
+                                                                            content_type::APP_JSON);
+                employee_failed_removed_response.set(http::field::cache_control, "no-cache");
+                send(std::move(employee_failed_removed_response));
+                return;
+            }
         }
 
         if (method == http::verb::patch) {
@@ -84,11 +102,15 @@ private:
 
 private:
     application::AddEmployeeRequestDto makeAddEmployeeRequestDto(const json::object& request_body_as_object) const;
+    std::string makeAddEmployeeResponse(
+        std::optional<application::AddEmployeeResponseDto> add_employee_response_dto) const;
+    application::RemoveEmployeeRequestDto makeRemoveEmployeeRequestDto(
+        const json::object& request_body_as_object) const;
+    std::string makeRemoveEmployeeResponse(
+        std::optional<application::RemoveEmployeeResponseDto> remove_employee_response_dto) const;
 
 private:
     constexpr static std::string_view API_V1_SHOP_EMPLOYEE = "/api/v1/shop/employee"sv;
-    constexpr static std::string_view EMPLOYEE_SUCCESS_ADDED = "{\"result\":true}";
-    constexpr static std::string_view EMPLOYEE_FAILED_ADDED = "{\"result\":false}";
     constexpr static std::string_view BAD_REQUEST =
         "{\"code\":\"bad_request\", \"message\":\"Bad request from employee_request_handler\"}"sv;
     constexpr static std::string_view INVALID_METHOD =

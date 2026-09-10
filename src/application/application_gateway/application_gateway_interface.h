@@ -12,8 +12,12 @@ public:
 
     virtual std::optional<UserLoginResponseDto> login(const UserLoginRequestDto& user_login_request_dto) const = 0;
 
-    virtual bool addEmployee(const UserAccessDto& user_access_dto,
-                             const AddEmployeeRequestDto& add_employee_request_dto) const = 0;
+    virtual std::optional<AddEmployeeResponseDto> addEmployee(
+        const UserAccessDto& user_access_dto,
+        const AddEmployeeRequestDto& add_employee_request_dto) const = 0;
+    virtual std::optional<RemoveEmployeeResponseDto> removeEmployee(
+        const UserAccessDto& user_access_dto,
+        const RemoveEmployeeRequestDto& remove_employee_request_dto) const = 0;
 
     virtual std::optional<GetTimesheetResponseDto> getTimesheet(
         const UserAccessDto& user_access_dto,

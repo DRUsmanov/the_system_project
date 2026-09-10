@@ -16,3 +16,18 @@ std::optional<EmployeeId> ShopService::addNewEmployee(Shop::EmployeeAssignment e
                                             employee_assignment.staff_position_id,
                                             employee_assignment.work_schedule_id);
 }
+
+std::optional<Employee> domain::ShopService::getEmployee(EmployeeId employee_id) const {
+    utils::logFunctionStart(utils::FUNCTION_INFO);
+    return shop_repository_->downloadEmployee(employee_id);
+}
+
+std::optional<Shop::EmployeeAssignment> domain::ShopService::getEmployeeAssignment(EmployeeId employee_id) const {
+    utils::logFunctionStart(utils::FUNCTION_INFO);
+    return shop_repository_->downloadEmployeeAssignment(employee_id);
+}
+
+bool domain::ShopService::removeEmployee(EmployeeId employee_id) const {
+    utils::logFunctionStart(utils::FUNCTION_INFO);
+    return shop_repository_->removeEmployee(employee_id);
+}
