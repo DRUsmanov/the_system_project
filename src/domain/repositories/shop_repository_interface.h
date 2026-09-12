@@ -1,6 +1,7 @@
 #pragma once
 
 #include <optional>
+#include <vector>
 
 #include "entities/shop/employee/employee.h"
 #include "entities/shop/shop.h"
@@ -19,6 +20,8 @@ public:
     virtual std::optional<Employee> downloadEmployee(EmployeeId employee_id) const = 0;
     virtual std::optional<Shop::EmployeeAssignment> downloadEmployeeAssignment(EmployeeId employee_id) const = 0;
     virtual bool removeEmployee(EmployeeId employee_id) = 0;
+    virtual std::optional<Departments> downloadDepartments() const = 0;
+    virtual std::optional<StaffPositions> downloadStaffPositions() const = 0;
 };
 
 }  // namespace domain

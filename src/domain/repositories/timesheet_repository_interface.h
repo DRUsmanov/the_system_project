@@ -15,24 +15,21 @@
 
 namespace domain {
 
-using WorkSchedules = std::unordered_map<WorkScheduleId, WorkSchedule, WorkScheduleIdHasher>;
-using Holidays = std::unordered_set<Date, DateHasher>;
-using ExtraHolidays = std::unordered_set<Date, DateHasher>;
-using PreHolidays = std::unordered_set<Date, DateHasher>;
-using Vacations = std::unordered_map<EmployeeId, std::vector<Vacation>, EmployeeIdHasher>;
+using EmployeeVacations = std::unordered_map<EmployeeId, Vacations, EmployeeIdHasher>;
 
 class TimeSheetRepositoryInterface {
 public:
     virtual ~TimeSheetRepositoryInterface() = default;
 
     virtual std::optional<WorkSchedule> downloadWorkScheduleById(WorkScheduleId work_schedule_id) const = 0;
+    virtual std::optional<WorkSchedules> downloadWorkSchedules() const = 0;
     virtual std::optional<PreHolidays> downloadPreHolidaysByYear(std::chrono::year year) const = 0;
     virtual std::optional<Holidays> downloadHolidaysByYear(std::chrono::year year) const = 0;
     virtual std::optional<ExtraHolidays> downloadExtraHolidaysByYear(std::chrono::year year) const = 0;
-    virtual std::optional<Vacations> downloadVacationsByYear(std::chrono::year year) const = 0;
-    virtual std::optional<Vacations> downloadVacationsByEmployeeId(EmployeeId employee_id) const = 0;
-    virtual std::optional<Vacations> downloadVacationsByEmployeeIdAndYear(EmployeeId employee_id,
-                                                                          std::chrono::year year) const = 0;
+    virtual std::optional<EmployeeVacations> downloadVacationsByYear(std::chrono::year year) const = 0;
+    virtual std::optional<EmployeeVacations> downloadVacationsByEmployeeId(EmployeeId employee_id) const = 0;
+    virtual std::optional<EmployeeVacations> downloadVacationsByEmployeeIdAndYear(EmployeeId employee_id,
+                                                                                  std::chrono::year year) const = 0;
     virtual std::optional<AdminCategoryId> downloadSystemAdministratorId() const = 0;
     virtual std::optional<Timesheet> downloadDepartmentTimesheet(DepartmentId department_id,
                                                                  AdminCategoryId admin_category_id,

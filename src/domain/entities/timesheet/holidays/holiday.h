@@ -17,4 +17,8 @@ struct PreHolidayDayIdTag {};
 using HolidayId = utils::Tagged<uint64_t, detail::HolidayIdtag>;
 using HolidayIdHasher = utils::TaggedHasher<HolidayId>;
 
+using Holidays = std::unordered_set<Date, DateHasher>;
+using ExtraHolidays = std::unordered_set<Date, DateHasher>;
+using PreHolidays = std::unordered_set<Date, DateHasher>;
+
 }  // namespace domain

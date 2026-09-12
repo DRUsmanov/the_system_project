@@ -83,7 +83,7 @@ void logFunctionStart(const FunctionInfo& func_info) {
     json::object& data_as_object = data.as_object();
     data_as_object["file"] = func_info.file;
     data_as_object["function"] = func_info.function;
-    BOOST_LOG_TRIVIAL(info) << logging::add_value(additional_data, data) << "==>";
+    BOOST_LOG_TRIVIAL(info) << logging::add_value(additional_data, data) << "called";
 }
 
 void logFunctionEnd(const FunctionInfo& func_info) {
@@ -91,7 +91,7 @@ void logFunctionEnd(const FunctionInfo& func_info) {
     json::object& data_as_object = data.as_object();
     data_as_object["file"] = func_info.file;
     data_as_object["function"] = func_info.function;
-    BOOST_LOG_TRIVIAL(info) << logging::add_value(additional_data, data) << "<==";
+    BOOST_LOG_TRIVIAL(info) << logging::add_value(additional_data, data) << "finished";
 }
 
 }  // namespace utils

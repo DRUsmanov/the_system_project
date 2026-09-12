@@ -19,6 +19,7 @@ public:
     virtual bool generateTimesheetForShop(const Shop& shop, std::chrono::year year) = 0;
     virtual bool generateTimesheetForNewEmployee(const Shop::EmployeeAssignment& employee_assignment,
                                                  const Employee& employee) = 0;
+    virtual std::optional<WorkSchedules> getWorkSchedules() const = 0;
 };
 
 }  // namespace domain

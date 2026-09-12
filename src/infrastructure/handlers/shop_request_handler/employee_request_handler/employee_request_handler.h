@@ -4,7 +4,6 @@
 #include <string_view>
 
 #include "application_gateway/application_gateway_interface.h"
-#include "application_gateway/dto/user_dto.h"
 #include "content_type/content_types.h"
 #include "json_formater/json_formater.h"
 #include "token_manager/token_manager.h"
@@ -89,9 +88,13 @@ public:
         if (method == http::verb::patch) {
         }
 
+        if (method == http::verb::get) {
+            // Возвращает список сотрудников участка
+        }
+
         auto invalid_method_response =
             text_response_maker(http::status::method_not_allowed, INVALID_METHOD, content_type::APP_JSON);
-        invalid_method_response.set(http::field::allow, "POST, DELETE, PATCH");
+        invalid_method_response.set(http::field::allow, "GET, POST, DELETE, PATCH");
         invalid_method_response.set(http::field::cache_control, "no-cache");
         send(std::move(invalid_method_response));
         return;

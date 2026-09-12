@@ -19,6 +19,7 @@
 #include "handlers/file_sender/file_sender.h"
 #include "handlers/login_request_handler/login_request_handler.h"
 #include "handlers/shop_request_handler/shop_request_handler.h"
+#include "handlers/timesheet_request_handler/timesheet_request_handler.h"
 #include "logger.h"
 #include "token_manager/token_manager.h"
 #include "url_decoder/url_decoder.h"
@@ -61,9 +62,6 @@ private:
     SomeRequestHandler& handler_;
 };
 
-/**
- * @brief Определяет тип запроса и передает его специализированному обработчику
- */
 class RequestHandler {
 public:
     using Strand = net::strand<net::io_context::executor_type>;
@@ -71,7 +69,8 @@ public:
     explicit RequestHandler(application::ApplicationGatewayInterface& application_gateway,
                             const FileSender& file_sender) :
         token_manager_{std::make_shared<TokenManager>()}, file_sender_{file_sender},
-        login_request_handler_{application_gateway, token_manager_}, shop_request_handler_{application_gateway} {}
+        login_request_handler_{application_gateway, token_manager_}, shop_request_handler_{application_gateway},
+        timesheet_request_handler_{application_gateway} {}
 
     RequestHandler(const RequestHandler&) = delete;
     RequestHandler& operator=(const RequestHandler&) = delete;
@@ -93,6 +92,12 @@ public:
         };
 
         try {
+            if (auto method = req.method(); method == http::verb::options) {
+                auto options_request_reponse = makeOptionResponse();
+                send(std::move(options_request_reponse));
+                return;
+            }
+
             std::string target = decodeUrl(req.target());
             req.target(target);
             std::string path = boost::urls::url_view{target}.path();
@@ -107,20 +112,14 @@ public:
 
             auto payload = getPayloadFromAuthorizationField(req);
 
-            if (!payload.has_value()) {
-                file_sender_(FileSender::File::LOGIN_HTML,
-                             text_response_maker,
-                             file_response_maker,
-                             std::forward<decltype(send)>(send));
-                return;
-            }
-            if (target.empty()) {
+            if (!payload.has_value() || target.empty()) {
                 file_sender_(FileSender::File::INDEX_HTML,
                              text_response_maker,
                              file_response_maker,
                              std::forward<decltype(send)>(send));
                 return;
             }
+
             if (path.starts_with(API_V1_SHOP)) {
                 shop_request_handler_(std::move(req),
                                       payload,
@@ -129,6 +128,16 @@ public:
                                       std::forward<decltype(send)>(send));
                 return;
             }
+
+            if (path.starts_with(API_V1_TIMESHEET)) {
+                timesheet_request_handler_(std::move(req),
+                                           payload,
+                                           text_response_maker,
+                                           file_response_maker,
+                                           std::forward<decltype(send)>(send));
+                return;
+            }
+
             auto not_found_response = text_response_maker(http::status::not_found, NOT_FOUND, content_type::APP_JSON);
             not_found_response.set(http::field::cache_control, "no-cache");
             send(std::move(not_found_response));
@@ -144,16 +153,16 @@ public:
     }
 
 private:
-    StringResponse makeStringResponse(http::status status,
-                                      std::string_view body,
-                                      unsigned http_version,
-                                      bool keep_alive,
-                                      std::string_view content_type);
-    FileResponse makeFileResponse(http::status status,
-                                  http::file_body::value_type&& file,
-                                  unsigned http_version,
-                                  bool keep_alive,
-                                  std::string_view content_type);
+    static StringResponse makeStringResponse(http::status status,
+                                             std::string_view body,
+                                             unsigned http_version,
+                                             bool keep_alive,
+                                             std::string_view content_type);
+    static FileResponse makeFileResponse(http::status status,
+                                         http::file_body::value_type&& file,
+                                         unsigned http_version,
+                                         bool keep_alive,
+                                         std::string_view content_type);
 
     template <typename Body, typename Allocator>
     TokenManager::Payload getPayloadFromAuthorizationField(
@@ -169,13 +178,26 @@ private:
         return std::nullopt;
     }
 
+    template <typename Body>
+    static void addCorsHeader(http::response<Body>& response) {
+        response.set(http::field::access_control_allow_origin, "*");
+        response.set(http::field::access_control_allow_methods, "GET, POST, PATCH, DELETE, OPTIONS");
+        response.set(http::field::access_control_allow_headers, "Content-Type, Authorization");
+    }
+
+    static http::response<http::empty_body> makeOptionResponse();
+
+private:
     std::shared_ptr<TokenManager> token_manager_;
     const FileSender& file_sender_;
     LoginRequestHandler login_request_handler_;
     ShopRequestHandler shop_request_handler_;
+    TimesheetRequestHandler timesheet_request_handler_;
 
+private:
     constexpr static std::string_view API_V1_LOGIN = "/api/v1/login"sv;
     constexpr static std::string_view API_V1_SHOP = "/api/v1/shop"sv;
+    constexpr static std::string_view API_V1_TIMESHEET = "/api/v1/timesheet"sv;
     constexpr static std::string_view BEARER = "Bearer "sv;
     constexpr static std::string_view NOT_FOUND = "{\"code\": \"not_found\", \"message\": \"Path not found\"}"sv;
     constexpr static std::string_view SERVER_ERROR = "{\"code\": \"server_error\", \"message\": \"Server error\"}"sv;

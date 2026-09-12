@@ -20,6 +20,7 @@ public:
     bool generateTimesheetForShop(const Shop& shop, std::chrono::year year) override;
     bool generateTimesheetForNewEmployee(const Shop::EmployeeAssignment& employee_assignment,
                                          const Employee& employee) override;
+    std::optional<WorkSchedules> getWorkSchedules() const override;
 
 private:
     struct TimesheetGenerationContext {
@@ -33,7 +34,7 @@ private:
         std::optional<const PreHolidays> pre_holidays;
         std::optional<const Holidays> holidays;
         std::optional<const ExtraHolidays> extra_holidays;
-        std::optional<const Vacations> vacations;
+        std::optional<const EmployeeVacations> employee_vacations;
     };
 
 private:

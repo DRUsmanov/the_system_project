@@ -12,7 +12,7 @@ namespace work_schedule_keys {
 constexpr std::string CYCLE_SIZE{"cycle_size"};
 constexpr std::string CYCLE{"cycle"};
 constexpr std::string START_SYCLE_DATE{"start_cycle_date"};
-constexpr std::string IS_WORKS_ON_HOLIDAYS{"is_works_on_holidays"};
+constexpr std::string IS_WORKING_ON_HOLIDAYS{"is_working_on_holidays"};
 
 namespace cycle_keys {
 constexpr std::string TYPE{"type"};
@@ -29,13 +29,15 @@ constexpr std::string REST_END{"rest_end"};
 
 namespace {
 
-domain::WorkSchedule makeWorkScheduleFromJsonObject(const json::object& work_schedule_as_object) {
+domain::WorkSchedule makeWorkScheduleFromJsonObject(domain::WorkScheduleId work_schedule_id,
+                                                    json::object& work_schedule_as_object,
+                                                    std::string description) {
     utils::logFunctionStart(utils::FUNCTION_INFO);
+
     size_t cycle_size = work_schedule_as_object.at(work_schedule_keys::CYCLE_SIZE).as_int64();
     domain::Date start_cycle_date =
         domain::dateFromString(work_schedule_as_object.at(work_schedule_keys::START_SYCLE_DATE).as_string());
-    bool is_works_on_holidays = work_schedule_as_object.at(work_schedule_keys::IS_WORKS_ON_HOLIDAYS).as_bool();
-
+    bool is_works_on_holidays = work_schedule_as_object.at(work_schedule_keys::IS_WORKING_ON_HOLIDAYS).as_bool();
     auto cycle_as_array = work_schedule_as_object.at(work_schedule_keys::CYCLE).as_array();
     std::vector<domain::WorkSchedule::DayData> cycle;
     cycle.reserve(cycle_size);
@@ -73,7 +75,7 @@ domain::WorkSchedule makeWorkScheduleFromJsonObject(const json::object& work_sch
         }
 
         auto night_work_time = day_data_as_object.at(work_schedule_keys::cycle_keys::NIGHT_WORK_TIME);
-        if (!night_work_end.is_null()) {
+        if (!night_work_time.is_null()) {
             day_data.night_work_time = domain::timeFromString(night_work_time.as_string());
         }
 
@@ -90,7 +92,7 @@ domain::WorkSchedule makeWorkScheduleFromJsonObject(const json::object& work_sch
         cycle.push_back(day_data);
     }
 
-    return {cycle_size, start_cycle_date, is_works_on_holidays, cycle};
+    return {work_schedule_id, cycle_size, start_cycle_date, is_works_on_holidays, cycle, description};
 }
 
 struct PreparedDayDataToInsert {
@@ -177,10 +179,34 @@ std::optional<domain::WorkSchedule> TimesheetRepository::downloadWorkScheduleByI
         return std::nullopt;
     }
 
+    auto description = result.at(0).at(tables::work_schedules::DESCRIPTION).as<std::string>();
     auto work_chedule_as_string = result.at(0).at(tables::work_schedules::WORK_SCHEDULE).as<std::string>();
     auto work_schedule_as_object = parseString(work_chedule_as_string);
 
-    return makeWorkScheduleFromJsonObject(work_schedule_as_object);
+    return makeWorkScheduleFromJsonObject(work_schedule_id, work_schedule_as_object, description);
+}
+
+std::optional<domain::WorkSchedules> TimesheetRepository::downloadWorkSchedules() const {
+    utils::logFunctionStart(utils::FUNCTION_INFO);
+    auto result = uow_->execParams(query::DOWNLOAD_WORK_SCHEDULES);
+
+    if (result.size() == 0) {
+        return std::nullopt;
+    }
+
+    domain::WorkSchedules work_schedules;
+
+    for (const auto& row : result) {
+        domain::WorkScheduleId work_schedule_id{row.at(tables::work_schedules::ID).as<uint64_t>()};
+        auto description = row.at(tables::work_schedules::DESCRIPTION).as<std::string>();
+        auto work_schedule_as_string = row.at(tables::work_schedules::WORK_SCHEDULE).as<std::string>();
+        auto work_schedule_as_object = parseString(work_schedule_as_string);
+        auto work_schedule = makeWorkScheduleFromJsonObject(work_schedule_id, work_schedule_as_object, description);
+
+        work_schedules.push_back(work_schedule);
+    }
+
+    return work_schedules;
 }
 
 std::optional<domain::PreHolidays> TimesheetRepository::downloadPreHolidaysByYear(std::chrono::year year) const {
@@ -237,19 +263,19 @@ std::optional<domain::ExtraHolidays> TimesheetRepository::downloadExtraHolidaysB
     return extra_holidays;
 }
 
-std::optional<domain::Vacations> TimesheetRepository::downloadVacationsByYear(std::chrono::year year) const {
+std::optional<domain::EmployeeVacations> TimesheetRepository::downloadVacationsByYear(std::chrono::year year) const {
     utils::logFunctionStart(utils::FUNCTION_INFO);
-    return domain::Vacations();
+    return domain::EmployeeVacations();
     // TODO
 }
 
-std::optional<domain::Vacations> TimesheetRepository::downloadVacationsByEmployeeId(
+std::optional<domain::EmployeeVacations> TimesheetRepository::downloadVacationsByEmployeeId(
     domain::EmployeeId employee_id) const {
-    return domain::Vacations();
+    return domain::EmployeeVacations();
     // TODO
 }
 
-std::optional<domain::Vacations> TimesheetRepository::downloadVacationsByEmployeeIdAndYear(
+std::optional<domain::EmployeeVacations> TimesheetRepository::downloadVacationsByEmployeeIdAndYear(
     domain::EmployeeId employee_id,
     std::chrono::year year) const {
     utils::logFunctionStart(utils::FUNCTION_INFO);
@@ -259,7 +285,7 @@ std::optional<domain::Vacations> TimesheetRepository::downloadVacationsByEmploye
         return std::nullopt;
     }
 
-    domain::Vacations employee_vacations;
+    domain::EmployeeVacations employee_vacations;
 
     for (const auto& row : result) {
         domain::EmployeeId emlpoyee_id{row.at(tables::vacations::EMPLOYEE_ID).as<uint64_t>()};

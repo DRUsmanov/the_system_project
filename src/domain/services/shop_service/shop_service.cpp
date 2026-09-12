@@ -31,3 +31,13 @@ bool domain::ShopService::removeEmployee(EmployeeId employee_id) const {
     utils::logFunctionStart(utils::FUNCTION_INFO);
     return shop_repository_->removeEmployee(employee_id);
 }
+
+std::optional<Departments> domain::ShopService::getDepartments() const {
+    utils::logFunctionStart(utils::FUNCTION_INFO);
+    return shop_repository_->downloadDepartments();
+}
+
+std::optional<StaffPositions> domain::ShopService::getStaffPositions() const {
+    utils::logFunctionStart(utils::FUNCTION_INFO);
+    return shop_repository_->downloadStaffPositions();
+}

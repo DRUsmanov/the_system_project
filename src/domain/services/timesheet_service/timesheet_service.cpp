@@ -23,11 +23,11 @@ std::optional<Timesheet> TimesheetService::getDepartmentTimesheet(DepartmentId d
 bool TimesheetService::generateEmployeeVacationsInTimesheet(Timesheet& timesheet,
                                                             const TimesheetGenerationContext& generation_context) {
     utils::logFunctionStart(utils::FUNCTION_INFO);
-    if (!generation_context.vacations.has_value()) {
+    if (!generation_context.employee_vacations.has_value()) {
         return false;
     }
-    auto it = generation_context.vacations.value().find(generation_context.employee_id);
-    if (it == generation_context.vacations.value().end()) {
+    auto it = generation_context.employee_vacations.value().find(generation_context.employee_id);
+    if (it == generation_context.employee_vacations.value().end()) {
         return false;
     }
 
@@ -134,10 +134,10 @@ bool TimesheetService::generateTimesheetForShop(const Shop& shop, std::chrono::y
     auto pre_holidays = timesheet_repository_->downloadPreHolidaysByYear(year);
     auto holidays = timesheet_repository_->downloadHolidaysByYear(year);
     auto extra_holidays = timesheet_repository_->downloadExtraHolidaysByYear(year);
-    auto vacations = timesheet_repository_->downloadVacationsByYear(year);
+    auto employee_vacations = timesheet_repository_->downloadVacationsByYear(year);
     auto system_administrator_id = timesheet_repository_->downloadSystemAdministratorId();
 
-    if (!pre_holidays || !holidays || !extra_holidays || !system_administrator_id || !vacations) {
+    if (!pre_holidays || !holidays || !extra_holidays || !system_administrator_id || !employee_vacations) {
         return false;
     }
 
@@ -169,7 +169,7 @@ bool TimesheetService::generateTimesheetForShop(const Shop& shop, std::chrono::y
                                                           *pre_holidays,
                                                           *holidays,
                                                           *extra_holidays,
-                                                          *vacations};
+                                                          *employee_vacations};
 
             if (generateEmployeeVacationsInTimesheet(timesheet, generation_context)) {
                 continue;
@@ -201,7 +201,8 @@ bool TimesheetService::generateTimesheetForNewEmployee(const Shop::EmployeeAssig
     auto extra_holidays = timesheet_repository_->downloadExtraHolidaysByYear(employment_year);
     auto system_administrator_id = timesheet_repository_->downloadSystemAdministratorId();
     auto work_schedule = timesheet_repository_->downloadWorkScheduleById(employee_assignment.work_schedule_id);
-    auto vacations = timesheet_repository_->downloadVacationsByEmployeeIdAndYear(employee.employee_id, employment_year);
+    auto employee_vacations =
+        timesheet_repository_->downloadVacationsByEmployeeIdAndYear(employee.employee_id, employment_year);
 
     if (!system_administrator_id || !work_schedule) {
         return false;
@@ -221,7 +222,7 @@ bool TimesheetService::generateTimesheetForNewEmployee(const Shop::EmployeeAssig
                                                       pre_holidays,
                                                       holidays,
                                                       extra_holidays,
-                                                      vacations};
+                                                      employee_vacations};
 
         if (generateEmployeeVacationsInTimesheet(timesheet, generation_context)) {
             continue;
@@ -235,4 +236,9 @@ bool TimesheetService::generateTimesheetForNewEmployee(const Shop::EmployeeAssig
     }
 
     return timesheet_repository_->uploadTimesheet(timesheet, *system_administrator_id);
+}
+
+std::optional<WorkSchedules> TimesheetService::getWorkSchedules() const {
+    utils::logFunctionStart(utils::FUNCTION_INFO);
+    return timesheet_repository_->downloadWorkSchedules();
 }

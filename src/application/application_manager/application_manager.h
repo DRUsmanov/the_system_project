@@ -28,6 +28,11 @@ public:
                                                   const domain::Shop::EmployeeAssignment& employee_assignment,
                                                   domain::Employee& employee) const override;
     bool removeEmployee(const domain::UserId& user_id, domain::EmployeeId employee_id) const override;
+    std::optional<domain::Employee> getEmployee(const domain::UserId& user_id,
+                                                const domain::EmployeeId& employee_id) const override;
+    std::optional<domain::Departments> getDepartments(const domain::UserId& user_id) const override;
+    std::optional<domain::StaffPositions> getStaffPositions(const domain::UserId& user_id) const override;
+    std::optional<domain::WorkSchedules> getWorkSchedules(const domain::UserId& user_id) const override;
 
     std::optional<domain::Timesheet> getTimesheet(const domain::UserId& user_id,
                                                   const domain::AdminCategoryId& admin_category_id,

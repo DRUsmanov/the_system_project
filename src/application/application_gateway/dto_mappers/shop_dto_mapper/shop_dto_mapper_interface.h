@@ -1,5 +1,7 @@
 #pragma once
 
+#include <vector>
+
 #include "application_gateway/dto/shop_dto.h"
 #include "entities/shop/department/department.h"
 #include "entities/shop/employee/employee.h"
@@ -11,11 +13,20 @@ class ShopDtoMapperInterface {
 public:
     virtual ~ShopDtoMapperInterface() = default;
 
+    // ADD EMPLOYEE
     virtual std::pair<domain::Shop::EmployeeAssignment, domain::Employee> convert(
         const AddEmployeeRequestDto& add_employee_request_dto) const = 0;
     virtual AddEmployeeResponseDto convert(domain::EmployeeId employee_id) const = 0;
+
+    // REMOVE EMPLOYEE
     virtual domain::EmployeeId convert(const RemoveEmployeeRequestDto& remove_employee_request_dto) const = 0;
     virtual RemoveEmployeeResponseDto convert(bool is_employee_removed) const = 0;
+
+    // GET DEPARTMENTS
+    virtual GetDepartmentsResponseDto convert(const domain::Departments& departments) const = 0;
+
+    // GET STAFF POSITIONS
+    virtual GetStaffPositionsResponseDto convert(const domain::StaffPositions& staff_positions) const = 0;
 };
 
 }  // namespace application

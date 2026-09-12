@@ -14,6 +14,8 @@ StringResponse RequestHandler::makeStringResponse(http::status status,
     response.body() = body;
     response.content_length(body.size());
     response.keep_alive(keep_alive);
+    addCorsHeader(response);
+    response.prepare_payload();
     return response;
 }
 
@@ -27,6 +29,15 @@ FileResponse RequestHandler::makeFileResponse(http::status status,
     response.result(status);
     response.insert(http::field::content_type, content_type);
     response.body() = std::move(file);
+    addCorsHeader(response);
+    response.prepare_payload();
+    return response;
+}
+
+http::response<http::empty_body> RequestHandler::makeOptionResponse() {
+    http::response<http::empty_body> response;
+    response.result(http::status::no_content);
+    addCorsHeader(response);
     response.prepare_payload();
     return response;
 }

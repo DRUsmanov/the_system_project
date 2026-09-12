@@ -7,7 +7,7 @@ namespace application {
 class UserDtoMapper : public UserDtoMapperInterface {
 public:
     domain::UserLoginData convert(const UserLoginRequestDto& user_login_request_dto) const override;
-    UserLoginResponseDto convert(const domain::User& user) const override;
+    UserLoginResponseDto convert(const domain::User& user, const domain::Employee& employee) const override;
 
     domain::UserId convert(const UserAccessDto& user_access_dto) const override;
 };

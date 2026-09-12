@@ -2,6 +2,7 @@
 
 #include <chrono>
 #include <cstdint>
+#include <vector>
 
 #include "tagged.h"
 #include "value_data/types.h"
@@ -38,25 +39,32 @@ public:
         }
     };
 
-    WorkSchedule(size_t cycle_size,
+    WorkSchedule(WorkScheduleId work_schedule_id,
+                 size_t cycle_size,
                  const Date& start_cycle_date,
                  bool is_works_on_holidays,
-                 const std::vector<DayData>& cycle) :
-        cycle_size_{cycle_size}, start_cycle_date_{start_cycle_date}, is_works_on_holidays_{is_works_on_holidays},
-        cycle_{std::move(cycle)} {}
+                 const std::vector<DayData>& cycle,
+                 std::string description) :
+        work_schedule_id_{work_schedule_id}, cycle_size_{cycle_size}, start_cycle_date_{start_cycle_date},
+        is_works_on_holidays_{is_works_on_holidays}, cycle_{std::move(cycle)}, description_{description} {}
 
     size_t getCycleSize() const noexcept;
     const Date& getStartCycleDate() const noexcept;
     bool isWorksOnHolidays() const noexcept;
     const DayData& getDayDataByDate(std::chrono::year_month_day date) const;
     const DayData& operator[](size_t index) const;
+    const std::string& getDescription() const;
+    WorkScheduleId getId() const;
 
 private:
-    WorkScheduleId work_schedule_id;
+    WorkScheduleId work_schedule_id_;
     size_t cycle_size_;
     Date start_cycle_date_;
     bool is_works_on_holidays_;
     std::vector<DayData> cycle_;
+    std::string description_;
 };
+
+using WorkSchedules = std::vector<WorkSchedule>;
 
 }  // namespace domain

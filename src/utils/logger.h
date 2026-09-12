@@ -7,9 +7,11 @@
 #include <boost/log/utility/manipulators/add_value.hpp>
 #include <chrono>
 #include <exception>
+#include <filesystem>
 #include <iostream>
 #include <optional>
 #include <string>
+#include <string_view>
 
 namespace utils {
 
@@ -23,9 +25,16 @@ struct FunctionInfo {
     std::string function;
 };
 
-#define FUNCTION_INFO          \
-    FunctionInfo {             \
-        __FILE__, __FUNCTION__ \
+inline std::string_view filenameOnly(std::string_view path) {
+    auto pos = path.find_last_of("/\\");
+    return pos == std::string_view::npos ? path : path.substr(pos + 1);
+}
+
+#define __FILENAME__ (utils::filenameOnly(__FILE__).data())
+
+#define FUNCTION_INFO              \
+    FunctionInfo {                 \
+        __FILENAME__, __FUNCTION__ \
     }
 
 void initializeBoostLogger();

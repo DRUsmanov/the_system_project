@@ -1,0 +1,1438 @@
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ЦТО и РЭО НПЗ — Система управления</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    :root {
+      --bg: #0f172a;
+      --panel: #1e293b;
+      --panel-2: #243447;
+      --border: #334155;
+      --text: #e2e8f0;
+      --text-dim: #94a3b8;
+      --accent: #3b82f6;
+      --accent-hover: #2563eb;
+      --danger: #ef4444;
+      --ok: #22c55e;
+    }
+
+    html,
+    body {
+      height: 100%;
+      font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+    }
+
+    /* ==================== ЭКРАНЫ ==================== */
+    .screen {
+      display: none;
+    }
+
+    .screen.active {
+      animation: fadeIn 0.35s ease;
+    }
+
+    #loginScreen.active {
+      display: flex;
+    }
+
+    #appScreen.active {
+      display: grid;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(8px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes moduleIn {
+      from {
+        opacity: 0;
+        transform: translateY(6px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+
+      .screen.active,
+      .module-content,
+      .modal-backdrop,
+      .modal {
+        animation: none;
+      }
+    }
+
+    /* ==================== ЭКРАН ВХОДА ==================== */
+    #loginScreen.active {
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      padding: 1.5rem;
+      gap: 2.5rem;
+      background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+    }
+
+    .header-logo {
+      width: 100%;
+      max-width: 1400px;
+      text-align: center;
+      user-select: none;
+    }
+
+    .header-logo .title {
+      font-size: clamp(2.5rem, 9vw, 9rem);
+      font-weight: 800;
+      letter-spacing: 0.03em;
+      line-height: 1;
+      color: #f1f5f9;
+      text-transform: uppercase;
+      text-shadow: 0 4px 30px rgba(59, 130, 246, 0.25);
+      white-space: nowrap;
+    }
+
+    .header-logo .subtitle {
+      font-size: clamp(1.2rem, 4.5vw, 4.5rem);
+      font-weight: 400;
+      letter-spacing: 0.35em;
+      color: #94a3b8;
+      text-transform: uppercase;
+      margin-top: 0.4em;
+      white-space: nowrap;
+    }
+
+    .login-card {
+      width: 100%;
+      max-width: 400px;
+      background: #1e293b;
+      border: 1px solid #334155;
+      border-radius: 12px;
+      padding: 2.5rem 2rem;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+    }
+
+    .field {
+      margin-bottom: 1.25rem;
+    }
+
+    .field label {
+      display: block;
+      font-size: 0.875rem;
+      color: #cbd5e1;
+      margin-bottom: 0.5rem;
+    }
+
+    .field input {
+      width: 100%;
+      padding: 0.75rem 1rem;
+      background: #0f172a;
+      border: 1px solid #334155;
+      border-radius: 8px;
+      color: #f1f5f9;
+      font-size: 0.95rem;
+      transition: border-color 0.15s, box-shadow 0.15s;
+    }
+
+    .field input:focus {
+      outline: none;
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+    }
+
+    .field input::placeholder {
+      color: #64748b;
+    }
+
+    button[type="submit"] {
+      width: 100%;
+      padding: 0.85rem;
+      margin-top: 0.5rem;
+      background: var(--accent);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 1rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background 0.15s, opacity 0.15s;
+    }
+
+    button[type="submit"]:hover:not(:disabled) {
+      background: var(--accent-hover);
+    }
+
+    button[type="submit"]:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    .message {
+      margin-top: 1rem;
+      padding: 0.75rem 1rem;
+      border-radius: 8px;
+      font-size: 0.875rem;
+      display: none;
+    }
+
+    .message.error {
+      display: block;
+      background: rgba(239, 68, 68, 0.15);
+      border: 1px solid rgba(239, 68, 68, 0.4);
+      color: #fca5a5;
+    }
+
+    .message.success {
+      display: block;
+      background: rgba(34, 197, 94, 0.15);
+      border: 1px solid rgba(34, 197, 94, 0.4);
+      color: #86efac;
+    }
+
+    @media (max-width: 640px) {
+
+      .header-logo .title,
+      .header-logo .subtitle {
+        white-space: normal;
+        letter-spacing: 0.05em;
+      }
+
+      .header-logo .subtitle {
+        letter-spacing: 0.2em;
+      }
+    }
+
+    /* ==================== ЭКРАН РАБОТЫ ==================== */
+    #appScreen.active {
+      grid-template-columns: 260px 1fr;
+      grid-template-rows: auto 1fr;
+      grid-template-areas:
+        "sidebar header"
+        "sidebar main";
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    .header {
+      grid-area: header;
+      background: var(--panel);
+      border-bottom: 1px solid var(--border);
+      padding: 0.9rem 1.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+    }
+
+    .header .brand {
+      font-size: 1.05rem;
+      font-weight: 600;
+      letter-spacing: 0.05em;
+    }
+
+    .header .brand .accent {
+      color: var(--text-dim);
+      font-weight: 400;
+      margin-left: 0.5rem;
+      letter-spacing: 0.15em;
+      font-size: 0.85rem;
+      text-transform: uppercase;
+    }
+
+    .header .user-area {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .header .user-name {
+      color: var(--text);
+      font-size: 0.8rem;
+      letter-spacing: 0.08em;
+      font-weight: 500;
+      text-transform: uppercase;
+      white-space: nowrap;
+    }
+
+    .logout-btn {
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 0.45rem 0.9rem;
+      border-radius: 8px;
+      font-size: 0.875rem;
+      cursor: pointer;
+      transition: background 0.15s, border-color 0.15s;
+    }
+
+    .logout-btn:hover {
+      background: rgba(239, 68, 68, 0.15);
+      border-color: var(--danger);
+      color: #fca5a5;
+    }
+
+    .sidebar {
+      grid-area: sidebar;
+      background: var(--panel);
+      border-right: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .sidebar-header {
+      padding: 1rem 1.25rem;
+      border-bottom: 1px solid var(--border);
+      font-size: 0.75rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--text-dim);
+    }
+
+    .sidebar-nav {
+      flex: 1;
+      overflow-y: auto;
+      padding: 0.5rem;
+    }
+
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 0.7rem 0.9rem;
+      border-radius: 8px;
+      color: var(--text);
+      cursor: pointer;
+      font-size: 0.95rem;
+      transition: background 0.2s ease, color 0.2s ease;
+      border: none;
+      background: transparent;
+      width: 100%;
+      text-align: left;
+    }
+
+    .nav-item:hover {
+      background: var(--panel-2);
+    }
+
+    .nav-item.active {
+      background: var(--accent);
+      color: white;
+    }
+
+    .nav-item .icon {
+      width: 1.25rem;
+      text-align: center;
+      flex-shrink: 0;
+      opacity: 0.9;
+    }
+
+    .nav-item .label {
+      flex: 1;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .main {
+      grid-area: main;
+      overflow-y: auto;
+      padding: 2rem;
+      background: var(--bg);
+    }
+
+    .module-content {
+      animation: moduleIn 0.25s ease;
+    }
+
+    .module-placeholder {
+      max-width: 900px;
+      margin: 0 auto;
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 3rem 2rem;
+      text-align: center;
+      color: var(--text-dim);
+    }
+
+    .module-placeholder h2 {
+      color: var(--text);
+      font-size: 1.5rem;
+      margin-bottom: 0.75rem;
+    }
+
+    .module-placeholder p {
+      font-size: 0.95rem;
+      line-height: 1.5;
+    }
+
+    /* ==================== МОДУЛЬ: ТАБЕЛЬ ==================== */
+    .module-title {
+      font-size: 1.5rem;
+      font-weight: 600;
+      margin-bottom: 1.5rem;
+      color: var(--text);
+    }
+
+    .toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+      align-items: flex-end;
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1.25rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .toolbar .control {
+      display: flex;
+      flex-direction: column;
+      gap: 0.4rem;
+    }
+
+    .toolbar label {
+      font-size: 0.75rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--text-dim);
+    }
+
+    .toolbar select {
+      background: #0f172a;
+      border: 1px solid var(--border);
+      color: var(--text);
+      border-radius: 8px;
+      padding: 0.6rem 0.9rem;
+      font-size: 0.95rem;
+      font-family: inherit;
+      min-width: 200px;
+      cursor: pointer;
+      transition: border-color 0.15s, box-shadow 0.15s;
+    }
+
+    #tsYear,
+    #tsMonth {
+      min-width: 130px;
+    }
+
+    .toolbar select:focus {
+      outline: none;
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+    }
+
+    .toolbar select:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    .module-body {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 2rem;
+      min-height: 200px;
+      color: var(--text-dim);
+      text-align: center;
+    }
+
+    .module-body .hint {
+      font-size: 0.95rem;
+      line-height: 1.5;
+    }
+
+    .state {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.6rem;
+      font-size: 0.95rem;
+    }
+
+    .spinner {
+      width: 16px;
+      height: 16px;
+      border: 2px solid rgba(148, 163, 184, 0.3);
+      border-top-color: var(--accent);
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+    }
+
+    @keyframes spin {
+      to {
+        transform: rotate(360deg);
+      }
+    }
+
+    .state.error {
+      color: #fca5a5;
+    }
+
+    /* ===== Кнопки в панели ===== */
+    .toolbar .control.actions {
+      margin-left: auto;
+    }
+
+    .btn-row {
+      display: flex;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      border: 1px solid var(--border);
+      background: var(--panel-2);
+      color: var(--text);
+      padding: 0.6rem 1.1rem;
+      border-radius: 8px;
+      font-size: 0.9rem;
+      font-family: inherit;
+      cursor: pointer;
+      transition: background 0.15s, border-color 0.15s, opacity 0.15s;
+      white-space: nowrap;
+    }
+
+    .btn:hover:not(:disabled) {
+      background: #2f4159;
+      border-color: #475569;
+    }
+
+    .btn:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+
+    .btn-primary {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: white;
+    }
+
+    .btn-primary:hover:not(:disabled) {
+      background: var(--accent-hover);
+      border-color: var(--accent-hover);
+    }
+
+    .btn-danger {
+      background: rgba(239, 68, 68, 0.15);
+      border-color: rgba(239, 68, 68, 0.5);
+      color: #fca5a5;
+    }
+
+    .btn-danger:hover:not(:disabled) {
+      background: rgba(239, 68, 68, 0.25);
+      border-color: var(--danger);
+    }
+
+    /* ==================== МОДАЛЬНОЕ ОКНО ==================== */
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.55);
+      backdrop-filter: blur(2px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 1.5rem;
+      z-index: 1000;
+      animation: fadeIn 0.2s ease;
+    }
+
+    .modal-backdrop.open {
+      display: flex;
+    }
+
+    .modal {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      width: 100%;
+      max-width: 720px;
+      max-height: 90vh;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.55);
+      animation: modalIn 0.25s ease;
+    }
+
+    @keyframes modalIn {
+      from {
+        opacity: 0;
+        transform: translateY(12px) scale(0.98);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
+    }
+
+    .modal-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 1.1rem 1.5rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .modal-header h2 {
+      font-size: 1.15rem;
+      font-weight: 600;
+      color: var(--text);
+    }
+
+    .modal-close {
+      background: transparent;
+      border: none;
+      color: var(--text-dim);
+      font-size: 1.1rem;
+      cursor: pointer;
+      padding: 0.3rem 0.6rem;
+      border-radius: 6px;
+      transition: background 0.15s, color 0.15s;
+    }
+
+    .modal-close:hover {
+      background: var(--panel-2);
+      color: var(--text);
+    }
+
+    .modal-body {
+      padding: 1.5rem;
+      overflow-y: auto;
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1rem 1.25rem;
+    }
+
+    .form-field {
+      display: flex;
+      flex-direction: column;
+      gap: 0.4rem;
+    }
+
+    .form-field label {
+      font-size: 0.75rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--text-dim);
+    }
+
+    .form-field input,
+    .form-field select {
+      background: #0f172a;
+      border: 1px solid var(--border);
+      color: var(--text);
+      border-radius: 8px;
+      padding: 0.6rem 0.8rem;
+      font-size: 0.95rem;
+      font-family: inherit;
+      transition: border-color 0.15s, box-shadow 0.15s;
+      width: 100%;
+    }
+
+    .form-field input:focus,
+    .form-field select:focus {
+      outline: none;
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+    }
+
+    .form-field input[type="date"] {
+      cursor: pointer;
+    }
+
+    .form-field select {
+      cursor: pointer;
+    }
+
+    .form-field select:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    .modal-footer {
+      display: flex;
+      justify-content: flex-end;
+      gap: 0.75rem;
+      padding: 1rem 1.5rem;
+      border-top: 1px solid var(--border);
+    }
+
+    .modal-message {
+      margin-top: 1rem;
+      padding: 0.65rem 0.9rem;
+      border-radius: 8px;
+      font-size: 0.875rem;
+      display: none;
+    }
+
+    .modal-message.error {
+      display: block;
+      background: rgba(239, 68, 68, 0.15);
+      border: 1px solid rgba(239, 68, 68, 0.4);
+      color: #fca5a5;
+    }
+
+    .modal-message.success {
+      display: block;
+      background: rgba(34, 197, 94, 0.15);
+      border: 1px solid rgba(34, 197, 94, 0.4);
+      color: #86efac;
+    }
+
+    @media (max-width: 720px) {
+      #appScreen.active {
+        grid-template-columns: 1fr;
+        grid-template-areas: "header" "main";
+      }
+
+      .sidebar {
+        position: fixed;
+        top: 0;
+        left: 0;
+        bottom: 0;
+        width: 260px;
+        transform: translateX(-100%);
+        transition: transform 0.2s;
+        z-index: 100;
+      }
+
+      .sidebar.open {
+        transform: translateX(0);
+      }
+
+      .toolbar select {
+        min-width: 100%;
+      }
+
+      .toolbar .control {
+        width: 100%;
+      }
+
+      .toolbar .control.actions {
+        margin-left: 0;
+      }
+
+      .btn-row {
+        width: 100%;
+      }
+
+      .btn {
+        flex: 1;
+        text-align: center;
+      }
+
+      .form-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- ================== ЭКРАН ВХОДА ================== -->
+  <div class="screen active" id="loginScreen">
+    <header class="header-logo">
+      <div class="title">ЦТО и РЭО НПЗ</div>
+      <div class="subtitle">Система управления</div>
+    </header>
+
+    <div class="login-card">
+      <form id="loginForm" autocomplete="on">
+        <div class="field">
+          <label for="login">Логин</label>
+          <input type="text" id="login" name="login" placeholder="Введите логин" required autocomplete="username">
+        </div>
+        <div class="field">
+          <label for="password">Пароль</label>
+          <input type="password" id="password" name="password" placeholder="Введите пароль" required
+            autocomplete="current-password">
+        </div>
+        <button type="submit" id="submitBtn">Войти</button>
+        <div class="message" id="message"></div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ================== ЭКРАН РАБОТЫ ================== -->
+  <div class="screen" id="appScreen">
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-header">Модули</div>
+      <nav class="sidebar-nav" id="navList"></nav>
+    </aside>
+
+    <header class="header">
+      <div class="brand">
+        ЦТО и РЭО НПЗ
+        <span class="accent">Система управления</span>
+      </div>
+      <div class="user-area">
+        <span class="user-name" id="userName"></span>
+        <button class="logout-btn" id="logoutBtn">Выйти</button>
+      </div>
+    </header>
+
+    <main class="main" id="mainArea"></main>
+  </div>
+
+  <!-- ================== МОДАЛЬНОЕ ОКНО: ДОБАВИТЬ СОТРУДНИКА ================== -->
+  <div class="modal-backdrop" id="empModal">
+    <div class="modal">
+      <div class="modal-header">
+        <h2 id="empModalTitle">Добавить сотрудника</h2>
+        <button class="modal-close" id="empModalClose" title="Закрыть">✕</button>
+      </div>
+
+      <form class="modal-body" id="empForm">
+        <div class="form-grid">
+          <div class="form-field">
+            <label for="empLastName">Фамилия *</label>
+            <input type="text" id="empLastName" name="last_name" required>
+          </div>
+          <div class="form-field">
+            <label for="empFirstName">Имя *</label>
+            <input type="text" id="empFirstName" name="first_name" required>
+          </div>
+          <div class="form-field">
+            <label for="empPatronymic">Отчество</label>
+            <input type="text" id="empPatronymic" name="patronymic">
+          </div>
+
+          <div class="form-field">
+            <label for="empBirthDate">Дата рождения</label>
+            <input type="date" id="empBirthDate" name="birth_date">
+          </div>
+          <div class="form-field">
+            <label for="empEmploymentDate">Дата приёма</label>
+            <input type="date" id="empEmploymentDate" name="employment_date">
+          </div>
+          <div class="form-field">
+            <label for="empNumber">Табельный номер *</label>
+            <input type="number" id="empNumber" name="employee_number" required min="0" step="1">
+          </div>
+
+          <div class="form-field">
+            <label for="empDepartment">Участок *</label>
+            <select id="empDepartment" name="department_id" required></select>
+          </div>
+          <div class="form-field">
+            <label for="empStaffPosition">Должность *</label>
+            <select id="empStaffPosition" name="staff_position_id" required>
+              <option value="">— загрузка —</option>
+            </select>
+          </div>
+          <div class="form-field">
+            <label for="empWorkSchedule">График работы *</label>
+            <select id="empWorkSchedule" name="work_schedule_id" required>
+              <option value="">— загрузка —</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="modal-message" id="empFormMessage"></div>
+      </form>
+
+      <div class="modal-footer">
+        <button type="button" class="btn" id="empCancelBtn">Отмена</button>
+        <button type="button" class="btn btn-primary" id="empSubmitBtn">Сохранить</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // ==================== КОНФИГ ====================
+    const API_BASE = 'http://192.168.1.11:8080/api/v1'; // ← замените на ваш IP
+    const LOGIN_URL = `${API_BASE}/login`;
+    const TOKEN_KEY = 'auth_token';
+    const USER_KEY = 'auth_user';
+    const REQUEST_TIMEOUT = 10000;
+
+    const ERROR_MESSAGES = {
+      'unauthorized': 'Неверный логин или пароль',
+      'forbidden': 'Доступ запрещён',
+      'not_found': 'Ресурс не найден',
+      'bad_request': 'Некорректный запрос',
+      'internal_error': 'Внутренняя ошибка сервера',
+      'too_many_requests': 'Слишком много попыток. Попробуйте позже'
+    };
+
+    function translateError(code, fallback) {
+      return ERROR_MESSAGES[code] || fallback || 'Произошла ошибка';
+    }
+
+    // ==================== ПОЛЬЗОВАТЕЛЬ ====================
+    function getCurrentUser() {
+      try { return JSON.parse(localStorage.getItem(USER_KEY) || '{}'); }
+      catch { return {}; }
+    }
+
+    function formatUserFullName(user) {
+      return [user.last_name, user.first_name, user.patronymic]
+        .filter(Boolean).join(' ');
+    }
+
+    function updateUserName() {
+      const user = getCurrentUser();
+      const full = formatUserFullName(user);
+      document.getElementById('userName').textContent = full.toUpperCase();
+    }
+
+    // ==================== API FETCH ====================
+    async function apiFetch(path, options = {}, timeoutMs = REQUEST_TIMEOUT) {
+      const token = localStorage.getItem(TOKEN_KEY);
+      const controller = new AbortController();
+      const timer = setTimeout(() => controller.abort(), timeoutMs);
+
+      const headers = {
+        'Content-Type': 'application/json',
+        ...(token ? { 'Authorization': 'Bearer ' + token } : {}),
+        ...(options.headers || {})
+      };
+
+      let response;
+      try {
+        response = await fetch(`${API_BASE}${path}`, {
+          ...options,
+          headers,
+          signal: controller.signal
+        });
+      } catch (err) {
+        clearTimeout(timer);
+        if (err.name === 'AbortError') {
+          const e = new Error('Сервер не отвечает (таймаут)');
+          e.kind = 'timeout';
+          throw e;
+        }
+        const e = new Error('Не удалось связаться с сервером');
+        e.kind = 'network';
+        throw e;
+      }
+      clearTimeout(timer);
+
+      if (response.status === 401) {
+        localStorage.removeItem(TOKEN_KEY);
+        localStorage.removeItem(USER_KEY);
+        showLogin();
+        const e = new Error('Сессия истекла. Войдите заново.');
+        e.kind = 'unauthorized';
+        throw e;
+      }
+
+      let data = null;
+      try { data = await response.json(); } catch { data = null; }
+      return { response, data };
+    }
+
+    // ==================== ЭКРАНЫ ====================
+    const loginScreen = document.getElementById('loginScreen');
+    const appScreen = document.getElementById('appScreen');
+
+    function switchScreen(fromEl, toEl, delay = 200) {
+      fromEl.style.transition = 'opacity 0.2s ease';
+      fromEl.style.opacity = '0';
+      setTimeout(() => {
+        fromEl.classList.remove('active');
+        fromEl.style.transition = '';
+        fromEl.style.opacity = '';
+        toEl.classList.add('active');
+      }, delay);
+    }
+
+    function showLogin() {
+      switchScreen(appScreen, loginScreen);
+      document.getElementById('loginForm').reset();
+      document.getElementById('message').textContent = '';
+      document.getElementById('message').className = 'message';
+    }
+
+    function showApp() {
+      switchScreen(loginScreen, appScreen);
+      updateUserName();
+      renderNav();
+      routeFromHash();
+    }
+
+    // ==================== ЭКРАН ВХОДА ====================
+    const loginForm = document.getElementById('loginForm');
+    const submitBtn = document.getElementById('submitBtn');
+    const messageEl = document.getElementById('message');
+
+    function showMessage(text, type) {
+      messageEl.textContent = text;
+      messageEl.className = 'message ' + type;
+    }
+
+    loginForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      messageEl.textContent = '';
+      messageEl.className = 'message';
+
+      const login = document.getElementById('login').value.trim();
+      const password = document.getElementById('password').value;
+
+      if (!login || !password) {
+        showMessage('Заполните все поля', 'error');
+        return;
+      }
+
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'Отправка...';
+
+      try {
+        const response = await fetch(LOGIN_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ login, password })
+        });
+
+        const data = await response.json().catch(() => ({}));
+
+        if (response.ok && data.auth_token) {
+          localStorage.setItem(TOKEN_KEY, data.auth_token);
+
+          const user = {
+            last_name: data.last_name || '',
+            first_name: data.first_name || '',
+            patronymic: data.patronymic || ''
+          };
+          localStorage.setItem(USER_KEY, JSON.stringify(user));
+
+          const welcomeName = [user.first_name, user.patronymic].filter(Boolean).join(' ');
+          showMessage(`Добро пожаловать, ${welcomeName}!`, 'success');
+
+          setTimeout(() => { showApp(); }, 1000);
+        } else if (response.ok) {
+          showMessage('Сервер не вернул токен', 'error');
+        } else {
+          showMessage(translateError(data.code, data.message), 'error');
+        }
+      } catch (err) {
+        showMessage('Не удалось связаться с сервером', 'error');
+        console.error(err);
+      } finally {
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Войти';
+      }
+    });
+
+    // ==================== ХЕЛПЕРЫ ДЛЯ DOM ====================
+    function el(tag, attrs = {}, children = []) {
+      const node = document.createElement(tag);
+      Object.entries(attrs).forEach(([k, v]) => {
+        if (k === 'class') node.className = v;
+        else if (k === 'text') node.textContent = v;
+        else if (k === 'html') node.innerHTML = v;
+        else if (k.startsWith('on') && typeof v === 'function') {
+          node.addEventListener(k.slice(2).toLowerCase(), v);
+        } else {
+          node.setAttribute(k, v);
+        }
+      });
+      children.forEach(c => node.appendChild(c));
+      return node;
+    }
+
+    // ==================== МОДУЛИ ====================
+    const MODULES = [
+      { id: 'timesheet', title: 'Табель рабочего времени', icon: '🗓️', render: renderTimesheet },
+      { id: 'employees', title: 'Сотрудники', icon: '👥', render: renderEmployees },
+      { id: 'equipment', title: 'Оборудование', icon: '⚙️', render: () => placeholder('Оборудование', 'Модуль учёта оборудования.') },
+      { id: 'requests', title: 'Заявки', icon: '📋', render: () => placeholder('Заявки', 'Модуль работы с заявками.') },
+      { id: 'reports', title: 'Отчёты', icon: '📈', render: () => placeholder('Отчёты', 'Модуль формирования отчётов.') }
+    ];
+
+    function placeholder(title, text) {
+      return el('div', { class: 'module-placeholder' }, [
+        el('h2', { text: title }),
+        el('p', { text: text })
+      ]);
+    }
+
+    const navList = document.getElementById('navList');
+
+    function renderNav() {
+      navList.innerHTML = '';
+      MODULES.forEach(mod => {
+        const btn = el('button', { class: 'nav-item', 'data-id': mod.id });
+        btn.innerHTML = `
+          <span class="icon">${mod.icon}</span>
+          <span class="label">${mod.title}</span>
+        `;
+        btn.addEventListener('click', () => openModule(mod.id));
+        navList.appendChild(btn);
+      });
+    }
+
+    const mainArea = document.getElementById('mainArea');
+
+    function openModule(id) {
+      const mod = MODULES.find(m => m.id === id);
+      if (!mod) {
+        mainArea.innerHTML = '<div class="module-placeholder"><h2>Модуль не найден</h2></div>';
+        return;
+      }
+      document.querySelectorAll('.nav-item').forEach(el => {
+        el.classList.toggle('active', el.dataset.id === id);
+      });
+
+      mainArea.innerHTML = '';
+      const wrap = el('div', { class: 'module-content' });
+      wrap.appendChild(mod.render());
+      mainArea.appendChild(wrap);
+
+      if (location.hash !== '#' + id) {
+        history.replaceState(null, '', '#' + id);
+      }
+    }
+
+    function routeFromHash() {
+      const id = location.hash.replace('#', '') || MODULES[0].id;
+      openModule(id);
+    }
+
+    window.addEventListener('hashchange', routeFromHash);
+
+    // ==================== КЭШ УЧАСТКОВ ====================
+    let departmentsCache = [];
+
+    // ==================== ОБЩЕЕ: ЗАГРУЗКА УЧАСТКОВ ====================
+    async function loadDepartments(selectEl, bodyEl, options = {}) {
+      const emptyHint = options.emptyHint || 'Выберите участок.';
+
+      try {
+        const { response, data } = await apiFetch('/shop/department');
+
+        if (!response.ok || !data) {
+          bodyEl.innerHTML = '';
+          bodyEl.appendChild(el('div', { class: 'state error' }, [
+            el('span', { text: 'Не удалось загрузить участки' })
+          ]));
+          selectEl.innerHTML = '<option value="">— ошибка загрузки —</option>';
+          return;
+        }
+
+        if (data.status === false) {
+          bodyEl.innerHTML = '';
+          bodyEl.appendChild(el('div', { class: 'state error' }, [
+            el('span', { text: 'Данные по участкам не сформированы' })
+          ]));
+          selectEl.innerHTML = '<option value="">— нет данных —</option>';
+          return;
+        }
+
+        const departments = Array.isArray(data.departments) ? data.departments : [];
+        departmentsCache = departments;
+
+        selectEl.innerHTML = '';
+        selectEl.appendChild(el('option', { value: '', text: '— выберите участок —' }));
+        departments.forEach(dep => {
+          selectEl.appendChild(el('option', {
+            value: String(dep.id),
+            text: dep.description
+          }));
+        });
+        selectEl.disabled = false;
+
+        bodyEl.innerHTML = '';
+        if (departments.length === 0) {
+          bodyEl.appendChild(el('div', { class: 'hint', text: 'Список участков пуст.' }));
+        } else {
+          bodyEl.appendChild(el('div', { class: 'hint', text: emptyHint }));
+        }
+      } catch (err) {
+        console.error(err);
+        bodyEl.innerHTML = '';
+        bodyEl.appendChild(el('div', { class: 'state error' }, [
+          el('span', { text: err.message || 'Ошибка соединения' })
+        ]));
+        selectEl.innerHTML = '<option value="">— ошибка загрузки —</option>';
+      }
+    }
+
+    // ==================== МОДУЛЬ: ТАБЕЛЬ РАБОЧЕГО ВРЕМЕНИ ====================
+    function renderTimesheet() {
+      const container = el('div');
+
+      container.appendChild(el('h1', { class: 'module-title', text: 'Табель рабочего времени' }));
+
+      const departmentSelect = el('select', { id: 'tsDepartment' });
+      departmentSelect.disabled = true;
+
+      const now = new Date();
+      const currentYear = now.getFullYear();
+      const currentMonth = now.getMonth() + 1;
+
+      const yearSelect = el('select', { id: 'tsYear' });
+      for (let y = currentYear - 5; y <= currentYear + 1; y++) {
+        const opt = el('option', { value: String(y), text: String(y) });
+        if (y === currentYear) opt.selected = true;
+        yearSelect.appendChild(opt);
+      }
+
+      const MONTHS = [
+        'Январь', 'Февраль', 'Март', 'Апрель', 'Май', 'Июнь',
+        'Июль', 'Август', 'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь'
+      ];
+      const monthSelect = el('select', { id: 'tsMonth' });
+      MONTHS.forEach((name, i) => {
+        const opt = el('option', { value: String(i + 1), text: name });
+        if (i + 1 === currentMonth) opt.selected = true;
+        monthSelect.appendChild(opt);
+      });
+
+      const toolbar = el('div', { class: 'toolbar' }, [
+        el('div', { class: 'control' }, [
+          el('label', { for: 'tsDepartment', text: 'Подразделение' }),
+          departmentSelect
+        ]),
+        el('div', { class: 'control' }, [
+          el('label', { for: 'tsYear', text: 'Год' }),
+          yearSelect
+        ]),
+        el('div', { class: 'control' }, [
+          el('label', { for: 'tsMonth', text: 'Месяц' }),
+          monthSelect
+        ])
+      ]);
+      container.appendChild(toolbar);
+
+      const body = el('div', { class: 'module-body', id: 'tsBody' });
+      body.appendChild(el('div', { class: 'state' }, [
+        el('span', { class: 'spinner' }),
+        el('span', { text: 'Загрузка подразделений...' })
+      ]));
+      container.appendChild(body);
+
+      loadDepartments(departmentSelect, body, {
+        emptyHint: 'Выберите подразделение и период, чтобы построить табель.'
+      });
+
+      function onFiltersChanged() {
+        console.log('filters changed:', {
+          department_id: departmentSelect.value,
+          year: yearSelect.value,
+          month: monthSelect.value
+        });
+        // TODO: запрос табеля по выбранным параметрам
+      }
+
+      departmentSelect.addEventListener('change', onFiltersChanged);
+      yearSelect.addEventListener('change', onFiltersChanged);
+      monthSelect.addEventListener('change', onFiltersChanged);
+
+      return container;
+    }
+
+    // ==================== МОДУЛЬ: СОТРУДНИКИ ====================
+    function renderEmployees() {
+      const container = el('div');
+
+      container.appendChild(el('h1', { class: 'module-title', text: 'Сотрудники' }));
+
+      const departmentSelect = el('select', { id: 'empDepartment' });
+      departmentSelect.disabled = true;
+
+      const addBtn = el('button', { class: 'btn btn-primary', id: 'empAddBtn', text: 'Добавить', disabled: '' });
+      const editBtn = el('button', { class: 'btn', id: 'empEditBtn', text: 'Изменить', disabled: '' });
+      const deleteBtn = el('button', { class: 'btn btn-danger', id: 'empDeleteBtn', text: 'Удалить', disabled: '' });
+
+      const toolbar = el('div', { class: 'toolbar' }, [
+        el('div', { class: 'control' }, [
+          el('label', { for: 'empDepartment', text: 'Участок' }),
+          departmentSelect
+        ]),
+        el('div', { class: 'control actions' }, [
+          el('label', { html: '&nbsp;' }),
+          el('div', { class: 'btn-row' }, [addBtn, editBtn, deleteBtn])
+        ])
+      ]);
+      container.appendChild(toolbar);
+
+      const body = el('div', { class: 'module-body', id: 'empBody' });
+      body.appendChild(el('div', { class: 'state' }, [
+        el('span', { class: 'spinner' }),
+        el('span', { text: 'Загрузка участков...' })
+      ]));
+      container.appendChild(body);
+
+      loadDepartments(departmentSelect, body, {
+        emptyHint: 'Выберите участок, чтобы увидеть список сотрудников.'
+      }).then(() => {
+        addBtn.disabled = false;
+      });
+
+      addBtn.addEventListener('click', () => {
+        openEmpModal(departmentSelect.value);
+      });
+      editBtn.addEventListener('click', () => {
+        console.log('TODO: изменить сотрудника, участок =', departmentSelect.value);
+      });
+      deleteBtn.addEventListener('click', () => {
+        console.log('TODO: удалить сотрудника, участок =', departmentSelect.value);
+      });
+
+      departmentSelect.addEventListener('change', () => {
+        console.log('department changed:', departmentSelect.value);
+        // TODO: загрузить список сотрудников выбранного участка
+      });
+
+      return container;
+    }
+
+    // ==================== МОДАЛЬНОЕ ОКНО: ДОБАВИТЬ СОТРУДНИКА ====================
+    const empModal = document.getElementById('empModal');
+    const empForm = document.getElementById('empForm');
+    const empFormMessage = document.getElementById('empFormMessage');
+
+    function fillDepartmentSelect(selectEl, departments, selectedId) {
+      selectEl.innerHTML = '';
+      selectEl.appendChild(el('option', { value: '', text: '— выберите участок —' }));
+      departments.forEach(dep => {
+        const opt = el('option', { value: String(dep.id), text: dep.description });
+        if (String(dep.id) === String(selectedId)) opt.selected = true;
+        selectEl.appendChild(opt);
+      });
+    }
+
+    function showFormMessage(text, type) {
+      empFormMessage.textContent = text;
+      empFormMessage.className = 'modal-message ' + (type || '');
+    }
+
+    function clearFormMessage() {
+      empFormMessage.textContent = '';
+      empFormMessage.className = 'modal-message';
+    }
+
+    function resetEmpForm() {
+      empForm.reset();
+      clearFormMessage();
+      document.getElementById('empStaffPosition').innerHTML = '<option value="">— загрузка —</option>';
+      document.getElementById('empWorkSchedule').innerHTML = '<option value="">— загрузка —</option>';
+    }
+
+    function openEmpModal(defaultDepartmentId) {
+      resetEmpForm();
+
+      fillDepartmentSelect(
+        document.getElementById('empDepartment'),
+        departmentsCache,
+        defaultDepartmentId
+      );
+
+      // TODO: подключить реальные эндпоинты должностей и графиков
+      const posSel = document.getElementById('empStaffPosition');
+      posSel.innerHTML = '<option value="">— загрузка должностей —</option>';
+
+      const wsSel = document.getElementById('empWorkSchedule');
+      wsSel.innerHTML = '<option value="">— загрузка графиков —</option>';
+
+      empModal.classList.add('open');
+    }
+
+    function closeEmpModal() {
+      empModal.classList.remove('open');
+    }
+
+    document.getElementById('empModalClose').addEventListener('click', closeEmpModal);
+    document.getElementById('empCancelBtn').addEventListener('click', closeEmpModal);
+    empModal.addEventListener('click', (e) => {
+      if (e.target === empModal) closeEmpModal();
+    });
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && empModal.classList.contains('open')) closeEmpModal();
+    });
+
+    document.getElementById('empSubmitBtn').addEventListener('click', async () => {
+      clearFormMessage();
+
+      const fd = new FormData(empForm);
+      const payload = {
+        last_name: (fd.get('last_name') || '').trim(),
+        first_name: (fd.get('first_name') || '').trim(),
+        patronymic: (fd.get('patronymic') || '').trim(),
+        birth_date: formatDateForApi(fd.get('birth_date')),
+        employment_date: formatDateForApi(fd.get('employment_date')),
+        employee_number: Number(fd.get('employee_number')),
+        department_id: Number(fd.get('department_id')),
+        staff_position_id: fd.get('staff_position_id') ? Number(fd.get('staff_position_id')) : null,
+        work_schedule_id: fd.get('work_schedule_id') ? Number(fd.get('work_schedule_id')) : null
+      };
+
+      if (!payload.last_name || !payload.first_name) {
+        showFormMessage('Укажите фамилию и имя', 'error');
+        return;
+      }
+      if (!payload.employee_number && payload.employee_number !== 0) {
+        showFormMessage('Укажите табельный номер', 'error');
+        return;
+      }
+      if (!payload.department_id) {
+        showFormMessage('Выберите участок', 'error');
+        return;
+      }
+      if (!payload.staff_position_id || !payload.work_schedule_id) {
+        showFormMessage('Выберите должность и график работы', 'error');
+        return;
+      }
+
+      console.log('TODO: отправка сотрудника:', payload);
+
+      // TODO: apiFetch('/shop/employee', { method: 'POST', body: JSON.stringify(payload) })
+      showFormMessage('Функция добавления пока не подключена к серверу', 'error');
+    });
+
+    function formatDateForApi(isoDate) {
+      if (!isoDate) return null;
+      return isoDate.replaceAll('-', '/');
+    }
+
+    // ==================== ВЫХОД ====================
+    document.getElementById('logoutBtn').addEventListener('click', () => {
+      localStorage.removeItem(TOKEN_KEY);
+      localStorage.removeItem(USER_KEY);
+      history.replaceState(null, '', location.pathname);
+      showLogin();
+    });
+
+    // ==================== ИНИЦИАЛИЗАЦИЯ ====================
+    if (localStorage.getItem(TOKEN_KEY)) {
+      appScreen.classList.add('active');
+      updateUserName();
+      renderNav();
+      routeFromHash();
+    } else {
+      loginScreen.classList.add('active');
+    }
+  </script>
+</body>
+
+</html>

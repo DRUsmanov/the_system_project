@@ -2,6 +2,7 @@
 
 #include <cstdint>
 #include <optional>
+#include <vector>
 
 #include "tagged.h"
 #include "value_data/types.h"
@@ -17,7 +18,9 @@ using DepartmentIdHasher = utils::TaggedHasher<DepartmentId>;
 
 struct Department {
     DepartmentId department_id;
-    std::string name;
+    std::string description;
 };
+
+using Departments = std::vector<Department>;
 
 }  // namespace domain

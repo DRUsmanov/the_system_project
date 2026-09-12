@@ -56,6 +56,8 @@ infrastructure::ConnectionConfig getConfigFromEnv() {
 
 int main(int argc, const char* argv[]) {
     try {
+        utils::initializeBoostLogger();
+
         infrastructure::ConnectionFactory connection_factory{getConfigFromEnv()};
         const unsigned num_threads = std::thread::hardware_concurrency();
         infrastructure::ConnectionPool connection_pool{num_threads, connection_factory};
@@ -74,14 +76,12 @@ int main(int argc, const char* argv[]) {
 
         application::ApplicationGateway application_gateway{application_manager};
 
-        infrastructure::FileSender file_sender{"./"};
+        infrastructure::FileSender file_sender{"./interface/"};
 
         infrastructure::RequestHandler request_handler{application_gateway, file_sender};
 
         net::io_context ioc(num_threads);
         auto api_strand = net::make_strand(ioc);
-
-        utils::initializeBoostLogger();
 
         net::signal_set signals(ioc, SIGINT, SIGTERM);
         signals.async_wait([&ioc](const sys::error_code& ec, [[maybe_unused]] int signal_number) {

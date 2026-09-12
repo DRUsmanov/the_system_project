@@ -18,6 +18,8 @@ public:
     std::optional<domain::Shop::EmployeeAssignment> downloadEmployeeAssignment(
         domain::EmployeeId employee_id) const override;
     bool removeEmployee(domain::EmployeeId employee_id) override;
+    std::optional<domain::Departments> downloadDepartments() const override;
+    std::optional<domain::StaffPositions> downloadStaffPositions() const override;
 
 private:
     std::shared_ptr<Uow> uow_;

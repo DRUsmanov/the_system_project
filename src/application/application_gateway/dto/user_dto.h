@@ -17,6 +17,9 @@ struct UserLoginRequestDto {
 struct UserLoginResponseDto {
     uint64_t user_id;
     uint64_t employee_id;
+    std::string last_name;
+    std::string first_name;
+    std::string patronymic;
 };
 
 }  // namespace application

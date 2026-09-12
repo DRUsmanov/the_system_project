@@ -18,6 +18,8 @@ public:
     virtual std::optional<Employee> getEmployee(EmployeeId employee_id) const = 0;
     virtual std::optional<Shop::EmployeeAssignment> getEmployeeAssignment(EmployeeId employee_id) const = 0;
     virtual bool removeEmployee(EmployeeId employee_id) const = 0;
+    virtual std::optional<Departments> getDepartments() const = 0;
+    virtual std::optional<StaffPositions> getStaffPositions() const = 0;
 };
 
 }  // namespace domain

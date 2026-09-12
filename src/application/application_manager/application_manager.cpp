@@ -87,6 +87,74 @@ bool ApplicationManager::removeEmployee(const domain::UserId& user_id, domain::E
     }
 }
 
+std::optional<domain::Employee> ApplicationManager::getEmployee(const domain::UserId& user_id,
+                                                                const domain::EmployeeId& employee_id) const {
+    utils::logFunctionStart(utils::FUNCTION_INFO);
+    try {
+        auto uow = uow_factory_.createUow();
+        auto shop_service = shop_service_factory_.createShopService(uow);
+        auto permission_service = permission_service_factory_.createPermissionService(uow);
+
+        auto employee_assignment = shop_service->getEmployeeAssignment(employee_id);
+
+        if (!employee_assignment.has_value()) {
+            return std::nullopt;
+        }
+
+        if (!permission_service->checkUserDepartmentReadPermission(user_id,
+                                                                   employee_assignment.value().department_id)) {
+            return std::nullopt;
+        }
+
+        return shop_service->getEmployee(employee_id);
+    } catch (std::exception& ex) {
+        utils::logException(ex);
+        return std::nullopt;
+    }
+}
+
+std::optional<domain::Departments> application::ApplicationManager::getDepartments(
+    [[maybe_unused]] const domain::UserId& user_id) const {
+    utils::logFunctionStart(utils::FUNCTION_INFO);
+    try {
+        auto uow = uow_factory_.createUow();
+        auto shop_service = shop_service_factory_.createShopService(uow);
+
+        return shop_service->getDepartments();
+    } catch (std::exception& ex) {
+        utils::logException(ex);
+        return std::nullopt;
+    }
+}
+
+std::optional<domain::StaffPositions> ApplicationManager::getStaffPositions(
+    [[maybe_unused]] const domain::UserId& user_id) const {
+    utils::logFunctionStart(utils::FUNCTION_INFO);
+    try {
+        auto uow = uow_factory_.createUow();
+        auto shop_service = shop_service_factory_.createShopService(uow);
+
+        return shop_service->getStaffPositions();
+    } catch (std::exception& ex) {
+        utils::logException(ex);
+        return std::nullopt;
+    }
+}
+
+std::optional<domain::WorkSchedules> ApplicationManager::getWorkSchedules(
+    [[maybe_unused]] const domain::UserId& user_id) const {
+    utils::logFunctionStart(utils::FUNCTION_INFO);
+    try {
+        auto uow = uow_factory_.createUow();
+        auto timesheet_service = timesheet_service_factory_.createTimesheetService(uow);
+
+        return timesheet_service->getWorkSchedules();
+    } catch (std::exception& ex) {
+        utils::logException(ex);
+        return std::nullopt;
+    }
+}
+
 std::optional<domain::Timesheet> ApplicationManager::getTimesheet(const domain::UserId& user_id,
                                                                   const domain::AdminCategoryId& admin_category_id,
                                                                   const domain::DepartmentId& department_id,

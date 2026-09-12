@@ -9,10 +9,14 @@ domain::UserLoginData UserDtoMapper::convert(const UserLoginRequestDto& user_log
     return user_login_data;
 }
 
-UserLoginResponseDto application::UserDtoMapper::convert(const domain::User& user) const {
+UserLoginResponseDto application::UserDtoMapper::convert(const domain::User& user,
+                                                         const domain::Employee& employee) const {
     UserLoginResponseDto user_login_response_dto;
     user_login_response_dto.user_id = *user.user_id;
     user_login_response_dto.employee_id = *user.employee_id;
+    user_login_response_dto.last_name = employee.last_name;
+    user_login_response_dto.first_name = employee.first_name;
+    user_login_response_dto.patronymic = employee.patronymic;
     return user_login_response_dto;
 }
 

@@ -18,6 +18,8 @@ public:
     std::optional<Employee> getEmployee(EmployeeId employee_id) const override;
     std::optional<Shop::EmployeeAssignment> getEmployeeAssignment(EmployeeId employee_id) const override;
     bool removeEmployee(EmployeeId employee_id) const override;
+    std::optional<Departments> getDepartments() const override;
+    std::optional<StaffPositions> getStaffPositions() const override;
 
 private:
     std::shared_ptr<ShopRepositoryInterface> shop_repository_;

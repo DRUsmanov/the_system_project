@@ -2,7 +2,7 @@
 
 #include "application_gateway/application_gateway_interface.h"
 #include "application_gateway/dto_mappers/shop_dto_mapper/shop_dto_mapper.h"
-#include "application_gateway/dto_mappers/timesheet_dto_mapper/timesheet_dto_mapper_interface.h"
+#include "application_gateway/dto_mappers/timesheet_dto_mapper/timesheet_dto_mapper.h"
 #include "application_gateway/dto_mappers/user_dto_mapper/user_dto_mapper.h"
 #include "application_manager/application_manager_interface.h"
 
@@ -20,15 +20,15 @@ public:
     std::optional<RemoveEmployeeResponseDto> removeEmployee(
         const UserAccessDto& user_access_dto,
         const RemoveEmployeeRequestDto& remove_employee_request_dto) const override;
-
-    std::optional<GetTimesheetResponseDto> getTimesheet(
-        const UserAccessDto& user_access_dto,
-        const GetTimesheetRequestDto& get_timesheet_input_dto) const override;
+    std::optional<GetDepartmentsResponseDto> getDepartments(const UserAccessDto& user_access_dto) const override;
+    std::optional<GetStaffPositionsResponseDto> getStaffPositions(const UserAccessDto& user_access_dto) const override;
+    std::optional<GetWorkSchedulesResponseDto> getWorkSchedules(const UserAccessDto& user_access_dto) const override;
 
 private:
     ApplicationManagerInterface& application_manager_;
     ShopDtoMapper shop_dto_mapper_;
     UserDtoMapper user_dto_mapper_;
+    TimesheetDtoMapper timesheet_dto_mapper_;
 };
 
 }  // namespace application

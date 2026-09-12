@@ -12,7 +12,7 @@ constexpr std::string UPLOAD_EMPLOYEE{"upld_employee"};
 constexpr std::string DOWNLOAD_EMPLOYEE_BY_EMPLOYEE_NUMBER{"dload_employee_by_num"};
 constexpr std::string DOWNLOAD_EMPLOYEE_BY_EMPLOYEE_ID{"dload_employee_by_id"};
 constexpr std::string UPLOAD_EMPLOYEE_ASSIGNMENT{"upld_employee_asgnmt"};
-constexpr std::string DOWNLOAD_DEFAULT_PROFESSION{"dload_default_prof"};
+constexpr std::string DOWNLOAD_STAFF_POSITION{"dload_staff_position"};
 constexpr std::string UPLOAD_EMPLOYEE_PROFESSIONS{"upload_employee_prof"};
 constexpr std::string DOWNLOAD_PRE_HOLIDAYS_BY_YEAR{"dload_pre_hdays_year"};
 constexpr std::string DOWNLOAD_HOLIDAYS_BY_YEAR{"dload_hdays_year"};
@@ -24,6 +24,10 @@ constexpr std::string DOWNLOAD_EMPLOYEE_VACATIONS_BY_YEAR{"dload_vac_empl_year"}
 constexpr std::string UPLOAD_TIMESHEET{"upload_timesheet"};
 constexpr std::string DOWNLOAD_EMPLOYEE_ASSIGNMENT{"dload_empl_assignment"};
 constexpr std::string REMOVE_EMPLOYEE{"rm_employee"};
+constexpr std::string DOWNLOAD_DEPARTMENTS{"dload_departments"};
+constexpr std::string DOWNLOAD_STAFF_POSITIONS{"dload_staff_positions"};
+constexpr std::string DOWNLOAD_WORK_SCHEDULES{"dload_work_schedules"};
+constexpr std::string DOWNLOAD_DEPARTMENT_ASSIGNMENTS{"dload_dep_assignments"};
 }  // namespace query
 
 namespace tables {
@@ -55,7 +59,7 @@ constexpr std::string PERMISSIONS{"permissions"};
 
 namespace staff_positions {
 constexpr std::string ID{"id"};
-constexpr std::string STAFF_POSIITON{"staff_position"};
+constexpr std::string DESCRIPTION{"description"};
 constexpr std::string DEFAULT_PROFESSION_ID{"default_profession_id"};
 }  // namespace staff_positions
 
@@ -131,6 +135,11 @@ constexpr std::string ADMIN_CATEGORY_ID{"admin_category_id"};
 constexpr std::string ADMIN_EMPLOYEE_ID{"admin_employee_id"};
 }  // namespace timesheet
 
+namespace departments {
+constexpr std::string ID{"id"};
+constexpr std::string DESCRIPTION{"description"};
+}  // namespace departments
+
 }  // namespace tables
 
 // TODO: переделать на запросы через имена столбцов
@@ -151,7 +160,7 @@ inline const std::unordered_map<std::string, std::string> querys{
     {query::UPLOAD_EMPLOYEE_ASSIGNMENT,
      R"(INSERT INTO staffing_assignments (employee_id, department_id, staff_position_id, work_schedule_id)
      VALUES ($1, $2, $3, $4) RETURNING id;)"},
-    {query::DOWNLOAD_DEFAULT_PROFESSION, R"(SELECT default_profession_id FROM staff_positions WHERE id = $1;)"},
+    {query::DOWNLOAD_STAFF_POSITION, R"(SELECT * FROM staff_positions WHERE id = $1;)"},
     {query::UPLOAD_EMPLOYEE_PROFESSIONS,
      R"(INSERT INTO employees_professions (employee_id, profession_id) VALUES ($1, $2) RETURNING id;)"},
     {query::DOWNLOAD_PRE_HOLIDAYS_BY_YEAR,
@@ -161,7 +170,7 @@ inline const std::unordered_map<std::string, std::string> querys{
     {query::DOWNLOAD_EXTRA_HOLIDAYS_BY_YEAR,
      R"(SELECT id, date FROM extra_holidays WHERE date >= MAKE_DATE($1, 1, 1) AND date < MAKE_DATE($1 + 1, 1, 1) ORDER BY date;)"},
     {query::DOWNLOAD_SYSTEM_ADMINISTRATOR_ID, R"(SELECT id, category FROM admin_categorys WHERE category = 'system';)"},
-    {query::DOWNLOAD_WORK_SCHEDULE, R"(SELECT id, work_schedule, description FROM work_schedules WHERE id = $1;)"},
+    {query::DOWNLOAD_WORK_SCHEDULE, R"(SELECT * FROM work_schedules WHERE id = $1;)"},
     {query::DOWNLOAD_VACATIONS_BY_YEAR, R"(SELECT id, employee_id, start_date, end_date FROM vacations
      WHERE start_date >= MAKE_DATE($1, 1, 1) AND start_date < MAKE_DATE($1 + 1, 1, 1);)"},
     {query::DOWNLOAD_EMPLOYEE_VACATIONS_BY_YEAR, R"(SELECT id, employee_id, start_date, end_date FROM vacations
@@ -174,6 +183,10 @@ inline const std::unordered_map<std::string, std::string> querys{
     {query::DOWNLOAD_EMPLOYEE_ASSIGNMENT,
      R"(SELECT id, employee_id, department_id, staff_position_id, work_schedule_id FROM staffing_assignments
      WHERE employee_id = $1;)"},
-    {query::REMOVE_EMPLOYEE, R"(DELETE FROM employees WHERE id=$1;)"}};
+    {query::REMOVE_EMPLOYEE, R"(DELETE FROM employees WHERE id=$1;)"},
+    {query::DOWNLOAD_DEPARTMENTS, R"(SELECT * FROM departments ORDER BY description ASC;)"},
+    {query::DOWNLOAD_STAFF_POSITIONS, R"(SELECT * FROM staff_positions ORDER BY id ASC;)"},
+    {query::DOWNLOAD_WORK_SCHEDULES, R"(SELECT * FROM work_schedules ORDER BY description ASC;)"},
+    {query::DOWNLOAD_DEPARTMENT_ASSIGNMENTS, R"(SELECT * FROM staffing_assignments WHERE department_id=$1;)"}};
 
 }  // namespace infrastructure

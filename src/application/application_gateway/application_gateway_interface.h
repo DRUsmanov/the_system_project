@@ -11,17 +11,16 @@ public:
     ~ApplicationGatewayInterface() = default;
 
     virtual std::optional<UserLoginResponseDto> login(const UserLoginRequestDto& user_login_request_dto) const = 0;
-
     virtual std::optional<AddEmployeeResponseDto> addEmployee(
         const UserAccessDto& user_access_dto,
         const AddEmployeeRequestDto& add_employee_request_dto) const = 0;
     virtual std::optional<RemoveEmployeeResponseDto> removeEmployee(
         const UserAccessDto& user_access_dto,
         const RemoveEmployeeRequestDto& remove_employee_request_dto) const = 0;
-
-    virtual std::optional<GetTimesheetResponseDto> getTimesheet(
-        const UserAccessDto& user_access_dto,
-        const GetTimesheetRequestDto& get_timesheet_input_dto) const = 0;
+    virtual std::optional<GetDepartmentsResponseDto> getDepartments(const UserAccessDto& user_access_dto) const = 0;
+    virtual std::optional<GetStaffPositionsResponseDto> getStaffPositions(
+        const UserAccessDto& user_access_dto) const = 0;
+    virtual std::optional<GetWorkSchedulesResponseDto> getWorkSchedules(const UserAccessDto& user_access_dto) const = 0;
 };
 
 }  // namespace application

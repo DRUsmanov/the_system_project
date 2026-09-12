@@ -1,16 +1,16 @@
 #pragma once
 
 #include <cstdint>
+#include <vector>
 
 namespace application {
 
-struct GetTimesheetRequestDto {
-    uint64_t department_id;
-    uint64_t admin_category_id;
-    uint64_t year;
-    uint64_t month;
-};
+// ======================================================================
+// GET WORK SCHEDULE
+// ======================================================================
 
-struct GetTimesheetResponseDto {};
+struct GetWorkSchedulesResponseDto {
+    std::vector<std::pair<uint64_t, std::string>> work_schedules;
+};
 
 }  // namespace application

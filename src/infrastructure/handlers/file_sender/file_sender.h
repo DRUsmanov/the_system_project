@@ -22,7 +22,7 @@ class FileSender {
 public:
     FileSender(std::string files_directory) : files_directory_{files_directory} {}
 
-    enum class File { LOGIN_HTML, INDEX_HTML };
+    enum class File { INDEX_HTML };
 
     template <typename TextResponseMaker, typename FileResponseMaker, typename Send>
     void operator()(File file_name,
@@ -46,8 +46,7 @@ public:
 private:
     std::string files_directory_;
 
-    inline static std::unordered_map<File, std::string_view> files{{File::INDEX_HTML, "index.html"sv},
-                                                                   {File::LOGIN_HTML, "login.html"sv}};
+    inline static std::unordered_map<File, std::string_view> files{{File::INDEX_HTML, "index.html"sv}};
 
     constexpr static std::string_view FILE_NOT_FOUND = "File not found"sv;
     constexpr static std::string_view TEXT_HTML = "text/html"sv;

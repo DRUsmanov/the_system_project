@@ -57,7 +57,7 @@ application::AddEmployeeRequestDto EmployeeRequestHandler::makeAddEmployeeReques
     return add_employee_request_dto;
 }
 
-std::string infrastructure::EmployeeRequestHandler::makeAddEmployeeResponse(
+std::string EmployeeRequestHandler::makeAddEmployeeResponse(
     std::optional<application::AddEmployeeResponseDto> add_employee_response_dto) const {
     json::object response;
     if (add_employee_response_dto.has_value()) {
@@ -70,7 +70,7 @@ std::string infrastructure::EmployeeRequestHandler::makeAddEmployeeResponse(
     return serializeObject(response);
 }
 
-application::RemoveEmployeeRequestDto infrastructure::EmployeeRequestHandler::makeRemoveEmployeeRequestDto(
+application::RemoveEmployeeRequestDto EmployeeRequestHandler::makeRemoveEmployeeRequestDto(
     const json::object& request_body_as_object) const {
     application::RemoveEmployeeRequestDto remove_employee_request_dto;
     remove_employee_request_dto.employee_id =
@@ -78,7 +78,7 @@ application::RemoveEmployeeRequestDto infrastructure::EmployeeRequestHandler::ma
     return remove_employee_request_dto;
 }
 
-std::string infrastructure::EmployeeRequestHandler::makeRemoveEmployeeResponse(
+std::string EmployeeRequestHandler::makeRemoveEmployeeResponse(
     std::optional<application::RemoveEmployeeResponseDto> remove_employee_response_dto) const {
     json::object response;
     if (remove_employee_response_dto.has_value()) {

@@ -22,3 +22,11 @@ const domain::WorkSchedule::DayData& domain::WorkSchedule::getDayDataByDate(std:
 const domain::WorkSchedule::DayData& domain::WorkSchedule::operator[](size_t index) const {
     return cycle_.at(index);
 }
+
+const std::string& domain::WorkSchedule::getDescription() const {
+    return description_;
+}
+
+domain::WorkScheduleId domain::WorkSchedule::getId() const {
+    return work_schedule_id_;
+}

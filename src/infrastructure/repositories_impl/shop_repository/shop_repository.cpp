@@ -49,7 +49,7 @@ std::optional<domain::EmployeeId> ShopRepository::uploadEmployee(const domain::E
         return std::nullopt;
     }
 
-    result = uow_->execParams(query::DOWNLOAD_DEFAULT_PROFESSION, *staff_position_id);
+    result = uow_->execParams(query::DOWNLOAD_STAFF_POSITION, *staff_position_id);
 
     if (result.size() != 1) {
         return std::nullopt;
@@ -121,4 +121,48 @@ bool infrastructure::ShopRepository::removeEmployee(domain::EmployeeId employee_
     utils::logFunctionStart(utils::FUNCTION_INFO);
     auto result = uow_->execParams(query::REMOVE_EMPLOYEE, *employee_id);
     return result.affected_rows() == 1;
+}
+
+std::optional<domain::Departments> infrastructure::ShopRepository::downloadDepartments() const {
+    auto result = uow_->execParams(query::DOWNLOAD_DEPARTMENTS);
+    if (result.size() == 0) {
+        return std::nullopt;
+    }
+
+    domain::Departments departments;
+
+    for (const auto& row : result) {
+        domain::DepartmentId department_id{row.at(tables::departments::ID).as<uint64_t>()};
+        std::string description{row.at(tables::departments::DESCRIPTION).as<std::string>()};
+
+        departments.push_back({department_id, description});
+    }
+
+    return departments;
+}
+
+std::optional<domain::StaffPositions> infrastructure::ShopRepository::downloadStaffPositions() const {
+    auto result = uow_->execParams(query::DOWNLOAD_STAFF_POSITIONS);
+    if (result.size() == 0) {
+        return std::nullopt;
+    }
+
+    domain::StaffPositions staff_positions;
+
+    for (const auto& row : result) {
+        domain::StaffPositionId staff_position_id{row.at(tables::departments::ID).as<uint64_t>()};
+        std::string description{row.at(tables::departments::DESCRIPTION).as<std::string>()};
+        domain::ProfessionId default_profession_id{
+            row.at(tables::staff_positions::DEFAULT_PROFESSION_ID).as<uint64_t>()};
+
+        domain::StaffPosition staff_position;
+
+        staff_position.staff_position_id = staff_position_id;
+        staff_position.description = description;
+        staff_position.default_profession_id = default_profession_id;
+
+        staff_positions.push_back(staff_position);
+    }
+
+    return staff_positions;
 }

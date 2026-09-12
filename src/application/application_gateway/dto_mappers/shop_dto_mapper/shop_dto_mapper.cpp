@@ -42,3 +42,28 @@ domain::EmployeeId ShopDtoMapper::convert(const RemoveEmployeeRequestDto& remove
 RemoveEmployeeResponseDto application::ShopDtoMapper::convert(bool is_employee_removed) const {
     return RemoveEmployeeResponseDto{is_employee_removed};
 }
+
+// ======================================================================
+// GET DEPARTMENTS
+// ======================================================================
+
+GetDepartmentsResponseDto ShopDtoMapper::convert(const domain::Departments& departments) const {
+    GetDepartmentsResponseDto get_departments_response_dto;
+    for (const auto& department : departments) {
+        get_departments_response_dto.departmens[*department.department_id] = department.description;
+    }
+    return get_departments_response_dto;
+}
+
+// ======================================================================
+// GET STAFF POSITIONS
+// ======================================================================
+
+GetStaffPositionsResponseDto ShopDtoMapper::convert(const domain::StaffPositions& staff_positions) const {
+    GetStaffPositionsResponseDto get_staff_positions_response_dto;
+    for (const auto& staff_position : staff_positions) {
+        get_staff_positions_response_dto.staff_positions[*staff_position.staff_position_id] =
+            staff_position.description;
+    }
+    return get_staff_positions_response_dto;
+}

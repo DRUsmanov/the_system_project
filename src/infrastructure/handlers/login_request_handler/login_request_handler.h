@@ -78,8 +78,9 @@ public:
             return;
         }
 
-        auto authorized_response =
-            text_response_maker(http::status::accepted, makeAcceptedAnswer(token), content_type::APP_JSON);
+        auto authorized_response = text_response_maker(http::status::accepted,
+                                                       makeAcceptedAnswer(token, *user_login_response_dto),
+                                                       content_type::APP_JSON);
         authorized_response.set(http::field::cache_control, "no-cache");
         send(std::move(authorized_response));
         return;
@@ -102,9 +103,8 @@ private:
     constexpr static std::string_view INVALID_METHOD =
         "{\"code\":\"invalid_method\", \"message\":\"Only POST method is expected\"}"sv;
 
-    std::string makeAcceptedAnswer(const TokenManager::Token& token) {
-        return "{\"auth_token\":\"" + *token + "\"}";
-    }
+    std::string makeAcceptedAnswer(const TokenManager::Token& token,
+                                   const application::UserLoginResponseDto& user_login_response_dto) const;
 };
 
 }  // namespace infrastructure
