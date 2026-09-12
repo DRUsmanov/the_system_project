@@ -8,9 +8,9 @@ using namespace application;
 // ADD EMPLOYEE
 // ======================================================================
 
-std::pair<domain::Shop::EmployeeAssignment, domain::Employee> ShopDtoMapper::convert(
+std::pair<domain::EmployeeAssignment, domain::Employee> ShopDtoMapper::convert(
     const AddEmployeeRequestDto& add_employee_request_dto) const {
-    domain::Shop::EmployeeAssignment employee_assignment;
+    domain::EmployeeAssignment employee_assignment;
     employee_assignment.department_id = domain::DepartmentId{add_employee_request_dto.department_id};
     employee_assignment.staff_position_id = domain::StaffPositionId{add_employee_request_dto.staff_position_id};
     employee_assignment.work_schedule_id = domain::WorkScheduleId{add_employee_request_dto.work_schedule_id};

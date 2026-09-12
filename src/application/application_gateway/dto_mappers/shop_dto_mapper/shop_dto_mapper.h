@@ -7,7 +7,7 @@ namespace application {
 class ShopDtoMapper : public ShopDtoMapperInterface {
 public:
     // ADD EMPLOYEE
-    std::pair<domain::Shop::EmployeeAssignment, domain::Employee> convert(
+    std::pair<domain::EmployeeAssignment, domain::Employee> convert(
         const AddEmployeeRequestDto& add_employee_request_dto) const override;
     AddEmployeeResponseDto convert(domain::EmployeeId employee_id) const override;
 

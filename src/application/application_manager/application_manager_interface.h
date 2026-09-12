@@ -4,7 +4,7 @@
 #include <optional>
 
 #include "entities/shop/employee/employee.h"
-#include "entities/shop/shop.h"
+#include "entities/shop/employee_assignments.h"
 #include "entities/timesheet/timesheet.h"
 #include "entities/timesheet/work_schedules/work_schedule.h"
 #include "entities/user/user.h"
@@ -17,7 +17,7 @@ public:
     virtual std::optional<domain::User> login(std::string login, std::string password) const = 0;
 
     virtual std::optional<domain::EmployeeId> addEmployee(const domain::UserId& user_id,
-                                                          const domain::Shop::EmployeeAssignment& employee_assignment,
+                                                          const domain::EmployeeAssignment& employee_assignment,
                                                           domain::Employee& employee) const = 0;
     virtual bool removeEmployee(const domain::UserId& user_id, domain::EmployeeId employee_id) const = 0;
     virtual std::optional<domain::Employee> getEmployee(const domain::UserId& user_id,

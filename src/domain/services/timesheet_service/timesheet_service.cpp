@@ -120,7 +120,8 @@ std::chrono::year_month_day TimesheetService::getCurrentDate() const {
     return ymd;
 }
 
-bool TimesheetService::generateTimesheetForShop(const Shop& shop, std::chrono::year year) {
+bool TimesheetService::generateTimesheetForAllEmployees(const EmployeeAssignments& employee_assignments,
+                                                        std::chrono::year year) {
     utils::logFunctionStart(utils::FUNCTION_INFO);
     using namespace std::chrono;
     using namespace std::literals;
@@ -129,7 +130,7 @@ bool TimesheetService::generateTimesheetForShop(const Shop& shop, std::chrono::y
     Timesheet timesheet;
     WorkSchedules work_schedules_cache;
 
-    const auto& employees_assignments = shop.getEmployeeAssignments();
+    const auto& employees_assignments = employee_assignments.getEmployeeAssignments();
 
     auto pre_holidays = timesheet_repository_->downloadPreHolidaysByYear(year);
     auto holidays = timesheet_repository_->downloadHolidaysByYear(year);
@@ -186,7 +187,7 @@ bool TimesheetService::generateTimesheetForShop(const Shop& shop, std::chrono::y
     return timesheet_repository_->uploadTimesheet(timesheet, *system_administrator_id);
 }
 
-bool TimesheetService::generateTimesheetForNewEmployee(const Shop::EmployeeAssignment& employee_assignment,
+bool TimesheetService::generateTimesheetForNewEmployee(const EmployeeAssignment& employee_assignment,
                                                        const Employee& employee) {
     utils::logFunctionStart(utils::FUNCTION_INFO);
     using namespace std::chrono;

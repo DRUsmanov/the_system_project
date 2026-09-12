@@ -17,8 +17,9 @@ public:
     std::optional<Timesheet> getDepartmentTimesheet(DepartmentId department_id,
                                                     AdminCategoryId admin_category_id,
                                                     std::chrono::year_month year_month) const override;
-    bool generateTimesheetForShop(const Shop& shop, std::chrono::year year) override;
-    bool generateTimesheetForNewEmployee(const Shop::EmployeeAssignment& employee_assignment,
+    bool generateTimesheetForAllEmployees(const EmployeeAssignments& employee_assignments,
+                                          std::chrono::year year) override;
+    bool generateTimesheetForNewEmployee(const EmployeeAssignment& employee_assignment,
                                          const Employee& employee) override;
     std::optional<WorkSchedules> getWorkSchedules() const override;
 

@@ -20,10 +20,9 @@ std::optional<domain::User> ApplicationManager::login(std::string login, std::st
     }
 }
 
-std::optional<domain::EmployeeId> ApplicationManager::addEmployee(
-    const domain::UserId& user_id,
-    const domain::Shop::EmployeeAssignment& employee_assignment,
-    domain::Employee& employee) const {
+std::optional<domain::EmployeeId> ApplicationManager::addEmployee(const domain::UserId& user_id,
+                                                                  const domain::EmployeeAssignment& employee_assignment,
+                                                                  domain::Employee& employee) const {
     utils::logFunctionStart(utils::FUNCTION_INFO);
     try {
         auto uow = uow_factory_.createUow();
@@ -178,8 +177,8 @@ std::optional<domain::Timesheet> ApplicationManager::getTimesheet(const domain::
             return timesheet;
         }
 
-        domain::Shop shop = shop_service->getShop();
-        timesheet_service->generateTimesheetForShop(shop, year_month.year());
+        domain::EmployeeAssignments employee_assignments = shop_service->getAllEmployeeAssignments();
+        timesheet_service->generateTimesheetForAllEmployees(employee_assignments, year_month.year());
         return timesheet_service->getDepartmentTimesheet(department_id, admin_category_id, year_month);
     } catch (std::exception& ex) {
         utils::logException(ex);

@@ -7,7 +7,7 @@
 
 #include "entities/shop/department/department.h"
 #include "entities/shop/employee/employee.h"
-#include "entities/shop/shop.h"
+#include "entities/shop/employee_assignments.h"
 #include "entities/shop/staff_position/staff_position.h"
 #include "entities/timesheet/admin_categorys/admin_category.h"
 #include "entities/timesheet/leave_types/leave_type.h"

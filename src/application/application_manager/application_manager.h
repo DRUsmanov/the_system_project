@@ -25,7 +25,7 @@ public:
     std::optional<domain::User> login(std::string login, std::string password) const override;
 
     std::optional<domain::EmployeeId> addEmployee(const domain::UserId& user_id,
-                                                  const domain::Shop::EmployeeAssignment& employee_assignment,
+                                                  const domain::EmployeeAssignment& employee_assignment,
                                                   domain::Employee& employee) const override;
     bool removeEmployee(const domain::UserId& user_id, domain::EmployeeId employee_id) const override;
     std::optional<domain::Employee> getEmployee(const domain::UserId& user_id,

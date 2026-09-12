@@ -9,9 +9,10 @@
 
 using namespace infrastructure;
 
-domain::Shop ShopRepository::downloadShop() const {
+domain::EmployeeAssignments ShopRepository::downloadAllEmployeeAssignments() const {
     utils::logFunctionStart(utils::FUNCTION_INFO);
-    return domain::Shop();
+    return domain::EmployeeAssignments();
+    // TODO
 }
 
 std::optional<domain::EmployeeId> ShopRepository::uploadEmployee(const domain::Employee& employee,
@@ -94,7 +95,7 @@ std::optional<domain::Employee> ShopRepository::downloadEmployee(domain::Employe
     return employee;
 }
 
-std::optional<domain::Shop::EmployeeAssignment> ShopRepository::downloadEmployeeAssignment(
+std::optional<domain::EmployeeAssignment> ShopRepository::downloadEmployeeAssignment(
     domain::EmployeeId employee_id) const {
     utils::logFunctionStart(utils::FUNCTION_INFO);
     auto result = uow_->execParams(query::DOWNLOAD_EMPLOYEE_ASSIGNMENT, *employee_id);
@@ -109,7 +110,7 @@ std::optional<domain::Shop::EmployeeAssignment> ShopRepository::downloadEmployee
     domain::WorkScheduleId work_schedule_id{
         result.at(0).at(tables::staffing_assignments::WORK_SCHEDULE_ID).as<uint64_t>()};
 
-    domain::Shop::EmployeeAssignment employee_assignment;
+    domain::EmployeeAssignment employee_assignment;
     employee_assignment.department_id = department_id;
     employee_assignment.staff_position_id = staff_position_id;
     employee_assignment.work_schedule_id = work_schedule_id;

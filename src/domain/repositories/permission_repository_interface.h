@@ -4,7 +4,7 @@
 
 #include "entities/permission/permission.h"
 #include "entities/shop/department/department.h"
-#include "entities/shop/shop.h"
+#include "entities/shop/employee_assignments.h"
 #include "entities/user/user.h"
 
 namespace domain {

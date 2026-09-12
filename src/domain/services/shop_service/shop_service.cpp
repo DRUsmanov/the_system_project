@@ -4,11 +4,11 @@
 
 using namespace domain;
 
-Shop ShopService::getShop() const {
-    return shop_repository_->downloadShop();
+EmployeeAssignments ShopService::getAllEmployeeAssignments() const {
+    return shop_repository_->downloadAllEmployeeAssignments();
 }
 
-std::optional<EmployeeId> ShopService::addNewEmployee(Shop::EmployeeAssignment employee_assignment,
+std::optional<EmployeeId> ShopService::addNewEmployee(EmployeeAssignment employee_assignment,
                                                       const Employee& employee) {
     utils::logFunctionStart(utils::FUNCTION_INFO);
     return shop_repository_->uploadEmployee(employee,
@@ -22,7 +22,7 @@ std::optional<Employee> domain::ShopService::getEmployee(EmployeeId employee_id)
     return shop_repository_->downloadEmployee(employee_id);
 }
 
-std::optional<Shop::EmployeeAssignment> domain::ShopService::getEmployeeAssignment(EmployeeId employee_id) const {
+std::optional<EmployeeAssignment> domain::ShopService::getEmployeeAssignment(EmployeeId employee_id) const {
     utils::logFunctionStart(utils::FUNCTION_INFO);
     return shop_repository_->downloadEmployeeAssignment(employee_id);
 }
