@@ -19,8 +19,9 @@ public:
                                                     std::chrono::year_month year_month) const override;
     bool generateTimesheetForAllEmployees(const EmployeeAssignments& employee_assignments,
                                           std::chrono::year year) override;
-    bool generateTimesheetForNewEmployee(const EmployeeAssignment& employee_assignment,
-                                         const Employee& employee) override;
+    bool generateTimesheetForNewEmployee(const EmployeeId& employee_id,
+                                         const Employee& employee,
+                                         const EmployeeAssignment& employee_assignment) override;
     std::optional<WorkSchedules> getWorkSchedules() const override;
 
 private:

@@ -187,8 +187,9 @@ bool TimesheetService::generateTimesheetForAllEmployees(const EmployeeAssignment
     return timesheet_repository_->uploadTimesheet(timesheet, *system_administrator_id);
 }
 
-bool TimesheetService::generateTimesheetForNewEmployee(const EmployeeAssignment& employee_assignment,
-                                                       const Employee& employee) {
+bool TimesheetService::generateTimesheetForNewEmployee(const EmployeeId& employee_id,
+                                                       const Employee& employee,
+                                                       const EmployeeAssignment& employee_assignment) {
     utils::logFunctionStart(utils::FUNCTION_INFO);
     using namespace std::chrono;
     using namespace std::literals;
@@ -202,8 +203,7 @@ bool TimesheetService::generateTimesheetForNewEmployee(const EmployeeAssignment&
     auto extra_holidays = timesheet_repository_->downloadExtraHolidaysByYear(employment_year);
     auto system_administrator_id = timesheet_repository_->downloadSystemAdministratorId();
     auto work_schedule = timesheet_repository_->downloadWorkScheduleById(employee_assignment.work_schedule_id);
-    auto employee_vacations =
-        timesheet_repository_->downloadVacationsByEmployeeIdAndYear(employee.employee_id, employment_year);
+    auto employee_vacations = timesheet_repository_->downloadVacationsByEmployeeIdAndYear(employee_id, employment_year);
 
     if (!system_administrator_id || !work_schedule) {
         return false;
@@ -215,7 +215,7 @@ bool TimesheetService::generateTimesheetForNewEmployee(const EmployeeAssignment&
     for (auto date = start_date; date <= end_date; date += std::chrono::days{1}) {
         TimesheetGenerationContext generation_context{*system_administrator_id,
                                                       date,
-                                                      employee.employee_id,
+                                                      employee_id,
                                                       employee_assignment.department_id,
                                                       employee_assignment.staff_position_id,
                                                       employee_assignment.work_schedule_id,

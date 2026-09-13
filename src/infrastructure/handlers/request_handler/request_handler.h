@@ -102,7 +102,9 @@ public:
             req.target(target);
             std::string path = boost::urls::url_view{target}.path();
 
-            if (path == API_V1_LOGIN) {
+            auto payload = getPayloadFromAuthorizationField(req);
+
+            if (!payload.has_value() && path.starts_with(API_V1_LOGIN)) {
                 login_request_handler_(std::move(req),
                                        text_response_maker,
                                        file_response_maker,
@@ -110,9 +112,7 @@ public:
                 return;
             }
 
-            auto payload = getPayloadFromAuthorizationField(req);
-
-            if (!payload.has_value() || target.empty()) {
+            if (!payload.has_value()) {
                 file_sender_(FileSender::File::INDEX_HTML,
                              text_response_maker,
                              file_response_maker,

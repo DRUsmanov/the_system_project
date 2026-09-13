@@ -29,8 +29,17 @@ public:
         std::string_view target = req.target();
         target.remove_prefix(API_V1_SHOP_EMPLOYEE.size());
 
-        if (auto content_type_header_it = req.find(http::field::content_type);
-            content_type_header_it == req.end() || content_type_header_it->value() != content_type::APP_JSON ||
+        auto method = req.method();
+
+        application::UserAccessDto user_access_dto;
+        user_access_dto.user_id = payload.value().at(keys::USER_ID);
+
+        if (method == http::verb::get) {
+        }
+
+        auto content_type_header_it = req.find(http::field::content_type);
+
+        if (content_type_header_it == req.end() || content_type_header_it->value() != content_type::APP_JSON ||
             !target.empty()) {
             auto bad_request_response =
                 text_response_maker(http::status::bad_request, BAD_REQUEST, content_type::APP_JSON);
@@ -40,11 +49,6 @@ public:
         }
 
         json::object request_body_as_object = parseString(std::string{req.body()});
-
-        auto method = req.method();
-
-        application::UserAccessDto user_access_dto;
-        user_access_dto.user_id = payload.value().at(keys::USER_ID);
 
         if (method == http::verb::post) {
             auto add_employee_request_dto = makeAddEmployeeRequestDto(request_body_as_object);
@@ -86,10 +90,23 @@ public:
         }
 
         if (method == http::verb::patch) {
-        }
-
-        if (method == http::verb::get) {
-            // Возвращает список сотрудников участка
+            auto update_employee_request_dto = makeUpdateEmployeeRequestDto(request_body_as_object);
+            auto result = application_gateway_.updateEmployee(user_access_dto, update_employee_request_dto);
+            if (result) {
+                auto employee_success_updated_response = text_response_maker(http::status::accepted,
+                                                                             makeUpdateEmployeeResponse(result),
+                                                                             content_type::APP_JSON);
+                employee_success_updated_response.set(http::field::cache_control, "no-cache");
+                send(std::move(employee_success_updated_response));
+                return;
+            } else {
+                auto employee_failed_update_response = text_response_maker(http::status::conflict,
+                                                                           makeUpdateEmployeeResponse(result),
+                                                                           content_type::APP_JSON);
+                employee_failed_update_response.set(http::field::cache_control, "no-cache");
+                send(std::move(employee_failed_update_response));
+                return;
+            }
         }
 
         auto invalid_method_response =
@@ -109,8 +126,10 @@ private:
         std::optional<application::AddEmployeeResponseDto> add_employee_response_dto) const;
     application::RemoveEmployeeRequestDto makeRemoveEmployeeRequestDto(
         const json::object& request_body_as_object) const;
-    std::string makeRemoveEmployeeResponse(
-        std::optional<application::RemoveEmployeeResponseDto> remove_employee_response_dto) const;
+    std::string makeRemoveEmployeeResponse(bool is_employee_removed) const;
+    application::UpdateEmployeeRequestDto makeUpdateEmployeeRequestDto(
+        const json::object& request_body_as_object) const;
+    std::string makeUpdateEmployeeResponse(bool is_employee_updated) const;
 
 private:
     constexpr static std::string_view API_V1_SHOP_EMPLOYEE = "/api/v1/shop/employee"sv;

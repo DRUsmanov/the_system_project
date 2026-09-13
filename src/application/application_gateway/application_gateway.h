@@ -17,12 +17,16 @@ public:
     std::optional<AddEmployeeResponseDto> addEmployee(
         const UserAccessDto& user_access_dto,
         const AddEmployeeRequestDto& add_employee_request_dto) const override;
-    std::optional<RemoveEmployeeResponseDto> removeEmployee(
-        const UserAccessDto& user_access_dto,
-        const RemoveEmployeeRequestDto& remove_employee_request_dto) const override;
+    bool removeEmployee(const UserAccessDto& user_access_dto,
+                        const RemoveEmployeeRequestDto& remove_employee_request_dto) const override;
     std::optional<GetDepartmentsResponseDto> getDepartments(const UserAccessDto& user_access_dto) const override;
     std::optional<GetStaffPositionsResponseDto> getStaffPositions(const UserAccessDto& user_access_dto) const override;
     std::optional<GetWorkSchedulesResponseDto> getWorkSchedules(const UserAccessDto& user_access_dto) const override;
+    std::optional<GetDepartmentStaffResponseDto> getDepartmentStaff(
+        const UserAccessDto& user_access_dto,
+        const GetDepartmentStaffRequestDto& get_department_staff_request_dto) const override;
+    bool updateEmployee(const UserAccessDto& user_access_dto,
+                        const UpdateEmployeeRequestDto& update_employee_request_dto) const override;
 
 private:
     ApplicationManagerInterface& application_manager_;

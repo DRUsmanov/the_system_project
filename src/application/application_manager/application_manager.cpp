@@ -20,9 +20,10 @@ std::optional<domain::User> ApplicationManager::login(std::string login, std::st
     }
 }
 
-std::optional<domain::EmployeeId> ApplicationManager::addEmployee(const domain::UserId& user_id,
-                                                                  const domain::EmployeeAssignment& employee_assignment,
-                                                                  domain::Employee& employee) const {
+std::optional<domain::EmployeeId> ApplicationManager::addEmployee(
+    const domain::UserId& user_id,
+    const domain::Employee& employee,
+    const domain::EmployeeAssignment& employee_assignment) const {
     utils::logFunctionStart(utils::FUNCTION_INFO);
     try {
         auto uow = uow_factory_.createUow();
@@ -34,15 +35,13 @@ std::optional<domain::EmployeeId> ApplicationManager::addEmployee(const domain::
             return std::nullopt;
         }
 
-        auto employee_id = shop_service->addNewEmployee(employee_assignment, employee);
+        auto employee_id = shop_service->addNewEmployee(employee, employee_assignment);
 
         if (!employee_id) {
             return std::nullopt;
         }
 
-        employee.employee_id = employee_id.value();
-
-        if (!timesheet_service->generateTimesheetForNewEmployee(employee_assignment, employee)) {
+        if (!timesheet_service->generateTimesheetForNewEmployee(employee_id.value(), employee, employee_assignment)) {
             return std::nullopt;
         }
 
@@ -151,6 +150,74 @@ std::optional<domain::WorkSchedules> ApplicationManager::getWorkSchedules(
     } catch (std::exception& ex) {
         utils::logException(ex);
         return std::nullopt;
+    }
+}
+
+std::optional<domain::Staff> ApplicationManager::getDepartmentStaff(const domain::UserId& user_id,
+                                                                    const domain::DepartmentId department_id) const {
+    utils::logFunctionStart(utils::FUNCTION_INFO);
+    try {
+        auto uow = uow_factory_.createUow();
+        auto shop_service = shop_service_factory_.createShopService(uow);
+        auto permission_service = permission_service_factory_.createPermissionService(uow);
+
+        if (!permission_service->checkUserDepartmentReadPermission(user_id, department_id)) {
+            return std::nullopt;
+        }
+
+        auto department_employee_assignments = shop_service->getDepartmentAssignments(department_id);
+
+        if (!department_employee_assignments.has_value()) {
+            return std::nullopt;
+        }
+
+        domain::Staff department_staff{std::move(department_employee_assignments.value())};
+
+        const auto& employee_assignments = department_staff.getEmployeeAssignments();
+
+        for (const auto& [employee_id, employee_assignment] : employee_assignments) {
+            auto employee = shop_service->getEmployee(employee_id);
+
+            if (!employee.has_value()) {
+                return std::nullopt;
+            }
+
+            department_staff.addEmployee(employee_id, *employee);
+        }
+
+        return department_staff;
+
+    } catch (std::exception& ex) {
+        utils::logException(ex);
+        return std::nullopt;
+    }
+}
+
+bool application::ApplicationManager::updateEmployee(const domain::UserId& user_id,
+                                                     const domain::EmployeeId& employee_id,
+                                                     const domain::Employee& employee,
+                                                     const domain::EmployeeAssignment& employee_assignment) const {
+    utils::logFunctionStart(utils::FUNCTION_INFO);
+    try {
+        auto uow = uow_factory_.createUow();
+        auto shop_service = shop_service_factory_.createShopService(uow);
+        auto permission_service = permission_service_factory_.createPermissionService(uow);
+
+        if (!permission_service->checkUserDepartmentWritePermission(user_id, employee_assignment.department_id)) {
+            return false;
+        }
+
+        if (!shop_service->updateEmployee(employee_id, employee, employee_assignment)) {
+            return false;
+        }
+
+        uow->commit();
+
+        return true;
+
+    } catch (std::exception& ex) {
+        utils::logException(ex);
+        return false;
     }
 }
 

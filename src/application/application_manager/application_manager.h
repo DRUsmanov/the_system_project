@@ -25,14 +25,20 @@ public:
     std::optional<domain::User> login(std::string login, std::string password) const override;
 
     std::optional<domain::EmployeeId> addEmployee(const domain::UserId& user_id,
-                                                  const domain::EmployeeAssignment& employee_assignment,
-                                                  domain::Employee& employee) const override;
+                                                  const domain::Employee& employee,
+                                                  const domain::EmployeeAssignment& employee_assignment) const override;
     bool removeEmployee(const domain::UserId& user_id, domain::EmployeeId employee_id) const override;
     std::optional<domain::Employee> getEmployee(const domain::UserId& user_id,
                                                 const domain::EmployeeId& employee_id) const override;
     std::optional<domain::Departments> getDepartments(const domain::UserId& user_id) const override;
     std::optional<domain::StaffPositions> getStaffPositions(const domain::UserId& user_id) const override;
     std::optional<domain::WorkSchedules> getWorkSchedules(const domain::UserId& user_id) const override;
+    std::optional<domain::Staff> getDepartmentStaff(const domain::UserId& user_id,
+                                                    const domain::DepartmentId department_id) const override;
+    bool updateEmployee(const domain::UserId& user_id,
+                        const domain::EmployeeId& employee_id,
+                        const domain::Employee& employee,
+                        const domain::EmployeeAssignment& employee_assignment) const override;
 
     std::optional<domain::Timesheet> getTimesheet(const domain::UserId& user_id,
                                                   const domain::AdminCategoryId& admin_category_id,

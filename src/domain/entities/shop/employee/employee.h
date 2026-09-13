@@ -17,7 +17,7 @@ using EmployeeIdHasher = utils::TaggedHasher<EmployeeId>;
 using EmployeeNumber = uint64_t;
 
 struct Employee {
-    EmployeeId employee_id;
+    // EmployeeId employee_id;
     std::string last_name;
     std::string first_name;
     std::string patronymic;

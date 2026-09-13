@@ -14,13 +14,17 @@ public:
     virtual std::optional<AddEmployeeResponseDto> addEmployee(
         const UserAccessDto& user_access_dto,
         const AddEmployeeRequestDto& add_employee_request_dto) const = 0;
-    virtual std::optional<RemoveEmployeeResponseDto> removeEmployee(
-        const UserAccessDto& user_access_dto,
-        const RemoveEmployeeRequestDto& remove_employee_request_dto) const = 0;
+    virtual bool removeEmployee(const UserAccessDto& user_access_dto,
+                                const RemoveEmployeeRequestDto& remove_employee_request_dto) const = 0;
     virtual std::optional<GetDepartmentsResponseDto> getDepartments(const UserAccessDto& user_access_dto) const = 0;
     virtual std::optional<GetStaffPositionsResponseDto> getStaffPositions(
         const UserAccessDto& user_access_dto) const = 0;
     virtual std::optional<GetWorkSchedulesResponseDto> getWorkSchedules(const UserAccessDto& user_access_dto) const = 0;
+    virtual std::optional<GetDepartmentStaffResponseDto> getDepartmentStaff(
+        const UserAccessDto& user_access_dto,
+        const GetDepartmentStaffRequestDto& get_department_staff_request_dto) const = 0;
+    virtual bool updateEmployee(const UserAccessDto& user_access_dto,
+                                const UpdateEmployeeRequestDto& update_employee_request_dto) const = 0;
 };
 
 }  // namespace application

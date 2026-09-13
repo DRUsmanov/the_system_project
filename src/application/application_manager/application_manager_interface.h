@@ -4,7 +4,8 @@
 #include <optional>
 
 #include "entities/shop/employee/employee.h"
-#include "entities/shop/employee_assignments.h"
+#include "entities/shop/employee_assignments/employee_assignments.h"
+#include "entities/shop/staff/staff.h"
 #include "entities/timesheet/timesheet.h"
 #include "entities/timesheet/work_schedules/work_schedule.h"
 #include "entities/user/user.h"
@@ -15,16 +16,22 @@ public:
     virtual ~ApplicationManagerInterface() = default;
 
     virtual std::optional<domain::User> login(std::string login, std::string password) const = 0;
-
-    virtual std::optional<domain::EmployeeId> addEmployee(const domain::UserId& user_id,
-                                                          const domain::EmployeeAssignment& employee_assignment,
-                                                          domain::Employee& employee) const = 0;
+    virtual std::optional<domain::EmployeeId> addEmployee(
+        const domain::UserId& user_id,
+        const domain::Employee& employee,
+        const domain::EmployeeAssignment& employee_assignment) const = 0;
     virtual bool removeEmployee(const domain::UserId& user_id, domain::EmployeeId employee_id) const = 0;
     virtual std::optional<domain::Employee> getEmployee(const domain::UserId& user_id,
                                                         const domain::EmployeeId& employee_id) const = 0;
     virtual std::optional<domain::Departments> getDepartments(const domain::UserId& user_id) const = 0;
     virtual std::optional<domain::StaffPositions> getStaffPositions(const domain::UserId& user_id) const = 0;
     virtual std::optional<domain::WorkSchedules> getWorkSchedules(const domain::UserId& user_id) const = 0;
+    virtual std::optional<domain::Staff> getDepartmentStaff(const domain::UserId& user_id,
+                                                            const domain::DepartmentId department_id) const = 0;
+    virtual bool updateEmployee(const domain::UserId& user_id,
+                                const domain::EmployeeId& employee_id,
+                                const domain::Employee& employee,
+                                const domain::EmployeeAssignment& employee_assignment) const = 0;
 
     virtual std::optional<domain::Timesheet> getTimesheet(const domain::UserId& user_id,
                                                           const domain::AdminCategoryId& admin_category_id,

@@ -1,6 +1,7 @@
 #pragma once
 
 #include <boost/beast.hpp>
+#include <iostream>
 #include <string_view>
 
 #include "application_gateway/application_gateway_interface.h"
@@ -34,10 +35,9 @@ public:
         application::UserAccessDto user_access_dto;
         user_access_dto.user_id = payload.value().at(keys::USER_ID);
 
-        auto content_type_header_it = req.find(http::field::content_type);
-
-        if (content_type_header_it == req.end()) {
-            if (method == http::verb::get) {
+        if (method == http::verb::get) {
+            if (target.empty()) {
+                // получение списка участков
                 auto result = application_gateway_.getDepartments(user_access_dto);
                 if (result.has_value()) {
                     auto departments_list_success_response = text_response_maker(http::status::ok,
@@ -47,35 +47,59 @@ public:
                     send(std::move(departments_list_success_response));
                     return;
                 } else {
-                    auto departments_list_failed_response = text_response_maker(http::status::conflict,
+                    auto departments_list_failed_response = text_response_maker(http::status::internal_server_error,
                                                                                 makeGetDeratmentsResponse(result),
                                                                                 content_type::APP_JSON);
                     departments_list_failed_response.set(http::field::cache_control, "no-cache");
                     send(std::move(departments_list_failed_response));
                     return;
                 }
-            }
-        } else {
-            if (content_type_header_it->value() != content_type::APP_JSON || !target.empty()) {
-                auto bad_request_response =
-                    text_response_maker(http::status::bad_request, BAD_REQUEST, content_type::APP_JSON);
-                bad_request_response.set(http::field::cache_control, "no-cache");
-                send(std::move(bad_request_response));
-                return;
-            }
-
-            json::object request_body_as_object = parseString(std::string{req.body()});
-
-            if (method == http::verb::post) {
-            }
-
-            if (method == http::verb::delete_) {
-            }
-
-            if (method == http::verb::patch) {
+            } else {
+                // получение сотрудников участка
+                std::cout << "CALLED" << std::endl;
+                auto result =
+                    application_gateway_.getDepartmentStaff(user_access_dto, makeGetDepartmentStaffRequestDto(target));
+                if (result.has_value()) {
+                    auto department_staff_success_response =
+                        text_response_maker(http::status::ok,
+                                            makeGetDepartmentStaffResponseDto(result),
+                                            content_type::APP_JSON);
+                    department_staff_success_response.set(http::field::cache_control, "no-cache");
+                    send(std::move(department_staff_success_response));
+                    return;
+                } else {
+                    auto department_staff_failed_response =
+                        text_response_maker(http::status::internal_server_error,
+                                            makeGetDepartmentStaffResponseDto(result),
+                                            content_type::APP_JSON);
+                    department_staff_failed_response.set(http::field::cache_control, "no-cache");
+                    send(std::move(department_staff_failed_response));
+                    return;
+                }
             }
         }
 
+        auto content_type_header_it = req.find(http::field::content_type);
+
+        if (content_type_header_it == req.end() || content_type_header_it->value() != content_type::APP_JSON ||
+            !target.empty()) {
+            auto bad_request_response =
+                text_response_maker(http::status::bad_request, BAD_REQUEST, content_type::APP_JSON);
+            bad_request_response.set(http::field::cache_control, "no-cache");
+            send(std::move(bad_request_response));
+            return;
+        }
+
+        json::object request_body_as_object = parseString(std::string{req.body()});
+
+        if (method == http::verb::post) {
+        }
+
+        if (method == http::verb::delete_) {
+        }
+
+        if (method == http::verb::patch) {
+        }
         auto invalid_method_response =
             text_response_maker(http::status::method_not_allowed, INVALID_METHOD, content_type::APP_JSON);
         invalid_method_response.set(http::field::allow, "POST, DELETE, PATCH");
@@ -88,6 +112,10 @@ private:
     application::ApplicationGatewayInterface& application_gateway_;
 
 private:
+    application::GetDepartmentStaffRequestDto makeGetDepartmentStaffRequestDto(
+        std::string_view department_id_request) const;
+    std::string makeGetDepartmentStaffResponseDto(
+        std::optional<application::GetDepartmentStaffResponseDto> get_department_staff_response_dto) const;
     std::string makeGetDeratmentsResponse(
         std::optional<application::GetDepartmentsResponseDto> get_departments_response_dto) const;
 

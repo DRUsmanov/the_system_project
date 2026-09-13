@@ -31,7 +31,7 @@ public:
         std::string_view target = req.target();
         target.remove_prefix(API_V1_SHOP.size());
 
-        if (target == EMPLOYEE) {
+        if (target.starts_with(EMPLOYEE)) {
             employee_request_handler_(std::move(req),
                                       payload,
                                       text_response_maker,
@@ -40,7 +40,7 @@ public:
             return;
         }
 
-        if (target == DEPARTMENT) {
+        if (target.starts_with(DEPARTMENT)) {
             department_request_handler_(std::move(req),
                                         payload,
                                         text_response_maker,
@@ -49,7 +49,7 @@ public:
             return;
         }
 
-        if (target == STAFF_POSITION) {
+        if (target.starts_with(STAFF_POSITION)) {
             staff_position_request_handler_(std::move(req),
                                             payload,
                                             text_response_maker,

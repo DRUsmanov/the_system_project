@@ -28,6 +28,9 @@ constexpr std::string DOWNLOAD_DEPARTMENTS{"dload_departments"};
 constexpr std::string DOWNLOAD_STAFF_POSITIONS{"dload_staff_positions"};
 constexpr std::string DOWNLOAD_WORK_SCHEDULES{"dload_work_schedules"};
 constexpr std::string DOWNLOAD_DEPARTMENT_ASSIGNMENTS{"dload_dep_assignments"};
+constexpr std::string UPDATE_EMPLOYEE{"upd_employee"};
+constexpr std::string UPDATE_EMPLOYEE_ASSIGNMENT{"upd_empl_assig"};
+
 }  // namespace query
 
 namespace tables {
@@ -187,6 +190,10 @@ inline const std::unordered_map<std::string, std::string> querys{
     {query::DOWNLOAD_DEPARTMENTS, R"(SELECT * FROM departments ORDER BY description ASC;)"},
     {query::DOWNLOAD_STAFF_POSITIONS, R"(SELECT * FROM staff_positions ORDER BY id ASC;)"},
     {query::DOWNLOAD_WORK_SCHEDULES, R"(SELECT * FROM work_schedules ORDER BY description ASC;)"},
-    {query::DOWNLOAD_DEPARTMENT_ASSIGNMENTS, R"(SELECT * FROM staffing_assignments WHERE department_id=$1;)"}};
+    {query::DOWNLOAD_DEPARTMENT_ASSIGNMENTS, R"(SELECT * FROM staffing_assignments WHERE department_id=$1;)"},
+    {query::UPDATE_EMPLOYEE,
+     R"(UPDATE employees SET last_name=$2, first_name=$3, patronymic=$4, birth_date=$5, employment_date=$6, employee_number=$7 WHERE id=$1;)"},
+    {query::UPDATE_EMPLOYEE_ASSIGNMENT,
+     R"(UPDATE staffing_assignments SET department_id=$2, staff_position_id=$3, work_schedule_id=$4 WHERE id=$1;)"}};
 
 }  // namespace infrastructure

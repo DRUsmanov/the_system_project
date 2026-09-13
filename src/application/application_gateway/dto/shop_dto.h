@@ -35,10 +35,6 @@ struct RemoveEmployeeRequestDto {
     uint64_t employee_id;
 };
 
-struct RemoveEmployeeResponseDto {
-    bool is_removed = false;
-};
-
 // ======================================================================
 // GET DEPARTMENTS
 // ======================================================================
@@ -56,20 +52,44 @@ struct GetStaffPositionsResponseDto {
 };
 
 // ======================================================================
-// GET DEPARTMENTS EMPLOYEE
+// GET DEPARTMENTS STAFF
 // ======================================================================
 
-struct GetDepartmentsEmployeeRequestDto {
+struct GetDepartmentStaffRequestDto {
     uint64_t department_id;
 };
 
-struct GetDepartmentsEmployeeResponseDto {
+struct GetDepartmentStaffResponseDto {
+    struct Data {
+        uint64_t employee_id;
+        std::string last_name;
+        std::string first_name;
+        std::string patronymic;
+        std::string birth_date;
+        std::string employment_date;
+        uint64_t employee_number;
+        uint64_t department_id;
+        uint64_t staff_position_id;
+        uint64_t work_schedule_id;
+    };
+    std::vector<Data> data;
+};
+
+// ======================================================================
+// UPDATE EMPLOYE
+// ======================================================================
+
+struct UpdateEmployeeRequestDto {
+    uint64_t employee_id;
     std::string last_name;
     std::string first_name;
     std::string patronymic;
     std::string birth_date;
     std::string employment_date;
     uint64_t employee_number;
+    uint64_t department_id;
+    uint64_t staff_position_id;
+    uint64_t work_schedule_id;
 };
 
 }  // namespace application

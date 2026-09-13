@@ -15,10 +15,9 @@ domain::EmployeeAssignments ShopRepository::downloadAllEmployeeAssignments() con
     // TODO
 }
 
-std::optional<domain::EmployeeId> ShopRepository::uploadEmployee(const domain::Employee& employee,
-                                                                 domain::DepartmentId department_id,
-                                                                 domain::StaffPositionId staff_position_id,
-                                                                 domain::WorkScheduleId work_schedule_id) {
+std::optional<domain::EmployeeId> ShopRepository::uploadEmployee(
+    const domain::Employee& employee,
+    const domain::EmployeeAssignment& employee_assignment) {
     utils::logFunctionStart(utils::FUNCTION_INFO);
     auto result = uow_->execParams(query::DOWNLOAD_EMPLOYEE_BY_EMPLOYEE_NUMBER, employee.employee_number);
 
@@ -42,15 +41,15 @@ std::optional<domain::EmployeeId> ShopRepository::uploadEmployee(const domain::E
 
     result = uow_->execParams(query::UPLOAD_EMPLOYEE_ASSIGNMENT,
                               *employee_id,
-                              *department_id,
-                              *staff_position_id,
-                              *work_schedule_id);
+                              *employee_assignment.department_id,
+                              *employee_assignment.staff_position_id,
+                              *employee_assignment.work_schedule_id);
 
     if (result.size() != 1) {
         return std::nullopt;
     }
 
-    result = uow_->execParams(query::DOWNLOAD_STAFF_POSITION, *staff_position_id);
+    result = uow_->execParams(query::DOWNLOAD_STAFF_POSITION, *employee_assignment.staff_position_id);
 
     if (result.size() != 1) {
         return std::nullopt;
@@ -84,7 +83,6 @@ std::optional<domain::Employee> ShopRepository::downloadEmployee(domain::Employe
     domain::EmployeeNumber employee_number{result.at(0).at(tables::employees::EMPLOYEE_NUMBER).as<uint64_t>()};
 
     domain::Employee employee;
-    employee.employee_id = employee_id;
     employee.last_name = last_name;
     employee.first_name = first_name;
     employee.patronymic = patronymic;
@@ -143,6 +141,7 @@ std::optional<domain::Departments> infrastructure::ShopRepository::downloadDepar
 }
 
 std::optional<domain::StaffPositions> infrastructure::ShopRepository::downloadStaffPositions() const {
+    utils::logFunctionStart(utils::FUNCTION_INFO);
     auto result = uow_->execParams(query::DOWNLOAD_STAFF_POSITIONS);
     if (result.size() == 0) {
         return std::nullopt;
@@ -166,4 +165,59 @@ std::optional<domain::StaffPositions> infrastructure::ShopRepository::downloadSt
     }
 
     return staff_positions;
+}
+
+std::optional<domain::EmployeeAssignments> ShopRepository::downloadDepartmentAssignments(
+    domain::DepartmentId department_id) const {
+    utils::logFunctionStart(utils::FUNCTION_INFO);
+    auto result = uow_->execParams(query::DOWNLOAD_DEPARTMENT_ASSIGNMENTS, *department_id);
+    if (result.size() == 0) {
+        return std::nullopt;
+    }
+
+    domain::EmployeeAssignments employee_assignments;
+
+    for (const auto& row : result) {
+        domain::EmployeeId employee_id{row.at(tables::staffing_assignments::EMPLOYEE_ID).as<uint64_t>()};
+
+        domain::DepartmentId department_id{row.at(tables::staffing_assignments::DEPARTMENT_ID).as<uint64_t>()};
+        domain::StaffPositionId staff_position_id{
+            row.at(tables::staffing_assignments::STAFF_POSITION_ID).as<uint64_t>()};
+        domain::WorkScheduleId work_schedule_id{row.at(tables::staffing_assignments::WORK_SCHEDULE_ID).as<uint64_t>()};
+
+        domain::EmployeeAssignment employee_assignment;
+        employee_assignment.department_id = department_id;
+        employee_assignment.staff_position_id = staff_position_id;
+        employee_assignment.work_schedule_id = work_schedule_id;
+
+        employee_assignments.addEmployeeAssignment(employee_id, employee_assignment);
+    }
+
+    return employee_assignments;
+}
+
+bool ShopRepository::updateEmployee(const domain::EmployeeId& employee_id, const domain::Employee& employee) {
+    utils::logFunctionStart(utils::FUNCTION_INFO);
+    auto result = uow_->execParams(query::UPDATE_EMPLOYEE,
+                                   *employee_id,
+                                   employee.last_name,
+                                   employee.first_name,
+                                   employee.patronymic,
+                                   domain::dateToString(employee.birth_date),
+                                   domain::dateToString(employee.employment_date),
+                                   employee.employee_number);
+
+    return result.affected_rows() == 1;
+}
+
+bool infrastructure::ShopRepository::updateEmployeeAssignment(const domain::EmployeeId& employee_id,
+                                                              const domain::EmployeeAssignment& employee_assignment) {
+    utils::logFunctionStart(utils::FUNCTION_INFO);
+    auto result = uow_->execParams(query::UPDATE_EMPLOYEE_ASSIGNMENT,
+                                   *employee_id,
+                                   *employee_assignment.department_id,
+                                   *employee_assignment.staff_position_id,
+                                   *employee_assignment.work_schedule_id);
+
+    return result.affected_rows() == 1;
 }

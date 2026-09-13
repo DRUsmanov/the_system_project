@@ -1,5 +1,7 @@
 #include "application_gateway/application_gateway.h"
 
+#include <tuple>
+
 #include "logger.h"
 
 using namespace application;
@@ -28,7 +30,7 @@ std::optional<AddEmployeeResponseDto> ApplicationGateway::addEmployee(
     utils::logFunctionStart(utils::FUNCTION_INFO);
     auto user_id = user_dto_mapper_.convert(user_access_dto);
     auto [employee_assignment, employee] = shop_dto_mapper_.convert(add_employee_request_dto);
-    auto employee_id = application_manager_.addEmployee(user_id, employee_assignment, employee);
+    auto employee_id = application_manager_.addEmployee(user_id, employee, employee_assignment);
 
     if (!employee_id.has_value()) {
         return std::nullopt;
@@ -37,19 +39,12 @@ std::optional<AddEmployeeResponseDto> ApplicationGateway::addEmployee(
     return shop_dto_mapper_.convert(employee_id.value());
 }
 
-std::optional<RemoveEmployeeResponseDto> ApplicationGateway::removeEmployee(
-    const UserAccessDto& user_access_dto,
-    const RemoveEmployeeRequestDto& remove_employee_request_dto) const {
+bool ApplicationGateway::removeEmployee(const UserAccessDto& user_access_dto,
+                                        const RemoveEmployeeRequestDto& remove_employee_request_dto) const {
     utils::logFunctionStart(utils::FUNCTION_INFO);
     auto user_id = user_dto_mapper_.convert(user_access_dto);
     auto employee_id = shop_dto_mapper_.convert(remove_employee_request_dto);
-    auto is_removed = application_manager_.removeEmployee(user_id, employee_id);
-
-    if (!is_removed) {
-        return std::nullopt;
-    }
-
-    return shop_dto_mapper_.convert(is_removed);
+    return application_manager_.removeEmployee(user_id, employee_id);
 }
 
 std::optional<GetDepartmentsResponseDto> ApplicationGateway::getDepartments(
@@ -89,4 +84,32 @@ std::optional<GetWorkSchedulesResponseDto> ApplicationGateway::getWorkSchedules(
     }
 
     return timesheet_dto_mapper_.convert(work_schedules.value());
+}
+
+std::optional<GetDepartmentStaffResponseDto> ApplicationGateway::getDepartmentStaff(
+    const UserAccessDto& user_access_dto,
+    const GetDepartmentStaffRequestDto& get_department_staff_request_dto) const {
+    utils::logFunctionStart(utils::FUNCTION_INFO);
+    auto user_id = user_dto_mapper_.convert(user_access_dto);
+    auto department_id = shop_dto_mapper_.convert(get_department_staff_request_dto);
+
+    auto department_staff = application_manager_.getDepartmentStaff(user_id, department_id);
+
+    if (!department_staff.has_value()) {
+        return std::nullopt;
+    }
+
+    return shop_dto_mapper_.convert(department_staff.value());
+}
+
+bool ApplicationGateway::updateEmployee(const UserAccessDto& user_access_dto,
+                                        const UpdateEmployeeRequestDto& update_employee_request_dto) const {
+    utils::logFunctionStart(utils::FUNCTION_INFO);
+    auto user_id = user_dto_mapper_.convert(user_access_dto);
+    auto update_data = shop_dto_mapper_.convert(update_employee_request_dto);
+
+    const auto& employee_id = std::get<domain::EmployeeId>(update_data);
+    const auto& employee = std::get<domain::Employee>(update_data);
+    const auto& employee_assignment = std::get<domain::EmployeeAssignment>(update_data);
+    return application_manager_.updateEmployee(user_id, employee_id, employee, employee_assignment);
 }

@@ -34,10 +34,8 @@ public:
         application::UserAccessDto user_access_dto;
         user_access_dto.user_id = payload.value().at(keys::USER_ID);
 
-        auto content_type_header_it = req.find(http::field::content_type);
-
-        if (content_type_header_it == req.end()) {
-            if (method == http::verb::get) {
+        if (method == http::verb::get) {
+            if (target.empty()) {
                 auto result = application_gateway_.getStaffPositions(user_access_dto);
                 if (result.has_value()) {
                     auto staff_positions_list_success_response =
@@ -49,33 +47,38 @@ public:
                     return;
                 } else {
                     auto staff_positions_list_failed_response =
-                        text_response_maker(http::status::conflict,
+                        text_response_maker(http::status::internal_server_error,
                                             makeGetStaffPositionsResponse(result),
                                             content_type::APP_JSON);
                     staff_positions_list_failed_response.set(http::field::cache_control, "no-cache");
                     send(std::move(staff_positions_list_failed_response));
                     return;
                 }
+            } else {
+                // пока нет обработки
             }
-        } else {
-            if (content_type_header_it->value() != content_type::APP_JSON || !target.empty()) {
-                auto bad_request_response =
-                    text_response_maker(http::status::bad_request, BAD_REQUEST, content_type::APP_JSON);
-                bad_request_response.set(http::field::cache_control, "no-cache");
-                send(std::move(bad_request_response));
-                return;
-            }
+        }
 
-            json::object request_body_as_object = parseString(std::string{req.body()});
+        auto content_type_header_it = req.find(http::field::content_type);
 
-            if (method == http::verb::post) {
-            }
+        if (content_type_header_it == req.end() || content_type_header_it->value() != content_type::APP_JSON ||
+            !target.empty()) {
+            auto bad_request_response =
+                text_response_maker(http::status::bad_request, BAD_REQUEST, content_type::APP_JSON);
+            bad_request_response.set(http::field::cache_control, "no-cache");
+            send(std::move(bad_request_response));
+            return;
+        }
 
-            if (method == http::verb::delete_) {
-            }
+        json::object request_body_as_object = parseString(std::string{req.body()});
 
-            if (method == http::verb::patch) {
-            }
+        if (method == http::verb::post) {
+        }
+
+        if (method == http::verb::delete_) {
+        }
+
+        if (method == http::verb::patch) {
         }
 
         auto invalid_method_response =

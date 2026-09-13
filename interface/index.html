@@ -547,6 +547,59 @@
       border-color: var(--danger);
     }
 
+    /* ==================== ТАБЛИЦА СОТРУДНИКОВ ==================== */
+    .emp-table-wrap {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+      text-align: left;
+    }
+
+    .emp-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.925rem;
+    }
+
+    .emp-table thead th {
+      text-align: left;
+      padding: 0.75rem 1rem;
+      background: var(--panel-2);
+      color: var(--text-dim);
+      font-weight: 500;
+      font-size: 0.75rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      border-bottom: 1px solid var(--border);
+      white-space: nowrap;
+    }
+
+    .emp-table tbody tr {
+      cursor: pointer;
+      transition: background 0.12s ease;
+    }
+
+    .emp-table tbody tr:hover {
+      background: var(--panel-2);
+    }
+
+    .emp-table tbody tr.selected {
+      background: rgba(59, 130, 246, 0.18);
+      box-shadow: inset 3px 0 0 var(--accent);
+    }
+
+    .emp-table tbody td {
+      padding: 0.7rem 1rem;
+      color: var(--text);
+      border-bottom: 1px solid var(--border);
+      vertical-align: middle;
+    }
+
+    .emp-table tbody tr:last-child td {
+      border-bottom: none;
+    }
+
     /* ==================== МОДАЛЬНОЕ ОКНО ==================== */
     .modal-backdrop {
       position: fixed;
@@ -677,12 +730,64 @@
       cursor: not-allowed;
     }
 
+    /* ===== Подсветка ошибок ===== */
+    .form-field.invalid input,
+    .form-field.invalid select {
+      border-color: var(--danger);
+      box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.2);
+    }
+
+    .form-field .field-error {
+      color: #fca5a5;
+      font-size: 0.75rem;
+      min-height: 0;
+      display: none;
+    }
+
+    .form-field.invalid .field-error {
+      display: block;
+    }
+
+    /* В режиме просмотра поля визуально "неактивные", но текст читаемый */
+    .modal.mode-view .form-field input,
+    .modal.mode-view .form-field select {
+      background: transparent;
+      border-color: transparent;
+      padding-left: 0;
+      padding-right: 0;
+      cursor: default;
+      color: var(--text);
+      font-weight: 500;
+      appearance: none;
+      -webkit-appearance: none;
+      pointer-events: none;
+    }
+
+    .modal.mode-view .form-field select {
+      padding-right: 0;
+    }
+
+    /* В режиме просмотра не показываем сообщения об ошибке полей */
+    .modal.mode-view .form-field.invalid input,
+    .modal.mode-view .form-field.invalid select {
+      border-color: transparent;
+      box-shadow: none;
+    }
+
+    .modal.mode-view .form-field.invalid .field-error {
+      display: none;
+    }
+
     .modal-footer {
       display: flex;
       justify-content: flex-end;
       gap: 0.75rem;
       padding: 1rem 1.5rem;
       border-top: 1px solid var(--border);
+    }
+
+    .modal-footer .spacer {
+      flex: 1;
     }
 
     .modal-message {
@@ -752,6 +857,28 @@
       .form-grid {
         grid-template-columns: 1fr;
       }
+
+      .emp-table thead {
+        display: none;
+      }
+
+      .emp-table tbody td {
+        display: block;
+        border: none;
+        padding: 0.4rem 1rem;
+      }
+
+      .emp-table tbody tr {
+        border-bottom: 1px solid var(--border);
+      }
+
+      .modal-footer {
+        flex-wrap: wrap;
+      }
+
+      .modal-footer .btn {
+        flex: 1;
+      }
     }
   </style>
 </head>
@@ -768,25 +895,25 @@
     <div class="login-card">
       <form id="loginForm" autocomplete="on">
         <div class="field">
-          <label for="login">Логин</label>
-          <input type="text" id="login" name="login" placeholder="Введите логин" required autocomplete="username">
+          <label for="loginLogin">Логин</label>
+          <input type="text" id="loginLogin" name="login" placeholder="Введите логин" required autocomplete="username">
         </div>
         <div class="field">
-          <label for="password">Пароль</label>
-          <input type="password" id="password" name="password" placeholder="Введите пароль" required
+          <label for="loginPassword">Пароль</label>
+          <input type="password" id="loginPassword" name="password" placeholder="Введите пароль" required
             autocomplete="current-password">
         </div>
-        <button type="submit" id="submitBtn">Войти</button>
-        <div class="message" id="message"></div>
+        <button type="submit" id="loginSubmitBtn">Войти</button>
+        <div class="message" id="loginMessage"></div>
       </form>
     </div>
   </div>
 
   <!-- ================== ЭКРАН РАБОТЫ ================== -->
   <div class="screen" id="appScreen">
-    <aside class="sidebar" id="sidebar">
+    <aside class="sidebar" id="appSidebar">
       <div class="sidebar-header">Модули</div>
-      <nav class="sidebar-nav" id="navList"></nav>
+      <nav class="sidebar-nav" id="appNavList"></nav>
     </aside>
 
     <header class="header">
@@ -795,75 +922,81 @@
         <span class="accent">Система управления</span>
       </div>
       <div class="user-area">
-        <span class="user-name" id="userName"></span>
-        <button class="logout-btn" id="logoutBtn">Выйти</button>
+        <span class="user-name" id="appUserName"></span>
+        <button class="logout-btn" id="appLogoutBtn">Выйти</button>
       </div>
     </header>
 
-    <main class="main" id="mainArea"></main>
+    <main class="main" id="appMainArea"></main>
   </div>
 
-  <!-- ================== МОДАЛЬНОЕ ОКНО: ДОБАВИТЬ СОТРУДНИКА ================== -->
+  <!-- ================== МОДАЛЬНОЕ ОКНО СОТРУДНИКА ================== -->
   <div class="modal-backdrop" id="empModal">
-    <div class="modal">
+    <div class="modal" id="empModalInner">
       <div class="modal-header">
-        <h2 id="empModalTitle">Добавить сотрудника</h2>
-        <button class="modal-close" id="empModalClose" title="Закрыть">✕</button>
+        <h2 id="empModalTitle">Сотрудник</h2>
+        <button class="modal-close" id="empModalCloseBtn" title="Закрыть">✕</button>
       </div>
 
-      <form class="modal-body" id="empForm">
+      <form class="modal-body" id="empModalForm" novalidate>
         <div class="form-grid">
-          <div class="form-field">
-            <label for="empLastName">Фамилия *</label>
-            <input type="text" id="empLastName" name="last_name" required>
+          <div class="form-field" data-field="last_name">
+            <label for="empModalLastName">Фамилия *</label>
+            <input type="text" id="empModalLastName" name="last_name">
+            <div class="field-error">Укажите фамилию</div>
           </div>
-          <div class="form-field">
-            <label for="empFirstName">Имя *</label>
-            <input type="text" id="empFirstName" name="first_name" required>
+          <div class="form-field" data-field="first_name">
+            <label for="empModalFirstName">Имя *</label>
+            <input type="text" id="empModalFirstName" name="first_name">
+            <div class="field-error">Укажите имя</div>
           </div>
-          <div class="form-field">
-            <label for="empPatronymic">Отчество</label>
-            <input type="text" id="empPatronymic" name="patronymic">
-          </div>
-
-          <div class="form-field">
-            <label for="empBirthDate">Дата рождения</label>
-            <input type="date" id="empBirthDate" name="birth_date">
-          </div>
-          <div class="form-field">
-            <label for="empEmploymentDate">Дата приёма</label>
-            <input type="date" id="empEmploymentDate" name="employment_date">
-          </div>
-          <div class="form-field">
-            <label for="empNumber">Табельный номер *</label>
-            <input type="number" id="empNumber" name="employee_number" required min="0" step="1">
+          <div class="form-field" data-field="patronymic">
+            <label for="empModalPatronymic">Отчество</label>
+            <input type="text" id="empModalPatronymic" name="patronymic">
+            <div class="field-error">Укажите отчество</div>
           </div>
 
-          <div class="form-field">
-            <label for="empDepartment">Участок *</label>
-            <select id="empDepartment" name="department_id" required></select>
+          <div class="form-field" data-field="birth_date">
+            <label for="empModalBirthDate">Дата рождения *</label>
+            <input type="date" id="empModalBirthDate" name="birth_date">
+            <div class="field-error">Укажите дату рождения</div>
           </div>
-          <div class="form-field">
-            <label for="empStaffPosition">Должность *</label>
-            <select id="empStaffPosition" name="staff_position_id" required>
+          <div class="form-field" data-field="employment_date">
+            <label for="empModalEmploymentDate">Дата приёма *</label>
+            <input type="date" id="empModalEmploymentDate" name="employment_date">
+            <div class="field-error">Укажите дату приёма</div>
+          </div>
+          <div class="form-field" data-field="employee_number">
+            <label for="empModalNumber">Табельный номер *</label>
+            <input type="number" id="empModalNumber" name="employee_number" min="0" step="1">
+            <div class="field-error">Укажите табельный номер</div>
+          </div>
+
+          <div class="form-field" data-field="department_id">
+            <label for="empModalDepartment">Участок *</label>
+            <select id="empModalDepartment" name="department_id"></select>
+            <div class="field-error">Выберите участок</div>
+          </div>
+          <div class="form-field" data-field="staff_position_id">
+            <label for="empModalStaffPosition">Должность *</label>
+            <select id="empModalStaffPosition" name="staff_position_id">
               <option value="">— загрузка —</option>
             </select>
+            <div class="field-error">Выберите должность</div>
           </div>
-          <div class="form-field">
-            <label for="empWorkSchedule">График работы *</label>
-            <select id="empWorkSchedule" name="work_schedule_id" required>
+          <div class="form-field" data-field="work_schedule_id">
+            <label for="empModalWorkSchedule">График работы *</label>
+            <select id="empModalWorkSchedule" name="work_schedule_id">
               <option value="">— загрузка —</option>
             </select>
+            <div class="field-error">Выберите график работы</div>
           </div>
         </div>
 
-        <div class="modal-message" id="empFormMessage"></div>
+        <div class="modal-message" id="empModalMessage"></div>
       </form>
 
-      <div class="modal-footer">
-        <button type="button" class="btn" id="empCancelBtn">Отмена</button>
-        <button type="button" class="btn btn-primary" id="empSubmitBtn">Сохранить</button>
-      </div>
+      <div class="modal-footer" id="empModalFooter"></div>
     </div>
   </div>
 
@@ -902,7 +1035,7 @@
     function updateUserName() {
       const user = getCurrentUser();
       const full = formatUserFullName(user);
-      document.getElementById('userName').textContent = full.toUpperCase();
+      document.getElementById('appUserName').textContent = full.toUpperCase();
     }
 
     // ==================== API FETCH ====================
@@ -912,16 +1045,20 @@
       const timer = setTimeout(() => controller.abort(), timeoutMs);
 
       const headers = {
-        'Content-Type': 'application/json',
         ...(token ? { 'Authorization': 'Bearer ' + token } : {}),
         ...(options.headers || {})
       };
+
+      if (options.body != null && !('Content-Type' in headers)) {
+        headers['Content-Type'] = 'application/json';
+      }
 
       let response;
       try {
         response = await fetch(`${API_BASE}${path}`, {
           ...options,
           headers,
+          cache: 'no-store',
           signal: controller.signal
         });
       } catch (err) {
@@ -969,8 +1106,8 @@
     function showLogin() {
       switchScreen(appScreen, loginScreen);
       document.getElementById('loginForm').reset();
-      document.getElementById('message').textContent = '';
-      document.getElementById('message').className = 'message';
+      document.getElementById('loginMessage').textContent = '';
+      document.getElementById('loginMessage').className = 'message';
     }
 
     function showApp() {
@@ -982,29 +1119,29 @@
 
     // ==================== ЭКРАН ВХОДА ====================
     const loginForm = document.getElementById('loginForm');
-    const submitBtn = document.getElementById('submitBtn');
-    const messageEl = document.getElementById('message');
+    const loginSubmitBtn = document.getElementById('loginSubmitBtn');
+    const loginMessageEl = document.getElementById('loginMessage');
 
-    function showMessage(text, type) {
-      messageEl.textContent = text;
-      messageEl.className = 'message ' + type;
+    function showLoginMessage(text, type) {
+      loginMessageEl.textContent = text;
+      loginMessageEl.className = 'message ' + (type || '');
     }
 
     loginForm.addEventListener('submit', async (e) => {
       e.preventDefault();
-      messageEl.textContent = '';
-      messageEl.className = 'message';
+      loginMessageEl.textContent = '';
+      loginMessageEl.className = 'message';
 
-      const login = document.getElementById('login').value.trim();
-      const password = document.getElementById('password').value;
+      const login = document.getElementById('loginLogin').value.trim();
+      const password = document.getElementById('loginPassword').value;
 
       if (!login || !password) {
-        showMessage('Заполните все поля', 'error');
+        showLoginMessage('Заполните все поля', 'error');
         return;
       }
 
-      submitBtn.disabled = true;
-      submitBtn.textContent = 'Отправка...';
+      loginSubmitBtn.disabled = true;
+      loginSubmitBtn.textContent = 'Отправка...';
 
       try {
         const response = await fetch(LOGIN_URL, {
@@ -1026,20 +1163,20 @@
           localStorage.setItem(USER_KEY, JSON.stringify(user));
 
           const welcomeName = [user.first_name, user.patronymic].filter(Boolean).join(' ');
-          showMessage(`Добро пожаловать, ${welcomeName}!`, 'success');
+          showLoginMessage(`Добро пожаловать, ${welcomeName}!`, 'success');
 
           setTimeout(() => { showApp(); }, 1000);
         } else if (response.ok) {
-          showMessage('Сервер не вернул токен', 'error');
+          showLoginMessage('Сервер не вернул токен', 'error');
         } else {
-          showMessage(translateError(data.code, data.message), 'error');
+          showLoginMessage(translateError(data.code, data.message), 'error');
         }
       } catch (err) {
-        showMessage('Не удалось связаться с сервером', 'error');
+        showLoginMessage('Не удалось связаться с сервером', 'error');
         console.error(err);
       } finally {
-        submitBtn.disabled = false;
-        submitBtn.textContent = 'Войти';
+        loginSubmitBtn.disabled = false;
+        loginSubmitBtn.textContent = 'Войти';
       }
     });
 
@@ -1060,6 +1197,17 @@
       return node;
     }
 
+    // ==================== УТИЛИТЫ ДАТ ====================
+    function toInputDate(value) {
+      if (!value) return '';
+      return String(value).replaceAll('/', '-').slice(0, 10);
+    }
+
+    function formatDateForApi(isoDate) {
+      if (!isoDate) return null;
+      return isoDate.replaceAll('-', '/');
+    }
+
     // ==================== МОДУЛИ ====================
     const MODULES = [
       { id: 'timesheet', title: 'Табель рабочего времени', icon: '🗓️', render: renderTimesheet },
@@ -1076,10 +1224,10 @@
       ]);
     }
 
-    const navList = document.getElementById('navList');
+    const appNavList = document.getElementById('appNavList');
 
     function renderNav() {
-      navList.innerHTML = '';
+      appNavList.innerHTML = '';
       MODULES.forEach(mod => {
         const btn = el('button', { class: 'nav-item', 'data-id': mod.id });
         btn.innerHTML = `
@@ -1087,26 +1235,26 @@
           <span class="label">${mod.title}</span>
         `;
         btn.addEventListener('click', () => openModule(mod.id));
-        navList.appendChild(btn);
+        appNavList.appendChild(btn);
       });
     }
 
-    const mainArea = document.getElementById('mainArea');
+    const appMainArea = document.getElementById('appMainArea');
 
     function openModule(id) {
       const mod = MODULES.find(m => m.id === id);
       if (!mod) {
-        mainArea.innerHTML = '<div class="module-placeholder"><h2>Модуль не найден</h2></div>';
+        appMainArea.innerHTML = '<div class="module-placeholder"><h2>Модуль не найден</h2></div>';
         return;
       }
       document.querySelectorAll('.nav-item').forEach(el => {
         el.classList.toggle('active', el.dataset.id === id);
       });
 
-      mainArea.innerHTML = '';
+      appMainArea.innerHTML = '';
       const wrap = el('div', { class: 'module-content' });
       wrap.appendChild(mod.render());
-      mainArea.appendChild(wrap);
+      appMainArea.appendChild(wrap);
 
       if (location.hash !== '#' + id) {
         history.replaceState(null, '', '#' + id);
@@ -1120,8 +1268,13 @@
 
     window.addEventListener('hashchange', routeFromHash);
 
-    // ==================== КЭШ УЧАСТКОВ ====================
+    // ==================== КЭШИ СПРАВОЧНИКОВ ====================
     let departmentsCache = [];
+    let staffPositionsCache = [];
+    let workSchedulesCache = [];
+
+    // Ссылка на функцию перезагрузки списка сотрудников (устанавливается в renderEmployees)
+    let reloadEmployeesList = null;
 
     // ==================== ОБЩЕЕ: ЗАГРУЗКА УЧАСТКОВ ====================
     async function loadDepartments(selectEl, bodyEl, options = {}) {
@@ -1136,7 +1289,7 @@
             el('span', { text: 'Не удалось загрузить участки' })
           ]));
           selectEl.innerHTML = '<option value="">— ошибка загрузки —</option>';
-          return;
+          return false;
         }
 
         if (data.status === false) {
@@ -1145,7 +1298,7 @@
             el('span', { text: 'Данные по участкам не сформированы' })
           ]));
           selectEl.innerHTML = '<option value="">— нет данных —</option>';
-          return;
+          return false;
         }
 
         const departments = Array.isArray(data.departments) ? data.departments : [];
@@ -1167,6 +1320,7 @@
         } else {
           bodyEl.appendChild(el('div', { class: 'hint', text: emptyHint }));
         }
+        return true;
       } catch (err) {
         console.error(err);
         bodyEl.innerHTML = '';
@@ -1174,6 +1328,7 @@
           el('span', { text: err.message || 'Ошибка соединения' })
         ]));
         selectEl.innerHTML = '<option value="">— ошибка загрузки —</option>';
+        return false;
       }
     }
 
@@ -1241,7 +1396,6 @@
           year: yearSelect.value,
           month: monthSelect.value
         });
-        // TODO: запрос табеля по выбранным параметрам
       }
 
       departmentSelect.addEventListener('change', onFiltersChanged);
@@ -1260,9 +1414,7 @@
       const departmentSelect = el('select', { id: 'empDepartment' });
       departmentSelect.disabled = true;
 
-      const addBtn = el('button', { class: 'btn btn-primary', id: 'empAddBtn', text: 'Добавить', disabled: '' });
-      const editBtn = el('button', { class: 'btn', id: 'empEditBtn', text: 'Изменить', disabled: '' });
-      const deleteBtn = el('button', { class: 'btn btn-danger', id: 'empDeleteBtn', text: 'Удалить', disabled: '' });
+      const addBtn = el('button', { class: 'btn btn-primary', id: 'empAddBtn', text: 'Добавить' });
 
       const toolbar = el('div', { class: 'toolbar' }, [
         el('div', { class: 'control' }, [
@@ -1271,7 +1423,7 @@
         ]),
         el('div', { class: 'control actions' }, [
           el('label', { html: '&nbsp;' }),
-          el('div', { class: 'btn-row' }, [addBtn, editBtn, deleteBtn])
+          el('div', { class: 'btn-row' }, [addBtn])
         ])
       ]);
       container.appendChild(toolbar);
@@ -1283,35 +1435,169 @@
       ]));
       container.appendChild(body);
 
+      const state = {
+        selected: null,
+        employees: [],
+        currentDepartmentId: ''
+      };
+
+      function renderEmployeesTable(employees) {
+        body.innerHTML = '';
+
+        if (!employees.length) {
+          body.appendChild(el('div', { class: 'hint', text: 'В выбранном участке нет сотрудников.' }));
+          return;
+        }
+
+        const tbody = el('tbody');
+        employees.forEach(emp => {
+          const tr = el('tr', { 'data-employee-id': String(emp.employee_id) }, [
+            el('td', { text: String(emp.employee_number ?? '') }),
+            el('td', { text: [emp.last_name, emp.first_name, emp.patronymic].filter(Boolean).join(' ') })
+          ]);
+          tr.addEventListener('click', () => {
+            setSelected(emp);
+            openEmployeeCard(emp);
+          });
+          tbody.appendChild(tr);
+        });
+
+        const table = el('table', { class: 'emp-table' }, [
+          el('thead', {}, [
+            el('tr', {}, [
+              el('th', { text: 'Табельный №' }),
+              el('th', { text: 'ФИО' })
+            ])
+          ]),
+          tbody
+        ]);
+
+        body.appendChild(el('div', { class: 'emp-table-wrap' }, [table]));
+      }
+
+      function setSelected(emp) {
+        state.selected = emp;
+        body.querySelectorAll('tr').forEach(tr => {
+          const isMatch = emp && tr.dataset.employeeId === String(emp.employee_id);
+          tr.classList.toggle('selected', isMatch);
+        });
+      }
+
+      async function loadEmployeesByDepartment(departmentId) {
+        state.currentDepartmentId = departmentId || '';
+
+        if (!departmentId) {
+          body.innerHTML = '';
+          body.appendChild(el('div', { class: 'hint', text: 'Выберите участок, чтобы увидеть список сотрудников.' }));
+          state.employees = [];
+          setSelected(null);
+          return;
+        }
+
+        body.innerHTML = '';
+        body.appendChild(el('div', { class: 'state' }, [
+          el('span', { class: 'spinner' }),
+          el('span', { text: 'Загрузка сотрудников...' })
+        ]));
+        setSelected(null);
+
+        try {
+          const { response, data } = await apiFetch(`/shop/department/${Number(departmentId)}`);
+
+          if (!response.ok || !data || data.status === false) {
+            body.innerHTML = '';
+            body.appendChild(el('div', { class: 'state error' }, [
+              el('span', { text: 'Не удалось загрузить сотрудников' })
+            ]));
+            state.employees = [];
+            return;
+          }
+
+          const employees = Array.isArray(data.department_staff) ? data.department_staff : [];
+          state.employees = employees;
+          renderEmployeesTable(employees);
+        } catch (err) {
+          console.error(err);
+          body.innerHTML = '';
+          body.appendChild(el('div', { class: 'state error' }, [
+            el('span', { text: err.message || 'Ошибка соединения' })
+          ]));
+          state.employees = [];
+        }
+      }
+
+      // Экспортируем функцию перезагрузки
+      reloadEmployeesList = () => loadEmployeesByDepartment(state.currentDepartmentId);
+
       loadDepartments(departmentSelect, body, {
         emptyHint: 'Выберите участок, чтобы увидеть список сотрудников.'
-      }).then(() => {
-        addBtn.disabled = false;
       });
 
       addBtn.addEventListener('click', () => {
-        openEmpModal(departmentSelect.value);
-      });
-      editBtn.addEventListener('click', () => {
-        console.log('TODO: изменить сотрудника, участок =', departmentSelect.value);
-      });
-      deleteBtn.addEventListener('click', () => {
-        console.log('TODO: удалить сотрудника, участок =', departmentSelect.value);
+        openEmpModalAdd(departmentSelect.value || '');
       });
 
       departmentSelect.addEventListener('change', () => {
-        console.log('department changed:', departmentSelect.value);
-        // TODO: загрузить список сотрудников выбранного участка
+        loadEmployeesByDepartment(departmentSelect.value);
       });
 
       return container;
     }
 
-    // ==================== МОДАЛЬНОЕ ОКНО: ДОБАВИТЬ СОТРУДНИКА ====================
+    // ==================== МОДАЛЬНОЕ ОКНО СОТРУДНИКА ====================
     const empModal = document.getElementById('empModal');
-    const empForm = document.getElementById('empForm');
-    const empFormMessage = document.getElementById('empFormMessage');
+    const empModalInner = document.getElementById('empModalInner');
+    const empModalTitle = document.getElementById('empModalTitle');
+    const empModalForm = document.getElementById('empModalForm');
+    const empModalFooter = document.getElementById('empModalFooter');
+    const empModalMessage = document.getElementById('empModalMessage');
 
+    const empModalLastName = document.getElementById('empModalLastName');
+    const empModalFirstName = document.getElementById('empModalFirstName');
+    const empModalPatronymic = document.getElementById('empModalPatronymic');
+    const empModalBirthDate = document.getElementById('empModalBirthDate');
+    const empModalEmploymentDate = document.getElementById('empModalEmploymentDate');
+    const empModalNumber = document.getElementById('empModalNumber');
+    const empModalDepartment = document.getElementById('empModalDepartment');
+    const empModalStaffPosition = document.getElementById('empModalStaffPosition');
+    const empModalWorkSchedule = document.getElementById('empModalWorkSchedule');
+
+    let empModalMode = 'view';
+    let empModalCurrentEmployee = null;
+
+    // ==================== ВАЛИДАЦИЯ ====================
+    function clearFieldErrors() {
+      empModalForm.querySelectorAll('.form-field.invalid').forEach(f => f.classList.remove('invalid'));
+    }
+
+    function markFieldInvalid(fieldName) {
+      const field = empModalForm.querySelector(`.form-field[data-field="${fieldName}"]`);
+      if (field) field.classList.add('invalid');
+    }
+
+    function validateEmployeeForm() {
+      clearFieldErrors();
+      const invalid = [];
+
+      if (!empModalLastName.value.trim()) invalid.push('last_name');
+      if (!empModalFirstName.value.trim()) invalid.push('first_name');
+      if (!empModalBirthDate.value) invalid.push('birth_date');
+      if (!empModalEmploymentDate.value) invalid.push('employment_date');
+
+      const numStr = String(empModalNumber.value).trim();
+      if (!numStr || Number.isNaN(Number(numStr)) || Number(numStr) < 0) {
+        invalid.push('employee_number');
+      }
+
+      if (!empModalDepartment.value) invalid.push('department_id');
+      if (!empModalStaffPosition.value) invalid.push('staff_position_id');
+      if (!empModalWorkSchedule.value) invalid.push('work_schedule_id');
+
+      invalid.forEach(markFieldInvalid);
+      return invalid;
+    }
+
+    // ==================== СПРАВОЧНИКИ ====================
     function fillDepartmentSelect(selectEl, departments, selectedId) {
       selectEl.innerHTML = '';
       selectEl.appendChild(el('option', { value: '', text: '— выберите участок —' }));
@@ -1320,61 +1606,289 @@
         if (String(dep.id) === String(selectedId)) opt.selected = true;
         selectEl.appendChild(opt);
       });
+      selectEl.disabled = false;
     }
 
-    function showFormMessage(text, type) {
-      empFormMessage.textContent = text;
-      empFormMessage.className = 'modal-message ' + (type || '');
+    function fillSimpleSelect(selectEl, items, placeholder) {
+      selectEl.innerHTML = '';
+      selectEl.appendChild(el('option', { value: '', text: placeholder }));
+      items.forEach(item => {
+        selectEl.appendChild(el('option', {
+          value: String(item.id),
+          text: item.description
+        }));
+      });
+      selectEl.disabled = false;
     }
 
-    function clearFormMessage() {
-      empFormMessage.textContent = '';
-      empFormMessage.className = 'modal-message';
+    function showEmpModalMessage(text, type) {
+      empModalMessage.textContent = text;
+      empModalMessage.className = 'modal-message ' + (type || '');
     }
 
-    function resetEmpForm() {
-      empForm.reset();
-      clearFormMessage();
-      document.getElementById('empStaffPosition').innerHTML = '<option value="">— загрузка —</option>';
-      document.getElementById('empWorkSchedule').innerHTML = '<option value="">— загрузка —</option>';
+    function clearEmpModalMessage() {
+      empModalMessage.textContent = '';
+      empModalMessage.className = 'modal-message';
     }
 
-    function openEmpModal(defaultDepartmentId) {
-      resetEmpForm();
+    async function ensureCatalogs() {
+      if (!departmentsCache.length) {
+        try {
+          const { response, data } = await apiFetch('/shop/department');
+          if (response.ok && data && data.status !== false && Array.isArray(data.departments)) {
+            departmentsCache = data.departments;
+          }
+        } catch (err) { console.error('departments:', err); }
+      }
 
-      fillDepartmentSelect(
-        document.getElementById('empDepartment'),
-        departmentsCache,
-        defaultDepartmentId
-      );
+      if (!staffPositionsCache.length) {
+        try {
+          const { response, data } = await apiFetch('/shop/staff_position');
+          if (response.ok && data && data.status !== false && Array.isArray(data.staff_positions)) {
+            staffPositionsCache = data.staff_positions;
+          }
+        } catch (err) { console.error('staff_positions:', err); }
+      }
 
-      // TODO: подключить реальные эндпоинты должностей и графиков
-      const posSel = document.getElementById('empStaffPosition');
-      posSel.innerHTML = '<option value="">— загрузка должностей —</option>';
+      if (!workSchedulesCache.length) {
+        try {
+          const { response, data } = await apiFetch('/timesheet/work_schedule');
+          if (response.ok && data && data.status !== false && Array.isArray(data.work_schedules)) {
+            workSchedulesCache = data.work_schedules;
+          }
+        } catch (err) { console.error('work_schedules:', err); }
+      }
+    }
 
-      const wsSel = document.getElementById('empWorkSchedule');
-      wsSel.innerHTML = '<option value="">— загрузка графиков —</option>';
+    function fillEmployeeForm(emp) {
+      empModalLastName.value = emp?.last_name || '';
+      empModalFirstName.value = emp?.first_name || '';
+      empModalPatronymic.value = emp?.patronymic || '';
+      empModalBirthDate.value = toInputDate(emp?.birth_date);
+      empModalEmploymentDate.value = toInputDate(emp?.employment_date);
+      empModalNumber.value = emp?.employee_number ?? '';
 
+      fillDepartmentSelect(empModalDepartment, departmentsCache, emp?.department_id);
+      fillSimpleSelect(empModalStaffPosition, staffPositionsCache, '— выберите должность —');
+      empModalStaffPosition.value = emp?.staff_position_id != null ? String(emp.staff_position_id) : '';
+
+      fillSimpleSelect(empModalWorkSchedule, workSchedulesCache, '— выберите график —');
+      empModalWorkSchedule.value = emp?.work_schedule_id != null ? String(emp.work_schedule_id) : '';
+    }
+
+    function clearEmployeeForm(defaultDepartmentId) {
+      empModalForm.reset();
+      clearFieldErrors();
+      empModalLastName.value = '';
+      empModalFirstName.value = '';
+      empModalPatronymic.value = '';
+      empModalBirthDate.value = '';
+      empModalEmploymentDate.value = '';
+      empModalNumber.value = '';
+
+      fillDepartmentSelect(empModalDepartment, departmentsCache, defaultDepartmentId || '');
+      fillSimpleSelect(empModalStaffPosition, staffPositionsCache, '— выберите должность —');
+      fillSimpleSelect(empModalWorkSchedule, workSchedulesCache, '— выберите график —');
+    }
+
+    function setEmpModalMode(mode) {
+      empModalMode = mode;
+
+      if (mode === 'view') {
+        empModalTitle.textContent = 'Сотрудник';
+        empModalInner.classList.add('mode-view');
+      } else if (mode === 'edit') {
+        empModalTitle.textContent = 'Изменить сотрудника';
+        empModalInner.classList.remove('mode-view');
+      } else {
+        empModalTitle.textContent = 'Добавить сотрудника';
+        empModalInner.classList.remove('mode-view');
+      }
+
+      renderEmpModalFooter();
+    }
+
+    function renderEmpModalFooter() {
+      empModalFooter.innerHTML = '';
+
+      if (empModalMode === 'view') {
+        const delBtn = el('button', { type: 'button', class: 'btn btn-danger', id: 'empModalDeleteBtn', text: 'Удалить' });
+        const spacer = el('div', { class: 'spacer' });
+        const closeBtn = el('button', { type: 'button', class: 'btn', id: 'empModalCloseFooterBtn', text: 'Закрыть' });
+        const editBtn = el('button', { type: 'button', class: 'btn btn-primary', id: 'empModalEditBtn', text: 'Изменить' });
+
+        delBtn.addEventListener('click', onEmpModalDelete);
+        closeBtn.addEventListener('click', closeEmpModal);
+        editBtn.addEventListener('click', onEmpModalSwitchToEdit);
+
+        empModalFooter.appendChild(delBtn);
+        empModalFooter.appendChild(spacer);
+        empModalFooter.appendChild(closeBtn);
+        empModalFooter.appendChild(editBtn);
+      } else {
+        const cancelBtn = el('button', { type: 'button', class: 'btn', id: 'empModalCancelBtn', text: 'Отмена' });
+        const saveBtn = el('button', { type: 'button', class: 'btn btn-primary', id: 'empModalSaveBtn', text: 'Сохранить' });
+
+        cancelBtn.addEventListener('click', empModalMode === 'edit' ? onEmpModalEditCancel : closeEmpModal);
+        saveBtn.addEventListener('click', empModalMode === 'edit' ? onEmpModalEditSave : onEmpModalAddSave);
+
+        empModalFooter.appendChild(cancelBtn);
+        empModalFooter.appendChild(saveBtn);
+      }
+    }
+
+    async function openEmployeeCard(emp) {
+      empModalCurrentEmployee = emp;
+      clearEmpModalMessage();
+      clearFieldErrors();
       empModal.classList.add('open');
+      setEmpModalMode('view');
+
+      empModalDepartment.innerHTML = '<option value="">— загрузка —</option>';
+      empModalStaffPosition.innerHTML = '<option value="">— загрузка —</option>';
+      empModalWorkSchedule.innerHTML = '<option value="">— загрузка —</option>';
+
+      await ensureCatalogs();
+      fillEmployeeForm(emp);
+    }
+
+    async function openEmpModalAdd(defaultDepartmentId) {
+      empModalCurrentEmployee = null;
+      clearEmpModalMessage();
+      clearFieldErrors();
+      empModal.classList.add('open');
+      setEmpModalMode('add');
+
+      empModalDepartment.innerHTML = '<option value="">— загрузка —</option>';
+      empModalStaffPosition.innerHTML = '<option value="">— загрузка —</option>';
+      empModalWorkSchedule.innerHTML = '<option value="">— загрузка —</option>';
+
+      await ensureCatalogs();
+      clearEmployeeForm(defaultDepartmentId);
     }
 
     function closeEmpModal() {
       empModal.classList.remove('open');
+      empModalInner.classList.remove('mode-view');
+      clearFieldErrors();
+      empModalCurrentEmployee = null;
     }
 
-    document.getElementById('empModalClose').addEventListener('click', closeEmpModal);
-    document.getElementById('empCancelBtn').addEventListener('click', closeEmpModal);
-    empModal.addEventListener('click', (e) => {
-      if (e.target === empModal) closeEmpModal();
-    });
-    document.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape' && empModal.classList.contains('open')) closeEmpModal();
-    });
+    function onEmpModalSwitchToEdit() {
+      if (!empModalCurrentEmployee) return;
+      clearEmpModalMessage();
+      clearFieldErrors();
+      setEmpModalMode('edit');
+    }
 
-    document.getElementById('empSubmitBtn').addEventListener('click', async () => {
-      clearFormMessage();
+    function onEmpModalEditCancel() {
+      clearEmpModalMessage();
+      clearFieldErrors();
+      fillEmployeeForm(empModalCurrentEmployee);
+      setEmpModalMode('view');
+    }
 
-      const fd = new FormData(empForm);
+    async function onEmpModalDelete() {
+      if (!empModalCurrentEmployee) return;
+
+      const fullName = [empModalCurrentEmployee.last_name, empModalCurrentEmployee.first_name, empModalCurrentEmployee.patronymic]
+        .filter(Boolean).join(' ');
+
+      if (!confirm(`Удалить сотрудника «${fullName}»?`)) return;
+
+      clearEmpModalMessage();
+
+      try {
+        const { response, data } = await apiFetch('/shop/employee', {
+          method: 'DELETE',
+          body: JSON.stringify({ employee_id: empModalCurrentEmployee.employee_id })
+        });
+
+        if (!response.ok || !data) {
+          showEmpModalMessage('Не удалось удалить сотрудника', 'error');
+          return;
+        }
+
+        if (data.is_removed === true) {
+          showEmpModalMessage('Сотрудник удалён', 'success');
+          setTimeout(() => {
+            closeEmpModal();
+            if (typeof reloadEmployeesList === 'function') reloadEmployeesList();
+          }, 700);
+        } else {
+          showEmpModalMessage('Не удалось удалить сотрудника', 'error');
+        }
+      } catch (err) {
+        console.error(err);
+        showEmpModalMessage(err.message || 'Ошибка соединения', 'error');
+      }
+    }
+
+    async function onEmpModalEditSave() {
+      clearEmpModalMessage();
+      if (!empModalCurrentEmployee) return;
+
+      const invalid = validateEmployeeForm();
+      if (invalid.length) {
+        showEmpModalMessage('Заполните выделенные поля', 'error');
+        return;
+      }
+
+      const fd = new FormData(empModalForm);
+      const payload = {
+        employee_id: empModalCurrentEmployee.employee_id,
+        last_name: (fd.get('last_name') || '').trim(),
+        first_name: (fd.get('first_name') || '').trim(),
+        patronymic: (fd.get('patronymic') || '').trim(),
+        birth_date: formatDateForApi(fd.get('birth_date')),
+        employment_date: formatDateForApi(fd.get('employment_date')),
+        employee_number: Number(fd.get('employee_number')),
+        department_id: Number(fd.get('department_id')),
+        staff_position_id: Number(fd.get('staff_position_id')),
+        work_schedule_id: Number(fd.get('work_schedule_id'))
+      };
+
+      const saveBtn = document.getElementById('empModalSaveBtn');
+      if (saveBtn) { saveBtn.disabled = true; saveBtn.textContent = 'Сохранение...'; }
+
+      try {
+        const { response, data } = await apiFetch('/shop/employee', {
+          method: 'PATCH',
+          body: JSON.stringify(payload)
+        });
+
+        if (!response.ok || !data) {
+          showEmpModalMessage('Не удалось сохранить изменения', 'error');
+          return;
+        }
+
+        if (data.is_updated === true) {
+          showEmpModalMessage('Изменения сохранены', 'success');
+          setTimeout(() => {
+            closeEmpModal();
+            if (typeof reloadEmployeesList === 'function') reloadEmployeesList();
+          }, 700);
+        } else {
+          showEmpModalMessage('Не удалось сохранить изменения', 'error');
+        }
+      } catch (err) {
+        console.error(err);
+        showEmpModalMessage(err.message || 'Ошибка соединения', 'error');
+      } finally {
+        if (saveBtn) { saveBtn.disabled = false; saveBtn.textContent = 'Сохранить'; }
+      }
+    }
+
+    async function onEmpModalAddSave() {
+      clearEmpModalMessage();
+
+      const invalid = validateEmployeeForm();
+      if (invalid.length) {
+        showEmpModalMessage('Заполните выделенные поля', 'error');
+        return;
+      }
+
+      const fd = new FormData(empModalForm);
       const payload = {
         last_name: (fd.get('last_name') || '').trim(),
         first_name: (fd.get('first_name') || '').trim(),
@@ -1383,40 +1897,64 @@
         employment_date: formatDateForApi(fd.get('employment_date')),
         employee_number: Number(fd.get('employee_number')),
         department_id: Number(fd.get('department_id')),
-        staff_position_id: fd.get('staff_position_id') ? Number(fd.get('staff_position_id')) : null,
-        work_schedule_id: fd.get('work_schedule_id') ? Number(fd.get('work_schedule_id')) : null
+        staff_position_id: Number(fd.get('staff_position_id')),
+        work_schedule_id: Number(fd.get('work_schedule_id'))
       };
 
-      if (!payload.last_name || !payload.first_name) {
-        showFormMessage('Укажите фамилию и имя', 'error');
-        return;
-      }
-      if (!payload.employee_number && payload.employee_number !== 0) {
-        showFormMessage('Укажите табельный номер', 'error');
-        return;
-      }
-      if (!payload.department_id) {
-        showFormMessage('Выберите участок', 'error');
-        return;
-      }
-      if (!payload.staff_position_id || !payload.work_schedule_id) {
-        showFormMessage('Выберите должность и график работы', 'error');
-        return;
-      }
+      const saveBtn = document.getElementById('empModalSaveBtn');
+      if (saveBtn) { saveBtn.disabled = true; saveBtn.textContent = 'Сохранение...'; }
 
-      console.log('TODO: отправка сотрудника:', payload);
+      try {
+        const { response, data } = await apiFetch('/shop/employee', {
+          method: 'POST',
+          body: JSON.stringify(payload)
+        });
 
-      // TODO: apiFetch('/shop/employee', { method: 'POST', body: JSON.stringify(payload) })
-      showFormMessage('Функция добавления пока не подключена к серверу', 'error');
-    });
+        if (!response.ok || !data) {
+          showEmpModalMessage('Не удалось добавить сотрудника', 'error');
+          return;
+        }
 
-    function formatDateForApi(isoDate) {
-      if (!isoDate) return null;
-      return isoDate.replaceAll('-', '/');
+        if (data.is_added === true) {
+          showEmpModalMessage('Сотрудник успешно добавлен', 'success');
+          setTimeout(() => {
+            closeEmpModal();
+            if (typeof reloadEmployeesList === 'function') reloadEmployeesList();
+          }, 900);
+        } else {
+          showEmpModalMessage('Не удалось добавить сотрудника', 'error');
+        }
+      } catch (err) {
+        console.error(err);
+        showEmpModalMessage(err.message || 'Ошибка соединения', 'error');
+      } finally {
+        if (saveBtn) { saveBtn.disabled = false; saveBtn.textContent = 'Сохранить'; }
+      }
     }
 
+    // Закрытие модалки
+    document.getElementById('empModalCloseBtn').addEventListener('click', closeEmpModal);
+    empModal.addEventListener('click', (e) => {
+      if (e.target === empModal) closeEmpModal();
+    });
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && empModal.classList.contains('open')) closeEmpModal();
+    });
+
+    // Очистка ошибки при вводе
+    [empModalLastName, empModalFirstName, empModalBirthDate, empModalEmploymentDate,
+      empModalNumber, empModalDepartment, empModalStaffPosition, empModalWorkSchedule]
+      .forEach(input => {
+        const handler = () => {
+          const field = input.closest('.form-field');
+          if (field) field.classList.remove('invalid');
+        };
+        input.addEventListener('input', handler);
+        input.addEventListener('change', handler);
+      });
+
     // ==================== ВЫХОД ====================
-    document.getElementById('logoutBtn').addEventListener('click', () => {
+    document.getElementById('appLogoutBtn').addEventListener('click', () => {
       localStorage.removeItem(TOKEN_KEY);
       localStorage.removeItem(USER_KEY);
       history.replaceState(null, '', location.pathname);
@@ -1425,10 +1963,15 @@
 
     // ==================== ИНИЦИАЛИЗАЦИЯ ====================
     if (localStorage.getItem(TOKEN_KEY)) {
+      loginScreen.classList.remove('active');
       appScreen.classList.add('active');
-      updateUserName();
-      renderNav();
-      routeFromHash();
+      try {
+        updateUserName();
+        renderNav();
+        routeFromHash();
+      } catch (e) {
+        console.error('Ошибка при инициализации приложения:', e);
+      }
     } else {
       loginScreen.classList.add('active');
     }

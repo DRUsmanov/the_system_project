@@ -28,7 +28,7 @@ public:
         std::string_view target = req.target();
         target.remove_prefix(API_V1_TIMESHEET.size());
 
-        if (target == WORK_SCHEDULE) {
+        if (target.starts_with(WORK_SCHEDULE)) {
             work_schedule_request_handler_(std::move(req),
                                            payload,
                                            text_response_maker,
