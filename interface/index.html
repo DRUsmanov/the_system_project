@@ -434,9 +434,12 @@
       transition: border-color 0.15s, box-shadow 0.15s;
     }
 
-    #tsYear,
+    #tsYear {
+      min-width: 110px;
+    }
+
     #tsMonth {
-      min-width: 130px;
+      min-width: 160px;
     }
 
     .toolbar select:focus {
@@ -448,6 +451,81 @@
     .toolbar select:disabled {
       opacity: 0.6;
       cursor: not-allowed;
+    }
+
+    /* ===== Стрелки листания периода (табель) ===== */
+    .ts-period {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    .ts-arrow {
+      width: 40px;
+      height: 40px;
+      flex-shrink: 0;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--panel-2);
+      border: 1px solid var(--border);
+      color: var(--text);
+      border-radius: 8px;
+      font-size: 1.35rem;
+      line-height: 1;
+      font-family: inherit;
+      cursor: pointer;
+      transition: background 0.15s, border-color 0.15s, transform 0.1s;
+      user-select: none;
+    }
+
+    .ts-today {
+      height: 40px;
+      padding: 0 0.9rem;
+      flex-shrink: 0;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--panel-2);
+      border: 1px solid var(--border);
+      color: var(--text);
+      border-radius: 8px;
+      font-size: 0.85rem;
+      font-family: inherit;
+      cursor: pointer;
+      transition: background 0.15s, border-color 0.15s, transform 0.1s;
+      white-space: nowrap;
+      user-select: none;
+    }
+
+    .ts-today:hover {
+      background: #2f4159;
+      border-color: #475569;
+    }
+
+    .ts-today:active {
+      transform: scale(0.96);
+    }
+
+    .ts-today:focus-visible {
+      outline: none;
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+    }
+
+    .ts-arrow:hover {
+      background: #2f4159;
+      border-color: #475569;
+    }
+
+    .ts-arrow:active {
+      transform: scale(0.94);
+    }
+
+    .ts-arrow:focus-visible {
+      outline: none;
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
     }
 
     .module-body {
@@ -767,7 +845,6 @@
       padding-right: 0;
     }
 
-    /* В режиме просмотра не показываем сообщения об ошибке полей */
     .modal.mode-view .form-field.invalid input,
     .modal.mode-view .form-field.invalid select {
       border-color: transparent;
@@ -878,6 +955,16 @@
 
       .modal-footer .btn {
         flex: 1;
+      }
+
+      #tsYear,
+      #tsMonth {
+        min-width: 0;
+        flex: 1;
+      }
+
+      .ts-period {
+        width: 100%;
       }
     }
   </style>
@@ -1273,7 +1360,6 @@
     let staffPositionsCache = [];
     let workSchedulesCache = [];
 
-    // Ссылка на функцию перезагрузки списка сотрудников (устанавливается в renderEmployees)
     let reloadEmployeesList = null;
 
     // ==================== ОБЩЕЕ: ЗАГРУЗКА УЧАСТКОВ ====================
@@ -1363,18 +1449,92 @@
         monthSelect.appendChild(opt);
       });
 
+      // ===== Стрелки =====
+      const prevBtn = el('button', {
+        type: 'button',
+        class: 'ts-arrow',
+        id: 'tsPrevBtn',
+        title: 'Предыдущий месяц',
+        'aria-label': 'Предыдущий месяц',
+        text: '‹'
+      });
+
+      const nextBtn = el('button', {
+        type: 'button',
+        class: 'ts-arrow',
+        id: 'tsNextBtn',
+        title: 'Следующий месяц',
+        'aria-label': 'Следующий месяц',
+        text: '›'
+      });
+
+      // ===== Кнопка "Текущий месяц" =====
+      const todayBtn = el('button', {
+        type: 'button',
+        class: 'ts-today',
+        id: 'tsTodayBtn',
+        title: 'Перейти к текущему месяцу',
+        text: 'Текущий месяц'
+      });
+
+      // Убедиться, что год есть в селекте (для случая, когда вышли за диапазон и вернулись)
+      function ensureYearOption(y) {
+        const hasYear = Array.from(yearSelect.options).some(o => Number(o.value) === y);
+        if (hasYear) return;
+
+        const newOpt = el('option', { value: String(y), text: String(y) });
+        let inserted = false;
+        for (const opt of yearSelect.options) {
+          if (Number(opt.value) > y) {
+            yearSelect.insertBefore(newOpt, opt);
+            inserted = true;
+            break;
+          }
+        }
+        if (!inserted) yearSelect.appendChild(newOpt);
+      }
+
+      function shiftMonth(delta) {
+        let y = Number(yearSelect.value);
+        let m = Number(monthSelect.value);
+        m += delta;
+        if (m < 1) { m = 12; y -= 1; }
+        if (m > 12) { m = 1; y += 1; }
+
+        ensureYearOption(y);
+        yearSelect.value = String(y);
+        monthSelect.value = String(m);
+
+        onFiltersChanged();
+      }
+
+      function goToCurrentMonth() {
+        ensureYearOption(currentYear);
+        yearSelect.value = String(currentYear);
+        monthSelect.value = String(currentMonth);
+
+        onFiltersChanged();
+      }
+
+      prevBtn.addEventListener('click', () => shiftMonth(-1));
+      nextBtn.addEventListener('click', () => shiftMonth(+1));
+      todayBtn.addEventListener('click', goToCurrentMonth);
+
+      // ===== Панель =====
       const toolbar = el('div', { class: 'toolbar' }, [
         el('div', { class: 'control' }, [
           el('label', { for: 'tsDepartment', text: 'Подразделение' }),
           departmentSelect
         ]),
         el('div', { class: 'control' }, [
-          el('label', { for: 'tsYear', text: 'Год' }),
-          yearSelect
-        ]),
-        el('div', { class: 'control' }, [
-          el('label', { for: 'tsMonth', text: 'Месяц' }),
-          monthSelect
+          el('label', { html: '&nbsp;' }),
+          el('div', { class: 'ts-period' }, [
+            prevBtn,
+            yearSelect,
+            monthSelect,
+            nextBtn,
+            todayBtn
+          ])
         ])
       ]);
       container.appendChild(toolbar);
@@ -1526,7 +1686,6 @@
         }
       }
 
-      // Экспортируем функцию перезагрузки
       reloadEmployeesList = () => loadEmployeesByDepartment(state.currentDepartmentId);
 
       loadDepartments(departmentSelect, body, {
@@ -1932,7 +2091,6 @@
       }
     }
 
-    // Закрытие модалки
     document.getElementById('empModalCloseBtn').addEventListener('click', closeEmpModal);
     empModal.addEventListener('click', (e) => {
       if (e.target === empModal) closeEmpModal();
