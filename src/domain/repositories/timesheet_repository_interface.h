@@ -34,6 +34,8 @@ public:
     virtual std::optional<Timesheet> downloadDepartmentTimesheet(DepartmentId department_id,
                                                                  AdminCategoryId admin_category_id,
                                                                  std::chrono::year_month year_month) const = 0;
+    virtual std::optional<Date> downloadMaxDate() const = 0;
+    virtual bool deleteEmployeeTimesheetFromDate(const domain::EmployeeId& employee_id, const domain::Date& date) = 0;
 
     virtual bool uploadTimesheet(const Timesheet& timesheet,
                                  AdminCategoryId admin_category_id,

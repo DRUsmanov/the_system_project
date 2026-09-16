@@ -25,6 +25,8 @@ public:
     std::optional<domain::Timesheet> downloadDepartmentTimesheet(domain::DepartmentId department_id,
                                                                  domain::AdminCategoryId admin_category_id,
                                                                  std::chrono::year_month year_month) const override;
+    std::optional<domain::Date> downloadMaxDate() const override;
+    bool deleteEmployeeTimesheetFromDate(const domain::EmployeeId& employee_id, const domain::Date& date) override;
 
     bool uploadTimesheet(const domain::Timesheet& timesheet,
                          domain::AdminCategoryId admin_category_id,

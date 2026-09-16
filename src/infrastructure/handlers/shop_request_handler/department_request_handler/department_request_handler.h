@@ -1,7 +1,6 @@
 #pragma once
 
 #include <boost/beast.hpp>
-#include <iostream>
 #include <string_view>
 
 #include "application_gateway/application_gateway_interface.h"
@@ -56,7 +55,6 @@ public:
                 }
             } else {
                 // получение сотрудников участка
-                std::cout << "CALLED" << std::endl;
                 auto result =
                     application_gateway_.getDepartmentStaff(user_access_dto, makeGetDepartmentStaffRequestDto(target));
                 if (result.has_value()) {

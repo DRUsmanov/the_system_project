@@ -37,8 +37,11 @@ AddEmployeeResponseDto ShopDtoMapper::convert(domain::EmployeeId employee_id) co
 // REMOVE EMPLOYEE
 // ======================================================================
 
-domain::EmployeeId ShopDtoMapper::convert(const RemoveEmployeeRequestDto& remove_employee_request_dto) const {
-    return domain::EmployeeId{remove_employee_request_dto.employee_id};
+std::pair<domain::EmployeeId, domain::Date> ShopDtoMapper::convert(
+    const RemoveEmployeeRequestDto& remove_employee_request_dto) const {
+    auto empployee_id = domain::EmployeeId{remove_employee_request_dto.employee_id};
+    auto removing_date = domain::dateFromString(remove_employee_request_dto.removing_date);
+    return {empployee_id, removing_date};
 }
 
 // ======================================================================
@@ -98,8 +101,8 @@ GetDepartmentStaffResponseDto ShopDtoMapper::convert(const domain::Staff& depart
     return get_department_staff_response_dto;
 }
 
-std::tuple<domain::EmployeeId, domain::Employee, domain::EmployeeAssignment> application::ShopDtoMapper::convert(
-    const UpdateEmployeeRequestDto& update_employee_request_dto) const {
+std::tuple<domain::EmployeeId, domain::Employee, domain::EmployeeAssignment, std::optional<domain::Date>>
+application::ShopDtoMapper::convert(const UpdateEmployeeRequestDto& update_employee_request_dto) const {
     domain::EmployeeId employee_id{update_employee_request_dto.employee_id};
 
     domain::Employee employee;
@@ -118,5 +121,11 @@ std::tuple<domain::EmployeeId, domain::Employee, domain::EmployeeAssignment> app
     employee_assignment.staff_position_id = staff_position_id;
     employee_assignment.work_schedule_id = work_schedule_id;
 
-    return {employee_id, employee, employee_assignment};
+    std::optional<domain::Date> assignment_changing_date = std::nullopt;
+
+    if (update_employee_request_dto.assignment_changing_date.has_value()) {
+        assignment_changing_date = domain::dateFromString(update_employee_request_dto.assignment_changing_date.value());
+    }
+
+    return {employee_id, employee, employee_assignment, assignment_changing_date};
 }

@@ -43,8 +43,8 @@ bool ApplicationGateway::removeEmployee(const UserAccessDto& user_access_dto,
                                         const RemoveEmployeeRequestDto& remove_employee_request_dto) const {
     utils::logFunctionStart(utils::FUNCTION_INFO);
     auto user_id = user_dto_mapper_.convert(user_access_dto);
-    auto employee_id = shop_dto_mapper_.convert(remove_employee_request_dto);
-    return application_manager_.removeEmployee(user_id, employee_id);
+    auto [employee_id, removing_date] = shop_dto_mapper_.convert(remove_employee_request_dto);
+    return application_manager_.removeEmployee(user_id, employee_id, removing_date);
 }
 
 std::optional<GetDepartmentsResponseDto> ApplicationGateway::getDepartments(
@@ -111,5 +111,10 @@ bool ApplicationGateway::updateEmployee(const UserAccessDto& user_access_dto,
     const auto& employee_id = std::get<domain::EmployeeId>(update_data);
     const auto& employee = std::get<domain::Employee>(update_data);
     const auto& employee_assignment = std::get<domain::EmployeeAssignment>(update_data);
-    return application_manager_.updateEmployee(user_id, employee_id, employee, employee_assignment);
+    const auto& assignment_changing_date = std::get<std::optional<domain::Date>>(update_data);
+    return application_manager_.updateEmployee(user_id,
+                                               employee_id,
+                                               employee,
+                                               employee_assignment,
+                                               assignment_changing_date);
 }

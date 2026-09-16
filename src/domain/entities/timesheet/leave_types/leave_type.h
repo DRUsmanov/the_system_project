@@ -5,7 +5,7 @@
 
 namespace domain {
 
-enum class LeaveType {
+enum class LeaveType : uint64_t {
     VACATION = 0,                    // Отпуск
     STUDY_LEAVE = 1,                 // Ученический отпуск
     STATE_DUTIES = 2,                // Гос. обязанности

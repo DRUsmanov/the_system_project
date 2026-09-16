@@ -5,6 +5,8 @@
 using namespace infrastructure;
 
 namespace request_keys {
+constexpr std::string_view IS_ASSIGNMENT_CHANGED{"is_assignment_changed"};
+constexpr std::string_view ASSIGNMENT_CHANGING_DATE{"assignment_changing_date"};
 constexpr std::string_view EMPLOYEE_ID{"employee_id"};
 constexpr std::string_view LAST_NAME{"last_name"};
 constexpr std::string_view FIRST_NAME{"first_name"};
@@ -15,6 +17,7 @@ constexpr std::string_view EMPLOYEE_NUMBER{"employee_number"};
 constexpr std::string_view DEPARTMENT_ID{"department_id"};
 constexpr std::string_view STAFF_POSITION_ID{"staff_position_id"};
 constexpr std::string_view WORK_SCHEDULE_ID{"work_schedule_id"};
+constexpr std::string_view REMOVING_DATE{"removing_date"};
 }  // namespace request_keys
 
 namespace response_keys {
@@ -58,6 +61,7 @@ application::RemoveEmployeeRequestDto EmployeeRequestHandler::makeRemoveEmployee
     const json::object& request_body_as_object) const {
     application::RemoveEmployeeRequestDto remove_employee_request_dto;
     remove_employee_request_dto.employee_id = request_body_as_object.at(request_keys::EMPLOYEE_ID).as_int64();
+    remove_employee_request_dto.removing_date = request_body_as_object.at(request_keys::REMOVING_DATE).as_string();
     return remove_employee_request_dto;
 }
 
@@ -82,6 +86,11 @@ application::UpdateEmployeeRequestDto infrastructure::EmployeeRequestHandler::ma
     update_employee_request_dto.staff_position_id =
         request_body_as_object.at(request_keys::STAFF_POSITION_ID).as_int64();
     update_employee_request_dto.work_schedule_id = request_body_as_object.at(request_keys::WORK_SCHEDULE_ID).as_int64();
+
+    if (!request_body_as_object.at(request_keys::ASSIGNMENT_CHANGING_DATE).is_null()) {
+        update_employee_request_dto.assignment_changing_date =
+            request_body_as_object.at(request_keys::ASSIGNMENT_CHANGING_DATE).as_string();
+    }
 
     return update_employee_request_dto;
 }

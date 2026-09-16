@@ -20,7 +20,8 @@ public:
     virtual AddEmployeeResponseDto convert(domain::EmployeeId employee_id) const = 0;
 
     // REMOVE EMPLOYEE
-    virtual domain::EmployeeId convert(const RemoveEmployeeRequestDto& remove_employee_request_dto) const = 0;
+    virtual std::pair<domain::EmployeeId, domain::Date> convert(
+        const RemoveEmployeeRequestDto& remove_employee_request_dto) const = 0;
 
     // GET DEPARTMENTS
     virtual GetDepartmentsResponseDto convert(const domain::Departments& departments) const = 0;
@@ -34,8 +35,8 @@ public:
     virtual GetDepartmentStaffResponseDto convert(const domain::Staff& department_staff) const = 0;
 
     // UPDATE EMPLOYEE
-    virtual std::tuple<domain::EmployeeId, domain::Employee, domain::EmployeeAssignment> convert(
-        const UpdateEmployeeRequestDto& update_employee_request_dto) const = 0;
+    virtual std::tuple<domain::EmployeeId, domain::Employee, domain::EmployeeAssignment, std::optional<domain::Date>>
+    convert(const UpdateEmployeeRequestDto& update_employee_request_dto) const = 0;
 };
 
 }  // namespace application

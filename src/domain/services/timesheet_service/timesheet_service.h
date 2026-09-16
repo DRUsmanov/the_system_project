@@ -9,6 +9,9 @@
 
 namespace domain {
 
+using namespace std::chrono;
+using namespace std::literals;
+
 class TimesheetService : public TimesheetServiceInterface {
 public:
     TimesheetService(std::shared_ptr<TimeSheetRepositoryInterface> timesheet_repository) :
@@ -22,7 +25,12 @@ public:
     bool generateTimesheetForNewEmployee(const EmployeeId& employee_id,
                                          const Employee& employee,
                                          const EmployeeAssignment& employee_assignment) override;
+    bool updateTimesheetForEmployee(const EmployeeId& employee_id,
+                                    const EmployeeAssignment& employee_assignment,
+                                    const domain::Date& assignment_changing_date) override;
+    bool removeTimesheetForEmployeeFromDate(const EmployeeId& employee_id, const domain::Date& removin_date) override;
     std::optional<WorkSchedules> getWorkSchedules() const override;
+    std::optional<Date> getMaxDateInTimesheet() const override;
 
 private:
     struct TimesheetGenerationContext {
@@ -49,6 +57,7 @@ private:
 
 private:
     std::shared_ptr<TimeSheetRepositoryInterface> timesheet_repository_;
+    const std::chrono::sys_days system_start_date = 2026y / September / 1;
 };
 
 }  // namespace domain

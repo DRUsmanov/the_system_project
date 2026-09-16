@@ -119,7 +119,16 @@ std::optional<domain::EmployeeAssignment> ShopRepository::downloadEmployeeAssign
 bool infrastructure::ShopRepository::removeEmployee(domain::EmployeeId employee_id) {
     utils::logFunctionStart(utils::FUNCTION_INFO);
     auto result = uow_->execParams(query::REMOVE_EMPLOYEE, *employee_id);
-    return result.affected_rows() == 1;
+    if (result.affected_rows() != 1) {
+        return false;
+    }
+
+    result = uow_->execParams(query::DELETE_EMPLOYEE_ASSIGNMENT, *employee_id);
+    if (result.affected_rows() != 1) {
+        return false;
+    }
+
+    return true;
 }
 
 std::optional<domain::Departments> infrastructure::ShopRepository::downloadDepartments() const {

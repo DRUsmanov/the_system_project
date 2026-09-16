@@ -12,7 +12,8 @@ public:
     AddEmployeeResponseDto convert(domain::EmployeeId employee_id) const override;
 
     // REMOVE EMPLOYEE
-    domain::EmployeeId convert(const RemoveEmployeeRequestDto& remove_employee_request_dto) const override;
+    std::pair<domain::EmployeeId, domain::Date> convert(
+        const RemoveEmployeeRequestDto& remove_employee_request_dto) const override;
 
     // GET DEPARTMENTS
     GetDepartmentsResponseDto convert(const domain::Departments& departments) const override;
@@ -25,7 +26,7 @@ public:
     GetDepartmentStaffResponseDto convert(const domain::Staff& department_staff) const override;
 
     // UPDATE EMPLOYEE
-    std::tuple<domain::EmployeeId, domain::Employee, domain::EmployeeAssignment> convert(
+    std::tuple<domain::EmployeeId, domain::Employee, domain::EmployeeAssignment, std::optional<domain::Date>> convert(
         const UpdateEmployeeRequestDto& update_employee_request_dto) const override;
 };
 

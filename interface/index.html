@@ -458,6 +458,7 @@
       display: flex;
       align-items: center;
       gap: 0.4rem;
+      flex-wrap: wrap;
     }
 
     .ts-arrow {
@@ -477,6 +478,21 @@
       cursor: pointer;
       transition: background 0.15s, border-color 0.15s, transform 0.1s;
       user-select: none;
+    }
+
+    .ts-arrow:hover {
+      background: #2f4159;
+      border-color: #475569;
+    }
+
+    .ts-arrow:active {
+      transform: scale(0.94);
+    }
+
+    .ts-arrow:focus-visible {
+      outline: none;
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
     }
 
     .ts-today {
@@ -508,21 +524,6 @@
     }
 
     .ts-today:focus-visible {
-      outline: none;
-      border-color: var(--accent);
-      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
-    }
-
-    .ts-arrow:hover {
-      background: #2f4159;
-      border-color: #475569;
-    }
-
-    .ts-arrow:active {
-      transform: scale(0.94);
-    }
-
-    .ts-arrow:focus-visible {
       outline: none;
       border-color: var(--accent);
       box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
@@ -638,6 +639,7 @@
       width: 100%;
       border-collapse: collapse;
       font-size: 0.925rem;
+      table-layout: fixed;
     }
 
     .emp-table thead th {
@@ -650,6 +652,20 @@
       letter-spacing: 0.1em;
       text-transform: uppercase;
       border-bottom: 1px solid var(--border);
+      white-space: nowrap;
+    }
+
+    .emp-table thead th:first-child,
+    .emp-table tbody td:first-child {
+      width: 130px;
+      white-space: nowrap;
+    }
+
+    .emp-table thead th:last-child,
+    .emp-table tbody td:last-child {
+      width: auto;
+      overflow: hidden;
+      text-overflow: ellipsis;
       white-space: nowrap;
     }
 
@@ -756,9 +772,38 @@
       overflow-y: auto;
     }
 
+    /* ===== Секции формы ===== */
+    .form-section+.form-section {
+      margin-top: 1.75rem;
+      padding-top: 1.5rem;
+      border-top: 1px solid var(--border);
+    }
+
+    .form-section-title {
+      font-size: 0.75rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--text-dim);
+      margin-bottom: 1rem;
+      font-weight: 600;
+    }
+
+    .modal.mode-view .form-section+.form-section {
+      margin-top: 1.25rem;
+      padding-top: 1.25rem;
+      border-top-color: rgba(51, 65, 85, 0.6);
+    }
+
+    /* ===== Сетка полей ===== */
     .form-grid {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
+      gap: 1rem 1.25rem;
+    }
+
+    .form-grid-2 {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
       gap: 1rem 1.25rem;
     }
 
@@ -855,6 +900,183 @@
       display: none;
     }
 
+    /* ==================== БЛОК ИЗМЕНЕНИЯ НАЗНАЧЕНИЯ ==================== */
+    .assignment-changed-block {
+      margin-top: 1.5rem;
+      padding: 1.1rem 1.25rem;
+      background: rgba(59, 130, 246, 0.08);
+      border: 1px solid rgba(59, 130, 246, 0.35);
+      border-radius: 10px;
+
+      opacity: 0;
+      max-height: 0;
+      overflow: hidden;
+      padding-top: 0;
+      padding-bottom: 0;
+      margin-top: 0;
+      border-width: 0;
+      transition:
+        opacity 0.28s ease,
+        max-height 0.35s ease,
+        padding 0.28s ease,
+        margin-top 0.28s ease,
+        border-width 0.28s ease;
+    }
+
+    .assignment-changed-block.visible {
+      opacity: 1;
+      max-height: 400px;
+      padding: 1.1rem 1.25rem;
+      margin-top: 1.5rem;
+      border-width: 1px;
+    }
+
+    .assignment-changed-warning {
+      display: flex;
+      gap: 0.75rem;
+      align-items: flex-start;
+      margin-bottom: 1rem;
+    }
+
+    .assignment-changed-warning .assignment-icon {
+      font-size: 1.1rem;
+      color: #fbbf24;
+      line-height: 1.4;
+      flex-shrink: 0;
+    }
+
+    .assignment-changed-warning .assignment-title {
+      font-weight: 600;
+      color: #fbbf24;
+      font-size: 0.9rem;
+      margin-bottom: 0.2rem;
+    }
+
+    .assignment-changed-warning .assignment-changed-list {
+      color: #fcd34d;
+      font-size: 0.85rem;
+      line-height: 1.4;
+    }
+
+    .assignment-changed-block .form-field input {
+      background: #0f172a;
+      border: 1px solid var(--border);
+      color: var(--text);
+      border-radius: 8px;
+      padding: 0.6rem 0.8rem;
+      font-size: 0.95rem;
+      font-family: inherit;
+      width: 100%;
+      max-width: 240px;
+      cursor: pointer;
+      transition: border-color 0.15s, box-shadow 0.15s;
+    }
+
+    .assignment-changed-block .form-field input:focus {
+      outline: none;
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+    }
+
+    .assignment-changed-block .form-field.invalid input {
+      border-color: var(--danger);
+      box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.2);
+    }
+
+    .assignment-changed-block .form-field .field-error {
+      color: #fca5a5;
+      font-size: 0.75rem;
+      display: none;
+    }
+
+    .assignment-changed-block .form-field.invalid .field-error {
+      display: block;
+    }
+
+    .modal.mode-view .assignment-changed-block {
+      display: none !important;
+    }
+
+    /* ==================== БЛОК УДАЛЕНИЯ СОТРУДНИКА ==================== */
+    .modal-remove-block {
+      margin-top: 0;
+      padding: 0 1.25rem;
+      background: rgba(239, 68, 68, 0.08);
+      border: 0 solid rgba(239, 68, 68, 0.4);
+      border-radius: 10px;
+
+      opacity: 0;
+      max-height: 0;
+      overflow: hidden;
+      transition:
+        opacity 0.28s ease,
+        max-height 0.35s ease,
+        padding 0.28s ease,
+        margin-top 0.28s ease,
+        border-width 0.28s ease;
+    }
+
+    .modal-remove-block.visible {
+      opacity: 1;
+      max-height: 400px;
+      padding: 1.1rem 1.25rem;
+      margin-top: 1.5rem;
+      border-width: 1px;
+    }
+
+    .modal-remove-block .modal-remove-info {
+      color: var(--text-dim);
+      font-size: 0.9rem;
+      line-height: 1.45;
+      margin-bottom: 1rem;
+    }
+
+    .modal-remove-block .modal-remove-info strong {
+      color: var(--text);
+      font-weight: 600;
+    }
+
+    .modal-remove-block .form-field input {
+      background: #0f172a;
+      border: 1px solid var(--border);
+      color: var(--text);
+      border-radius: 8px;
+      padding: 0.6rem 0.8rem;
+      font-size: 0.95rem;
+      font-family: inherit;
+      width: 100%;
+      max-width: 240px;
+      cursor: pointer;
+      transition: border-color 0.15s, box-shadow 0.15s;
+    }
+
+    .modal-remove-block .form-field input:focus {
+      outline: none;
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+    }
+
+    .modal-remove-block .form-field.invalid input {
+      border-color: var(--danger);
+      box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.2);
+    }
+
+    .modal-remove-block .form-field .field-error {
+      color: #fca5a5;
+      font-size: 0.75rem;
+      display: none;
+    }
+
+    .modal-remove-block .form-field.invalid .field-error {
+      display: block;
+    }
+
+    /* В режиме удаления скрываем основную форму и блок назначения */
+    .modal.mode-remove .form-section,
+    .modal.mode-remove .assignment-changed-block {
+      display: none !important;
+    }
+
     .modal-footer {
       display: flex;
       justify-content: flex-end;
@@ -931,7 +1153,8 @@
         text-align: center;
       }
 
-      .form-grid {
+      .form-grid,
+      .form-grid-2 {
         grid-template-columns: 1fr;
       }
 
@@ -1026,57 +1249,99 @@
       </div>
 
       <form class="modal-body" id="empModalForm" novalidate>
-        <div class="form-grid">
-          <div class="form-field" data-field="last_name">
-            <label for="empModalLastName">Фамилия *</label>
-            <input type="text" id="empModalLastName" name="last_name">
-            <div class="field-error">Укажите фамилию</div>
-          </div>
-          <div class="form-field" data-field="first_name">
-            <label for="empModalFirstName">Имя *</label>
-            <input type="text" id="empModalFirstName" name="first_name">
-            <div class="field-error">Укажите имя</div>
-          </div>
-          <div class="form-field" data-field="patronymic">
-            <label for="empModalPatronymic">Отчество</label>
-            <input type="text" id="empModalPatronymic" name="patronymic">
-            <div class="field-error">Укажите отчество</div>
-          </div>
+        <!-- ===== Личные данные ===== -->
+        <div class="form-section">
+          <div class="form-section-title">Личные данные</div>
+          <div class="form-grid">
+            <div class="form-field" data-field="last_name">
+              <label for="empModalLastName">Фамилия *</label>
+              <input type="text" id="empModalLastName" name="last_name">
+              <div class="field-error">Укажите фамилию</div>
+            </div>
+            <div class="form-field" data-field="first_name">
+              <label for="empModalFirstName">Имя *</label>
+              <input type="text" id="empModalFirstName" name="first_name">
+              <div class="field-error">Укажите имя</div>
+            </div>
+            <div class="form-field" data-field="patronymic">
+              <label for="empModalPatronymic">Отчество</label>
+              <input type="text" id="empModalPatronymic" name="patronymic">
+              <div class="field-error">Укажите отчество</div>
+            </div>
 
-          <div class="form-field" data-field="birth_date">
-            <label for="empModalBirthDate">Дата рождения *</label>
-            <input type="date" id="empModalBirthDate" name="birth_date">
-            <div class="field-error">Укажите дату рождения</div>
+            <div class="form-field" data-field="birth_date">
+              <label for="empModalBirthDate">Дата рождения *</label>
+              <input type="date" id="empModalBirthDate" name="birth_date">
+              <div class="field-error">Укажите дату рождения</div>
+            </div>
+            <div class="form-field" data-field="employment_date">
+              <label for="empModalEmploymentDate">Дата приёма *</label>
+              <input type="date" id="empModalEmploymentDate" name="employment_date">
+              <div class="field-error">Укажите дату приёма</div>
+            </div>
+            <div class="form-field" data-field="employee_number">
+              <label for="empModalNumber">Табельный номер *</label>
+              <input type="number" id="empModalNumber" name="employee_number" min="0" step="1">
+              <div class="field-error">Укажите табельный номер</div>
+            </div>
           </div>
-          <div class="form-field" data-field="employment_date">
-            <label for="empModalEmploymentDate">Дата приёма *</label>
-            <input type="date" id="empModalEmploymentDate" name="employment_date">
-            <div class="field-error">Укажите дату приёма</div>
-          </div>
-          <div class="form-field" data-field="employee_number">
-            <label for="empModalNumber">Табельный номер *</label>
-            <input type="number" id="empModalNumber" name="employee_number" min="0" step="1">
-            <div class="field-error">Укажите табельный номер</div>
-          </div>
+        </div>
 
-          <div class="form-field" data-field="department_id">
+        <!-- ===== Назначение ===== -->
+        <div class="form-section">
+          <div class="form-section-title">Назначение</div>
+
+          <!-- Участок — на всю ширину -->
+          <div class="form-field" data-field="department_id" style="margin-bottom: 1rem;">
             <label for="empModalDepartment">Участок *</label>
             <select id="empModalDepartment" name="department_id"></select>
             <div class="field-error">Выберите участок</div>
           </div>
-          <div class="form-field" data-field="staff_position_id">
-            <label for="empModalStaffPosition">Должность *</label>
-            <select id="empModalStaffPosition" name="staff_position_id">
-              <option value="">— загрузка —</option>
-            </select>
-            <div class="field-error">Выберите должность</div>
+
+          <!-- Должность и график — в две колонки -->
+          <div class="form-grid-2">
+            <div class="form-field" data-field="staff_position_id">
+              <label for="empModalStaffPosition">Должность *</label>
+              <select id="empModalStaffPosition" name="staff_position_id">
+                <option value="">— загрузка —</option>
+              </select>
+              <div class="field-error">Выберите должность</div>
+            </div>
+            <div class="form-field" data-field="work_schedule_id">
+              <label for="empModalWorkSchedule">График работы *</label>
+              <select id="empModalWorkSchedule" name="work_schedule_id">
+                <option value="">— загрузка —</option>
+              </select>
+              <div class="field-error">Выберите график работы</div>
+            </div>
           </div>
-          <div class="form-field" data-field="work_schedule_id">
-            <label for="empModalWorkSchedule">График работы *</label>
-            <select id="empModalWorkSchedule" name="work_schedule_id">
-              <option value="">— загрузка —</option>
-            </select>
-            <div class="field-error">Выберите график работы</div>
+        </div>
+
+        <!-- ===== Блок изменения назначения ===== -->
+        <div class="assignment-changed-block" id="empModalAssignmentBlock" hidden>
+          <div class="assignment-changed-warning">
+            <span class="assignment-icon">⚠</span>
+            <div>
+              <div class="assignment-title">Изменение назначения</div>
+              <div class="assignment-changed-list" id="empModalAssignmentList"></div>
+            </div>
+          </div>
+
+          <div class="form-field" data-field="assignment_changing_date">
+            <label for="empModalAssignmentDate">Дата вступления изменений в силу *</label>
+            <input type="date" id="empModalAssignmentDate" name="assignment_changing_date">
+            <div class="field-error">Укажите дату вступления изменений</div>
+          </div>
+        </div>
+
+        <!-- ===== Блок подтверждения удаления ===== -->
+        <div class="modal-remove-block" id="empModalRemoveBlock" hidden>
+          <div class="modal-remove-info" id="empModalRemoveText"></div>
+
+          <div class="form-field" data-field="removing_date">
+            <label for="empModalRemovingDate">Дата удаления *</label>
+            <input type="date" id="empModalRemovingDate" name="removing_date">
+            <div class="field-error">Укажите дату удаления</div>
           </div>
         </div>
 
@@ -1089,7 +1354,7 @@
 
   <script>
     // ==================== КОНФИГ ====================
-    const API_BASE = 'http://192.168.1.11:8080/api/v1'; // ← замените на ваш IP
+    const API_BASE = 'http://192.168.1.13:8080/api/v1'; // ← при необходимости замените
     const LOGIN_URL = `${API_BASE}/login`;
     const TOKEN_KEY = 'auth_token';
     const USER_KEY = 'auth_user';
@@ -1295,6 +1560,10 @@
       return isoDate.replaceAll('-', '/');
     }
 
+    function todayIso() {
+      return new Date().toISOString().slice(0, 10);
+    }
+
     // ==================== МОДУЛИ ====================
     const MODULES = [
       { id: 'timesheet', title: 'Табель рабочего времени', icon: '🗓️', render: renderTimesheet },
@@ -1449,7 +1718,6 @@
         monthSelect.appendChild(opt);
       });
 
-      // ===== Стрелки =====
       const prevBtn = el('button', {
         type: 'button',
         class: 'ts-arrow',
@@ -1468,7 +1736,6 @@
         text: '›'
       });
 
-      // ===== Кнопка "Текущий месяц" =====
       const todayBtn = el('button', {
         type: 'button',
         class: 'ts-today',
@@ -1477,7 +1744,6 @@
         text: 'Текущий месяц'
       });
 
-      // Убедиться, что год есть в селекте (для случая, когда вышли за диапазон и вернулись)
       function ensureYearOption(y) {
         const hasYear = Array.from(yearSelect.options).some(o => Number(o.value) === y);
         if (hasYear) return;
@@ -1520,7 +1786,6 @@
       nextBtn.addEventListener('click', () => shiftMonth(+1));
       todayBtn.addEventListener('click', goToCurrentMonth);
 
-      // ===== Панель =====
       const toolbar = el('div', { class: 'toolbar' }, [
         el('div', { class: 'control' }, [
           el('label', { for: 'tsDepartment', text: 'Подразделение' }),
@@ -1721,8 +1986,19 @@
     const empModalStaffPosition = document.getElementById('empModalStaffPosition');
     const empModalWorkSchedule = document.getElementById('empModalWorkSchedule');
 
+    // ===== Блок изменения назначения =====
+    const empModalAssignmentBlock = document.getElementById('empModalAssignmentBlock');
+    const empModalAssignmentDate = document.getElementById('empModalAssignmentDate');
+    const empModalAssignmentList = document.getElementById('empModalAssignmentList');
+
+    // ===== Блок удаления =====
+    const empModalRemoveBlock = document.getElementById('empModalRemoveBlock');
+    const empModalRemoveText = document.getElementById('empModalRemoveText');
+    const empModalRemovingDate = document.getElementById('empModalRemovingDate');
+
     let empModalMode = 'view';
     let empModalCurrentEmployee = null;
+    let empModalOriginalAssignment = null;
 
     // ==================== ВАЛИДАЦИЯ ====================
     function clearFieldErrors() {
@@ -1751,6 +2027,10 @@
       if (!empModalDepartment.value) invalid.push('department_id');
       if (!empModalStaffPosition.value) invalid.push('staff_position_id');
       if (!empModalWorkSchedule.value) invalid.push('work_schedule_id');
+
+      if (empModalAssignmentBlock.classList.contains('visible') && !empModalAssignmentDate.value) {
+        invalid.push('assignment_changing_date');
+      }
 
       invalid.forEach(markFieldInvalid);
       return invalid;
@@ -1850,18 +2130,102 @@
       fillSimpleSelect(empModalWorkSchedule, workSchedulesCache, '— выберите график —');
     }
 
+    // ==================== ИЗМЕНЕНИЕ НАЗНАЧЕНИЯ ====================
+    const ASSIGNMENT_FIELDS = [
+      { key: 'department_id', label: 'участок' },
+      { key: 'staff_position_id', label: 'должность' },
+      { key: 'work_schedule_id', label: 'график работы' }
+    ];
+
+    function getCurrentAssignment() {
+      return {
+        department_id: empModalDepartment.value || '',
+        staff_position_id: empModalStaffPosition.value || '',
+        work_schedule_id: empModalWorkSchedule.value || ''
+      };
+    }
+
+    function getChangedAssignmentFields() {
+      if (!empModalOriginalAssignment) return [];
+      const current = getCurrentAssignment();
+      const changed = [];
+
+      for (const field of ASSIGNMENT_FIELDS) {
+        if (String(current[field.key]) !== String(empModalOriginalAssignment[field.key])) {
+          changed.push(field.label);
+        }
+      }
+      return changed;
+    }
+
+    function updateAssignmentBlock() {
+      const changed = getChangedAssignmentFields();
+      const isChanged = changed.length > 0;
+
+      if (isChanged) {
+        empModalAssignmentList.textContent = 'Изменены: ' + changed.join(', ');
+
+        if (empModalAssignmentBlock.hidden) {
+          empModalAssignmentBlock.hidden = false;
+          void empModalAssignmentBlock.offsetWidth;
+        }
+        empModalAssignmentBlock.classList.add('visible');
+      } else {
+        empModalAssignmentBlock.classList.remove('visible');
+        clearTimeout(empModalAssignmentBlock._hideTimer);
+        empModalAssignmentBlock._hideTimer = setTimeout(() => {
+          if (!empModalAssignmentBlock.classList.contains('visible')) {
+            empModalAssignmentBlock.hidden = true;
+          }
+        }, 380);
+      }
+    }
+
+    // ==================== РЕЖИМЫ МОДАЛКИ ====================
     function setEmpModalMode(mode) {
       empModalMode = mode;
 
       if (mode === 'view') {
         empModalTitle.textContent = 'Сотрудник';
         empModalInner.classList.add('mode-view');
+        empModalInner.classList.remove('mode-remove');
+
+        empModalAssignmentBlock.classList.remove('visible');
+        empModalAssignmentBlock.hidden = true;
+
+        empModalRemoveBlock.classList.remove('visible');
+        empModalRemoveBlock.hidden = true;
+
       } else if (mode === 'edit') {
         empModalTitle.textContent = 'Изменить сотрудника';
         empModalInner.classList.remove('mode-view');
-      } else {
+        empModalInner.classList.remove('mode-remove');
+
+        empModalRemoveBlock.classList.remove('visible');
+        empModalRemoveBlock.hidden = true;
+
+      } else if (mode === 'add') {
         empModalTitle.textContent = 'Добавить сотрудника';
         empModalInner.classList.remove('mode-view');
+        empModalInner.classList.remove('mode-remove');
+
+        empModalAssignmentBlock.classList.remove('visible');
+        empModalAssignmentBlock.hidden = true;
+
+        empModalRemoveBlock.classList.remove('visible');
+        empModalRemoveBlock.hidden = true;
+
+      } else if (mode === 'remove') {
+        empModalTitle.textContent = 'Удалить сотрудника';
+        empModalInner.classList.add('mode-remove');
+        empModalInner.classList.remove('mode-view');
+
+        empModalAssignmentBlock.classList.remove('visible');
+        empModalAssignmentBlock.hidden = true;
+
+        empModalRemoveBlock.hidden = false;
+        void empModalRemoveBlock.offsetWidth;
+        empModalRemoveBlock.classList.add('visible');
       }
 
       renderEmpModalFooter();
@@ -1884,6 +2248,17 @@
         empModalFooter.appendChild(spacer);
         empModalFooter.appendChild(closeBtn);
         empModalFooter.appendChild(editBtn);
+
+      } else if (empModalMode === 'remove') {
+        const cancelBtn = el('button', { type: 'button', class: 'btn', id: 'empModalRemoveCancelBtn', text: 'Отмена' });
+        const removeBtn = el('button', { type: 'button', class: 'btn btn-danger', id: 'empModalRemoveBtn', text: 'Удалить' });
+
+        cancelBtn.addEventListener('click', onEmpModalRemoveCancel);
+        removeBtn.addEventListener('click', onEmpModalRemoveConfirm);
+
+        empModalFooter.appendChild(cancelBtn);
+        empModalFooter.appendChild(removeBtn);
+
       } else {
         const cancelBtn = el('button', { type: 'button', class: 'btn', id: 'empModalCancelBtn', text: 'Отмена' });
         const saveBtn = el('button', { type: 'button', class: 'btn btn-primary', id: 'empModalSaveBtn', text: 'Сохранить' });
@@ -1929,38 +2304,101 @@
     function closeEmpModal() {
       empModal.classList.remove('open');
       empModalInner.classList.remove('mode-view');
+      empModalInner.classList.remove('mode-remove');
       clearFieldErrors();
+
+      empModalAssignmentBlock.classList.remove('visible');
+      empModalAssignmentBlock.hidden = true;
+      clearTimeout(empModalAssignmentBlock._hideTimer);
+
+      empModalRemoveBlock.classList.remove('visible');
+      empModalRemoveBlock.hidden = true;
+
       empModalCurrentEmployee = null;
+      empModalOriginalAssignment = null;
     }
 
     function onEmpModalSwitchToEdit() {
       if (!empModalCurrentEmployee) return;
       clearEmpModalMessage();
       clearFieldErrors();
+
+      empModalOriginalAssignment = {
+        department_id: empModalCurrentEmployee.department_id != null ? String(empModalCurrentEmployee.department_id) : '',
+        staff_position_id: empModalCurrentEmployee.staff_position_id != null ? String(empModalCurrentEmployee.staff_position_id) : '',
+        work_schedule_id: empModalCurrentEmployee.work_schedule_id != null ? String(empModalCurrentEmployee.work_schedule_id) : ''
+      };
+
+      empModalAssignmentBlock.classList.remove('visible');
+      empModalAssignmentBlock.hidden = true;
+      clearTimeout(empModalAssignmentBlock._hideTimer);
+      empModalAssignmentDate.value = todayIso();
+
       setEmpModalMode('edit');
     }
 
     function onEmpModalEditCancel() {
       clearEmpModalMessage();
       clearFieldErrors();
+
+      empModalAssignmentBlock.classList.remove('visible');
+      empModalAssignmentBlock.hidden = true;
+      clearTimeout(empModalAssignmentBlock._hideTimer);
+
       fillEmployeeForm(empModalCurrentEmployee);
       setEmpModalMode('view');
     }
 
-    async function onEmpModalDelete() {
+    // ===== Удаление =====
+    function onEmpModalDelete() {
       if (!empModalCurrentEmployee) return;
 
       const fullName = [empModalCurrentEmployee.last_name, empModalCurrentEmployee.first_name, empModalCurrentEmployee.patronymic]
         .filter(Boolean).join(' ');
 
-      if (!confirm(`Удалить сотрудника «${fullName}»?`)) return;
+      empModalRemoveText.innerHTML = `Удалить сотрудника <strong>${fullName}</strong>?`;
 
+      empModalRemovingDate.value = todayIso();
       clearEmpModalMessage();
+      clearFieldErrors();
+
+      setEmpModalMode('remove');
+    }
+
+    function onEmpModalRemoveCancel() {
+      clearEmpModalMessage();
+      clearFieldErrors();
+
+      empModalRemoveBlock.classList.remove('visible');
+      empModalRemoveBlock.hidden = true;
+
+      setEmpModalMode('view');
+    }
+
+    async function onEmpModalRemoveConfirm() {
+      clearEmpModalMessage();
+      if (!empModalCurrentEmployee) return;
+
+      clearFieldErrors();
+      if (!empModalRemovingDate.value) {
+        const field = empModalForm.querySelector('.form-field[data-field="removing_date"]');
+        if (field) field.classList.add('invalid');
+        showEmpModalMessage('Укажите дату удаления', 'error');
+        return;
+      }
+
+      const payload = {
+        employee_id: empModalCurrentEmployee.employee_id,
+        removing_date: formatDateForApi(empModalRemovingDate.value)
+      };
+
+      const removeBtn = document.getElementById('empModalRemoveBtn');
+      if (removeBtn) { removeBtn.disabled = true; removeBtn.textContent = 'Удаление...'; }
 
       try {
         const { response, data } = await apiFetch('/shop/employee', {
           method: 'DELETE',
-          body: JSON.stringify({ employee_id: empModalCurrentEmployee.employee_id })
+          body: JSON.stringify(payload)
         });
 
         if (!response.ok || !data) {
@@ -1980,9 +2418,12 @@
       } catch (err) {
         console.error(err);
         showEmpModalMessage(err.message || 'Ошибка соединения', 'error');
+      } finally {
+        if (removeBtn) { removeBtn.disabled = false; removeBtn.textContent = 'Удалить'; }
       }
     }
 
+    // ===== Сохранение =====
     async function onEmpModalEditSave() {
       clearEmpModalMessage();
       if (!empModalCurrentEmployee) return;
@@ -1994,6 +2435,9 @@
       }
 
       const fd = new FormData(empModalForm);
+      const changedFields = getChangedAssignmentFields();
+      const isAssignmentChanged = changedFields.length > 0;
+
       const payload = {
         employee_id: empModalCurrentEmployee.employee_id,
         last_name: (fd.get('last_name') || '').trim(),
@@ -2004,7 +2448,10 @@
         employee_number: Number(fd.get('employee_number')),
         department_id: Number(fd.get('department_id')),
         staff_position_id: Number(fd.get('staff_position_id')),
-        work_schedule_id: Number(fd.get('work_schedule_id'))
+        work_schedule_id: Number(fd.get('work_schedule_id')),
+        assignment_changing_date: isAssignmentChanged
+          ? formatDateForApi(fd.get('assignment_changing_date'))
+          : null
       };
 
       const saveBtn = document.getElementById('empModalSaveBtn');
@@ -2091,6 +2538,7 @@
       }
     }
 
+    // Закрытие модалки
     document.getElementById('empModalCloseBtn').addEventListener('click', closeEmpModal);
     empModal.addEventListener('click', (e) => {
       if (e.target === empModal) closeEmpModal();
@@ -2101,7 +2549,8 @@
 
     // Очистка ошибки при вводе
     [empModalLastName, empModalFirstName, empModalBirthDate, empModalEmploymentDate,
-      empModalNumber, empModalDepartment, empModalStaffPosition, empModalWorkSchedule]
+      empModalNumber, empModalDepartment, empModalStaffPosition, empModalWorkSchedule,
+      empModalAssignmentDate, empModalRemovingDate]
       .forEach(input => {
         const handler = () => {
           const field = input.closest('.form-field');
@@ -2110,6 +2559,11 @@
         input.addEventListener('input', handler);
         input.addEventListener('change', handler);
       });
+
+    // Отслеживание изменений в трёх селектах назначения
+    [empModalDepartment, empModalStaffPosition, empModalWorkSchedule].forEach(selectEl => {
+      selectEl.addEventListener('change', updateAssignmentBlock);
+    });
 
     // ==================== ВЫХОД ====================
     document.getElementById('appLogoutBtn').addEventListener('click', () => {

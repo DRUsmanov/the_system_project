@@ -27,7 +27,9 @@ public:
     std::optional<domain::EmployeeId> addEmployee(const domain::UserId& user_id,
                                                   const domain::Employee& employee,
                                                   const domain::EmployeeAssignment& employee_assignment) const override;
-    bool removeEmployee(const domain::UserId& user_id, domain::EmployeeId employee_id) const override;
+    bool removeEmployee(const domain::UserId& user_id,
+                        domain::EmployeeId employee_id,
+                        const domain::Date& removing_date) const override;
     std::optional<domain::Employee> getEmployee(const domain::UserId& user_id,
                                                 const domain::EmployeeId& employee_id) const override;
     std::optional<domain::Departments> getDepartments(const domain::UserId& user_id) const override;
@@ -38,10 +40,10 @@ public:
     bool updateEmployee(const domain::UserId& user_id,
                         const domain::EmployeeId& employee_id,
                         const domain::Employee& employee,
-                        const domain::EmployeeAssignment& employee_assignment) const override;
+                        const domain::EmployeeAssignment& employee_assignment,
+                        const std::optional<domain::Date>& assignment_changing_date) const override;
 
     std::optional<domain::Timesheet> getTimesheet(const domain::UserId& user_id,
-                                                  const domain::AdminCategoryId& admin_category_id,
                                                   const domain::DepartmentId& department_id,
                                                   std::chrono::year_month year_month) const override;
 

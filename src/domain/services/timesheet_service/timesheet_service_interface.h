@@ -21,7 +21,13 @@ public:
     virtual bool generateTimesheetForNewEmployee(const EmployeeId& employee_id,
                                                  const Employee& employee,
                                                  const EmployeeAssignment& employee_assignment) = 0;
+    virtual bool updateTimesheetForEmployee(const EmployeeId& employee_id,
+                                            const EmployeeAssignment& employee_assignment,
+                                            const domain::Date& assignment_changing_date) = 0;
+    virtual bool removeTimesheetForEmployeeFromDate(const EmployeeId& employee_id,
+                                                    const domain::Date& removin_date) = 0;
     virtual std::optional<WorkSchedules> getWorkSchedules() const = 0;
+    virtual std::optional<Date> getMaxDateInTimesheet() const = 0;
 };
 
 }  // namespace domain

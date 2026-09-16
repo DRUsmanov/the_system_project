@@ -27,6 +27,25 @@ constexpr std::string REST_END{"rest_end"};
 }  // namespace cycle_keys
 }  // namespace work_schedule_keys
 
+namespace timesheet_keys {
+constexpr std::string EMPLOYEE_ID = "employee_id";
+constexpr std::string DEPARTMENT_ID = "department_id";
+constexpr std::string STAFF_POSITION_ID = "staff_position_id";
+constexpr std::string DATE = "date";
+constexpr std::string WORK_START = "work_start";
+constexpr std::string WORK_END = "work_end";
+constexpr std::string WORK_TIME = "work_time";
+constexpr std::string NIGHT_WORK_START = "night_work_start";
+constexpr std::string NIGHT_WORK_END = "night_work_end";
+constexpr std::string NIGHT_WORK_TIME = "night_work_time";
+constexpr std::string REST_START = "rest_start";
+constexpr std::string REST_END = "rest_end";
+constexpr std::string LEAVE_TYPE = "leave_type";
+constexpr std::string ADMIN_CATEGORY_ID = "admin_category_id";
+constexpr std::string ADMIN_EMPLOYEE_ID = "admin_employee_id";
+constexpr std::string COMMENT = "comment";
+}  // namespace timesheet_keys
+
 namespace {
 
 domain::WorkSchedule makeWorkScheduleFromJsonObject(domain::WorkScheduleId work_schedule_id,
@@ -121,7 +140,6 @@ PreparedDayDataToInsert prepareDayDataToInsert(const domain::Timesheet::DayData&
     PreparedDayDataToInsert prepared_day_data_to_insert;
     prepared_day_data_to_insert.department_id = *day_data.department_id;
     prepared_day_data_to_insert.staff_position_id = *day_data.staff_position_id;
-    prepared_day_data_to_insert.work_schedule_id = *day_data.work_schedule_id;
 
     if (day_data.work_start.has_value()) {
         prepared_day_data_to_insert.work_start = domain::timeToString(day_data.work_start.value());
@@ -166,6 +184,72 @@ PreparedDayDataToInsert prepareDayDataToInsert(const domain::Timesheet::DayData&
     prepared_day_data_to_insert.comment = day_data.comment;
 
     return prepared_day_data_to_insert;
+}
+
+domain::Timesheet::DayData makeDayDataFromRow(const pqxx::row& row) {
+    domain::Timesheet::DayData day_data;
+
+    const auto& department_field = row.at(timesheet_keys::DEPARTMENT_ID);
+    if (!department_field.is_null()) {
+        day_data.department_id = domain::DepartmentId{department_field.as<uint64_t>()};
+    }
+
+    const auto& staff_position_field = row.at(timesheet_keys::STAFF_POSITION_ID);
+    if (!staff_position_field.is_null()) {
+        day_data.staff_position_id = domain::StaffPositionId{staff_position_field.as<uint64_t>()};
+    }
+
+    const auto& work_start_field = row.at(timesheet_keys::WORK_START);
+    if (!work_start_field.is_null()) {
+        day_data.work_start = domain::timeFromString(work_start_field.as<std::string>());
+    }
+
+    const auto& work_end_field = row.at(timesheet_keys::WORK_END);
+    if (!work_end_field.is_null()) {
+        day_data.work_end = domain::timeFromString(work_end_field.as<std::string>());
+    }
+
+    const auto& work_time_field = row.at(timesheet_keys::WORK_TIME);
+    if (!work_time_field.is_null()) {
+        day_data.work_time = domain::timeFromString(work_time_field.as<std::string>());
+    }
+
+    const auto& night_work_start_field = row.at(timesheet_keys::NIGHT_WORK_START);
+    if (!night_work_start_field.is_null()) {
+        day_data.night_work_start = domain::timeFromString(night_work_start_field.as<std::string>());
+    }
+
+    const auto& night_work_end_field = row.at(timesheet_keys::NIGHT_WORK_END);
+    if (!night_work_end_field.is_null()) {
+        day_data.night_work_end = domain::timeFromString(night_work_end_field.as<std::string>());
+    }
+
+    const auto& night_work_time_field = row.at(timesheet_keys::NIGHT_WORK_TIME);
+    if (!night_work_time_field.is_null()) {
+        day_data.night_work_time = domain::timeFromString(night_work_time_field.as<std::string>());
+    }
+
+    const auto& rest_start_field = row.at(timesheet_keys::REST_START);
+    if (!rest_start_field.is_null()) {
+        day_data.rest_start = domain::timeFromString(rest_start_field.as<std::string>());
+    }
+
+    const auto& rest_end_field = row.at(timesheet_keys::REST_END);
+    if (!rest_end_field.is_null()) {
+        day_data.rest_end = domain::timeFromString(rest_end_field.as<std::string>());
+    }
+
+    const auto& leave_type_field = row.at(timesheet_keys::LEAVE_TYPE);
+    if (!leave_type_field.is_null()) {
+        day_data.leave_type = domain::LeaveType{leave_type_field.as<uint64_t>()};
+    }
+
+    const auto& comment_field = row.at(timesheet_keys::COMMENT);
+    if (!comment_field.is_null()) {
+        day_data.comment = comment_field.as<std::string>();
+    }
+
+    return day_data;
 }
 
 }  // namespace
@@ -320,9 +404,53 @@ std::optional<domain::Timesheet> TimesheetRepository::downloadDepartmentTimeshee
     domain::AdminCategoryId admin_category_id,
     std::chrono::year_month year_month) const {
     utils::logFunctionStart(utils::FUNCTION_INFO);
-    return std::optional<domain::Timesheet>();
+    uint64_t year = static_cast<int>(year_month.year());
+    uint64_t month = static_cast<uint>(year_month.month());
+    auto result =
+        uow_->execParams(query::DOWNLOAD_DEPARTMENT_TIMESHEET, year, month, *department_id, *admin_category_id);
 
-    // TODO
+    if (result.size() == 0) {
+        return std::nullopt;
+    }
+
+    domain::Timesheet timesheet;
+
+    for (const auto& row : result) {
+        auto employee_id = domain::EmployeeId{row.at(timesheet_keys::EMPLOYEE_ID).as<uint64_t>()};
+        auto date = domain::dateFromString(row.at(timesheet_keys::DATE).as<std::string>());
+        auto admin_category_id = domain::AdminCategoryId{row.at(timesheet_keys::ADMIN_CATEGORY_ID).as<uint64_t>()};
+        auto day_data = makeDayDataFromRow(row);
+        timesheet.addEmployeeDayData(employee_id, date, admin_category_id, day_data);
+    }
+
+    return timesheet;
+}
+
+std::optional<domain::Date> infrastructure::TimesheetRepository::downloadMaxDate() const {
+    utils::logFunctionStart(utils::FUNCTION_INFO);
+    auto result = uow_->execParams(query::DOWNLOAD_MAX_TIMESHEET_DATE);
+
+    if (result.at(0).at(0).is_null()) {
+        return std::nullopt;
+    }
+
+    return domain::dateFromString(result.at(0).at(0).as<std::string>());
+}
+
+bool infrastructure::TimesheetRepository::deleteEmployeeTimesheetFromDate(const domain::EmployeeId& employee_id,
+                                                                          const domain::Date& date) {
+    utils::logFunctionStart(utils::FUNCTION_INFO);
+    auto ymd = std::chrono::year_month_day{date};
+    int64_t year = static_cast<int>(ymd.year());
+    uint64_t month = static_cast<uint>(ymd.month());
+    uint64_t day = static_cast<uint>(ymd.day());
+    auto result = uow_->execParams(query::DELETE_EMPLOYEE_TIMESHEET, *employee_id, year, month, day);
+
+    if (result.affected_rows() == 0) {
+        return false;
+    }
+
+    return true;
 }
 
 bool TimesheetRepository::uploadTimesheet(const domain::Timesheet& timesheet,
@@ -333,12 +461,8 @@ bool TimesheetRepository::uploadTimesheet(const domain::Timesheet& timesheet,
         auto employee_id = it->first;
         auto days_data = it->second;
 
-        for (const auto& day_data : days_data) {
-            auto date = day_data.first.date;
-            auto admin_category_id = day_data.first.admin_category_id;
-            const auto& data = day_data.second;
-
-            auto prepared_day_data_to_insert = prepareDayDataToInsert(data, admin_employee_id);
+        for (const auto& [date, day_data] : days_data) {
+            auto prepared_day_data_to_insert = prepareDayDataToInsert(day_data, admin_employee_id);
 
             auto result = uow_->execParams(query::UPLOAD_TIMESHEET,
                                            *employee_id,

@@ -30,9 +30,11 @@ constexpr std::string DOWNLOAD_WORK_SCHEDULES{"dload_work_schedules"};
 constexpr std::string DOWNLOAD_DEPARTMENT_ASSIGNMENTS{"dload_dep_assignments"};
 constexpr std::string UPDATE_EMPLOYEE{"upd_employee"};
 constexpr std::string UPDATE_EMPLOYEE_ASSIGNMENT{"upd_empl_assig"};
-
+constexpr std::string DOWNLOAD_DEPARTMENT_TIMESHEET{"dload_dep_timesheet"};
+constexpr std::string DOWNLOAD_MAX_TIMESHEET_DATE{"dload_max_ts_date"};
+constexpr std::string DELETE_EMPLOYEE_TIMESHEET("del_emp_ts");
+constexpr std::string DELETE_EMPLOYEE_ASSIGNMENT("del_emp_assign");
 }  // namespace query
-
 namespace tables {
 
 namespace users {
@@ -51,6 +53,7 @@ constexpr std::string PATRONYMIC{"patronymic"};
 constexpr std::string BIRTH_DATE{"birth_date"};
 constexpr std::string EMPLOYMENT_DATE{"employment_date"};
 constexpr std::string EMPLOYEE_NUMBER{"employee_number"};
+constexpr std::string IS_ACTIVE{"is_active"};
 }  // namespace employees
 
 namespace permissions {
@@ -186,7 +189,7 @@ inline const std::unordered_map<std::string, std::string> querys{
     {query::DOWNLOAD_EMPLOYEE_ASSIGNMENT,
      R"(SELECT id, employee_id, department_id, staff_position_id, work_schedule_id FROM staffing_assignments
      WHERE employee_id = $1;)"},
-    {query::REMOVE_EMPLOYEE, R"(DELETE FROM employees WHERE id=$1;)"},
+    {query::REMOVE_EMPLOYEE, R"(UPDATE employees SET is_active=false WHERE id=$1;)"},
     {query::DOWNLOAD_DEPARTMENTS, R"(SELECT * FROM departments ORDER BY description ASC;)"},
     {query::DOWNLOAD_STAFF_POSITIONS, R"(SELECT * FROM staff_positions ORDER BY id ASC;)"},
     {query::DOWNLOAD_WORK_SCHEDULES, R"(SELECT * FROM work_schedules ORDER BY description ASC;)"},
@@ -194,6 +197,15 @@ inline const std::unordered_map<std::string, std::string> querys{
     {query::UPDATE_EMPLOYEE,
      R"(UPDATE employees SET last_name=$2, first_name=$3, patronymic=$4, birth_date=$5, employment_date=$6, employee_number=$7 WHERE id=$1;)"},
     {query::UPDATE_EMPLOYEE_ASSIGNMENT,
-     R"(UPDATE staffing_assignments SET department_id=$2, staff_position_id=$3, work_schedule_id=$4 WHERE id=$1;)"}};
+     R"(UPDATE staffing_assignments SET department_id=$2, staff_position_id=$3, work_schedule_id=$4 WHERE id=$1;)"},
+    {query::DOWNLOAD_DEPARTMENT_TIMESHEET,
+     R"(SELECT  employee_id, department_id, staff_position_id, date, work_start, work_end, work_time,
+     night_work_start, night_work_end, night_work_time, rest_start, rest_end, leave_type, admin_category_id, admin_employee_id,
+     comment FROM timesheet WHERE date >= MAKE_DATE($1, $2, 1) AND date < MAKE_DATE($1, $2, 1) + INTERVAL '1 month'
+     AND department_id=$3 AND admin_category_id=$4;)"},
+    {query::DOWNLOAD_MAX_TIMESHEET_DATE, R"(SELECT MAX(date) FROM timesheet;)"},
+    {query::DELETE_EMPLOYEE_TIMESHEET,
+     R"(DELETE FROM timesheet WHERE employee_id=$1 AND date>= MAKE_DATE($2, $3, $4);)"},
+    {query::DELETE_EMPLOYEE_ASSIGNMENT, R"(DELETE FROM staffing_assignments WHERE employee_id=$1;)"}};
 
 }  // namespace infrastructure

@@ -79,7 +79,7 @@ public:
         }
 
         auto authorized_response = text_response_maker(http::status::accepted,
-                                                       makeAcceptedAnswer(token, *user_login_response_dto),
+                                                       makeAcceptedAnswer(token, user_login_response_dto.value()),
                                                        content_type::APP_JSON);
         authorized_response.set(http::field::cache_control, "no-cache");
         send(std::move(authorized_response));

@@ -2,21 +2,13 @@
 
 #include <exception>
 
-bool domain::Timesheet::isEmpty() const {
-    return data_.empty();
-}
-
 bool domain::Timesheet::addEmployeeDayData(EmployeeId employee_id,
                                            domain::Date date,
                                            AdminCategoryId admin_category_id,
                                            const DayData& day_data) {
-    try {
-        auto& employee_days_data = data_[employee_id];
-        auto [it, inserted] = employee_days_data.try_emplace(DayDataKey{date, admin_category_id}, day_data);
-        return inserted;
-    } catch (const std::exception& ex) {
-        return false;
-    }
+    auto& employee_days_data = data_[employee_id];
+    auto [it, inserted] = employee_days_data.try_emplace(date, day_data);
+    return inserted;
 }
 
 domain::Timesheet::TimesheetData::const_iterator domain::Timesheet::begin() const {
@@ -30,13 +22,11 @@ domain::Timesheet::TimesheetData::const_iterator domain::Timesheet::end() const 
 domain::Timesheet::DayData domain::Timesheet::DayData::createWorkingDayData(
     const WorkSchedule::DayData& work_schedule_day_data,
     DepartmentId department_id,
-    StaffPositionId staff_position_id,
-    WorkScheduleId work_schedule_id) {
+    StaffPositionId staff_position_id) {
     DayData working_day_data;
 
     working_day_data.department_id = department_id;
     working_day_data.staff_position_id = staff_position_id;
-    working_day_data.work_schedule_id = work_schedule_id;
 
     working_day_data.work_start = work_schedule_day_data.work_start;
     working_day_data.work_end = work_schedule_day_data.work_end;
@@ -57,13 +47,11 @@ domain::Timesheet::DayData domain::Timesheet::DayData::createWorkingDayData(
 
 domain::Timesheet::DayData domain::Timesheet::DayData::createNonWorkingDayData(LeaveType leave_type,
                                                                                DepartmentId department_id,
-                                                                               StaffPositionId staff_position_id,
-                                                                               WorkScheduleId work_schedule_id) {
+                                                                               StaffPositionId staff_position_id) {
     DayData non_working_day_data;
 
     non_working_day_data.department_id = department_id;
     non_working_day_data.staff_position_id = staff_position_id;
-    non_working_day_data.work_schedule_id = work_schedule_id;
 
     non_working_day_data.work_start = std::nullopt;
     non_working_day_data.work_end = std::nullopt;

@@ -53,3 +53,5 @@ build/
 
 log.txt
 CMakeUserPresets.json
+
+*.sh

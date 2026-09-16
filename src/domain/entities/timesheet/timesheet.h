@@ -20,10 +20,9 @@ class Timesheet {
 public:
     struct DayDataKey {
         std::chrono::year_month_day date;
-        AdminCategoryId admin_category_id;
 
         bool operator==(const DayDataKey& other) const {
-            return date == other.date && admin_category_id == other.admin_category_id;
+            return date == other.date;
         }
     };
 
@@ -32,12 +31,10 @@ public:
             auto date_year_hash = std::hash<int>{}(static_cast<int>(key.date.year()));
             auto date_month_hash = std::hash<unsigned>{}(static_cast<unsigned>(key.date.month()));
             auto date_day_hash = std::hash<unsigned>{}(static_cast<unsigned>(key.date.day()));
-            auto admin_category_id_hash = AdminCategoryIdHasher{}(key.admin_category_id);
 
             size_t hash = date_year_hash;
             hash ^= date_month_hash << 1;
             hash ^= date_day_hash << 1;
-            hash ^= admin_category_id_hash << 1;
             return hash;
         }
     };
@@ -45,7 +42,6 @@ public:
     struct DayData {
         DepartmentId department_id;
         StaffPositionId staff_position_id;
-        WorkScheduleId work_schedule_id;
 
         std::optional<Time> work_start;
         std::optional<Time> work_end;
@@ -61,21 +57,18 @@ public:
 
         static DayData createWorkingDayData(const WorkSchedule::DayData& work_schedule_day_data,
                                             DepartmentId department_id,
-                                            StaffPositionId staff_position_id,
-                                            WorkScheduleId work_schedule_id);
+                                            StaffPositionId staff_position_id);
         static DayData createNonWorkingDayData(LeaveType leave_type,
                                                DepartmentId department_id,
-                                               StaffPositionId staff_position_id,
-                                               WorkScheduleId work_schedule_id);
+                                               StaffPositionId staff_position_id);
 
         bool isWorkingDay() const noexcept;
         bool isNightWorkingDay() const noexcept;
     };
 
-    using DaysData = std::unordered_map<DayDataKey, Timesheet::DayData, Timesheet::DayDataKeyHasher>;
+    using DaysData = std::unordered_map<Date, Timesheet::DayData, DateHasher>;
     using TimesheetData = std::unordered_map<EmployeeId, DaysData, EmployeeIdHasher>;
 
-    bool isEmpty() const;
     bool addEmployeeDayData(EmployeeId employee_id,
                             Date date,
                             AdminCategoryId admin_category_id,

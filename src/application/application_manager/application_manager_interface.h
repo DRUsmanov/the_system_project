@@ -20,7 +20,9 @@ public:
         const domain::UserId& user_id,
         const domain::Employee& employee,
         const domain::EmployeeAssignment& employee_assignment) const = 0;
-    virtual bool removeEmployee(const domain::UserId& user_id, domain::EmployeeId employee_id) const = 0;
+    virtual bool removeEmployee(const domain::UserId& user_id,
+                                domain::EmployeeId employee_id,
+                                const domain::Date& removing_date) const = 0;
     virtual std::optional<domain::Employee> getEmployee(const domain::UserId& user_id,
                                                         const domain::EmployeeId& employee_id) const = 0;
     virtual std::optional<domain::Departments> getDepartments(const domain::UserId& user_id) const = 0;
@@ -31,10 +33,10 @@ public:
     virtual bool updateEmployee(const domain::UserId& user_id,
                                 const domain::EmployeeId& employee_id,
                                 const domain::Employee& employee,
-                                const domain::EmployeeAssignment& employee_assignment) const = 0;
+                                const domain::EmployeeAssignment& employee_assignment,
+                                const std::optional<domain::Date>& assignment_changing_date) const = 0;
 
     virtual std::optional<domain::Timesheet> getTimesheet(const domain::UserId& user_id,
-                                                          const domain::AdminCategoryId& admin_category_id,
                                                           const domain::DepartmentId& department_id,
                                                           std::chrono::year_month year_month) const = 0;
 };

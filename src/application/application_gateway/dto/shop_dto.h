@@ -32,6 +32,7 @@ struct AddEmployeeResponseDto {
 // ======================================================================
 
 struct RemoveEmployeeRequestDto {
+    std::string removing_date;
     uint64_t employee_id;
 };
 
@@ -80,6 +81,7 @@ struct GetDepartmentStaffResponseDto {
 // ======================================================================
 
 struct UpdateEmployeeRequestDto {
+    std::optional<std::string> assignment_changing_date;
     uint64_t employee_id;
     std::string last_name;
     std::string first_name;
