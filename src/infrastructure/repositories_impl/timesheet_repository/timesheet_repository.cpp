@@ -31,6 +31,7 @@ namespace timesheet_keys {
 constexpr std::string EMPLOYEE_ID = "employee_id";
 constexpr std::string DEPARTMENT_ID = "department_id";
 constexpr std::string STAFF_POSITION_ID = "staff_position_id";
+constexpr std::string WORK_SCHEDULE_ID = "work_schedule_id";
 constexpr std::string DATE = "date";
 constexpr std::string WORK_START = "work_start";
 constexpr std::string WORK_END = "work_end";
@@ -48,9 +49,7 @@ constexpr std::string COMMENT = "comment";
 
 namespace {
 
-domain::WorkSchedule makeWorkScheduleFromJsonObject(domain::WorkScheduleId work_schedule_id,
-                                                    json::object& work_schedule_as_object,
-                                                    std::string description) {
+domain::WorkSchedule makeWorkScheduleFromJsonObject(json::object& work_schedule_as_object, std::string description) {
     utils::logFunctionStart(utils::FUNCTION_INFO);
 
     size_t cycle_size = work_schedule_as_object.at(work_schedule_keys::CYCLE_SIZE).as_int64();
@@ -111,7 +110,7 @@ domain::WorkSchedule makeWorkScheduleFromJsonObject(domain::WorkScheduleId work_
         cycle.push_back(day_data);
     }
 
-    return {work_schedule_id, cycle_size, start_cycle_date, is_works_on_holidays, cycle, description};
+    return {cycle_size, start_cycle_date, is_works_on_holidays, cycle, description};
 }
 
 struct PreparedDayDataToInsert {
@@ -140,6 +139,7 @@ PreparedDayDataToInsert prepareDayDataToInsert(const domain::Timesheet::DayData&
     PreparedDayDataToInsert prepared_day_data_to_insert;
     prepared_day_data_to_insert.department_id = *day_data.department_id;
     prepared_day_data_to_insert.staff_position_id = *day_data.staff_position_id;
+    prepared_day_data_to_insert.work_schedule_id = *day_data.work_schedule_id;
 
     if (day_data.work_start.has_value()) {
         prepared_day_data_to_insert.work_start = domain::timeToString(day_data.work_start.value());
@@ -197,6 +197,11 @@ domain::Timesheet::DayData makeDayDataFromRow(const pqxx::row& row) {
     const auto& staff_position_field = row.at(timesheet_keys::STAFF_POSITION_ID);
     if (!staff_position_field.is_null()) {
         day_data.staff_position_id = domain::StaffPositionId{staff_position_field.as<uint64_t>()};
+    }
+
+    const auto& work_schedule_field = row.at(timesheet_keys::WORK_SCHEDULE_ID);
+    if (!work_schedule_field.is_null()) {
+        day_data.work_schedule_id = domain::WorkScheduleId{work_schedule_field.as<uint64_t>()};
     }
 
     const auto& work_start_field = row.at(timesheet_keys::WORK_START);
@@ -267,7 +272,7 @@ std::optional<domain::WorkSchedule> TimesheetRepository::downloadWorkScheduleByI
     auto work_chedule_as_string = result.at(0).at(tables::work_schedules::WORK_SCHEDULE).as<std::string>();
     auto work_schedule_as_object = parseString(work_chedule_as_string);
 
-    return makeWorkScheduleFromJsonObject(work_schedule_id, work_schedule_as_object, description);
+    return makeWorkScheduleFromJsonObject(work_schedule_as_object, description);
 }
 
 std::optional<domain::WorkSchedules> TimesheetRepository::downloadWorkSchedules() const {
@@ -285,9 +290,9 @@ std::optional<domain::WorkSchedules> TimesheetRepository::downloadWorkSchedules(
         auto description = row.at(tables::work_schedules::DESCRIPTION).as<std::string>();
         auto work_schedule_as_string = row.at(tables::work_schedules::WORK_SCHEDULE).as<std::string>();
         auto work_schedule_as_object = parseString(work_schedule_as_string);
-        auto work_schedule = makeWorkScheduleFromJsonObject(work_schedule_id, work_schedule_as_object, description);
+        auto work_schedule = makeWorkScheduleFromJsonObject(work_schedule_as_object, description);
 
-        work_schedules.push_back(work_schedule);
+        work_schedules.insert({work_schedule_id, work_schedule});
     }
 
     return work_schedules;
@@ -378,11 +383,10 @@ std::optional<domain::EmployeeVacations> TimesheetRepository::downloadVacationsB
         auto end_date = domain::dateFromString(row.at(tables::vacations::END_DATE).as<std::string>());
 
         domain::Vacation employee_vacation;
-        employee_vacation.vacation_id = vacation_id;
         employee_vacation.start = start_date;
         employee_vacation.end = end_date;
 
-        employee_vacations[emlpoyee_id].push_back(employee_vacation);
+        employee_vacations[emlpoyee_id].insert({vacation_id, employee_vacation});
     }
 
     return employee_vacations;
@@ -468,6 +472,7 @@ bool TimesheetRepository::uploadTimesheet(const domain::Timesheet& timesheet,
                                            *employee_id,
                                            prepared_day_data_to_insert.department_id,
                                            prepared_day_data_to_insert.staff_position_id,
+                                           prepared_day_data_to_insert.work_schedule_id,
                                            domain::dateToString(date),
                                            prepared_day_data_to_insert.work_start,
                                            prepared_day_data_to_insert.work_end,

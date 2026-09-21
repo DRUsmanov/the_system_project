@@ -52,7 +52,8 @@ private:
                                               const TimesheetGenerationContext& generation_context);
     bool generateHolidaysAndPreHolidaysInTimesheet(Timesheet& timesheet,
                                                    const TimesheetGenerationContext& generation_context);
-    bool generateWorkingDayInTimesheet(Timesheet& timesheet, const TimesheetGenerationContext& generation_context);
+    bool generateWorkingAndNonWorkingDayInTimesheet(Timesheet& timesheet,
+                                                    const TimesheetGenerationContext& generation_context);
     std::chrono::year_month_day getCurrentDate() const;
 
 private:

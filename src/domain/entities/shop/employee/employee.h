@@ -2,6 +2,7 @@
 
 #include <cstdint>
 #include <optional>
+#include <unordered_map>
 
 #include "tagged.h"
 #include "value_data/types.h"
@@ -25,5 +26,7 @@ struct Employee {
     Date employment_date;
     EmployeeNumber employee_number;
 };
+
+using Employees = std::unordered_map<EmployeeId, Employee, EmployeeIdHasher>;
 
 }  // namespace domain

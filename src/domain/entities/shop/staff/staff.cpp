@@ -1,6 +1,6 @@
 #include "entities/shop/staff/staff.h"
 
-domain::Staff::Employees domain::Staff::getEmployees() const {
+const domain::Employees& domain::Staff::getEmployees() const {
     return employees_;
 }
 

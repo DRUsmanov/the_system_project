@@ -42,6 +42,7 @@ public:
     struct DayData {
         DepartmentId department_id;
         StaffPositionId staff_position_id;
+        WorkScheduleId work_schedule_id;
 
         std::optional<Time> work_start;
         std::optional<Time> work_end;
@@ -57,10 +58,12 @@ public:
 
         static DayData createWorkingDayData(const WorkSchedule::DayData& work_schedule_day_data,
                                             DepartmentId department_id,
-                                            StaffPositionId staff_position_id);
+                                            StaffPositionId staff_position_id,
+                                            WorkScheduleId work_schedule_id);
         static DayData createNonWorkingDayData(LeaveType leave_type,
                                                DepartmentId department_id,
-                                               StaffPositionId staff_position_id);
+                                               StaffPositionId staff_position_id,
+                                               WorkScheduleId work_schedule_id);
 
         bool isWorkingDay() const noexcept;
         bool isNightWorkingDay() const noexcept;
@@ -73,6 +76,9 @@ public:
                             Date date,
                             AdminCategoryId admin_category_id,
                             const DayData& day_data);
+    std::optional<DayData> getEmployeeDayData(EmployeeId employee_id, Date date) const;
+    bool changeEmployeeDayData(EmployeeId employee_id, Date date, const DayData& day_data);
+
     TimesheetData::const_iterator begin() const;
     TimesheetData::const_iterator end() const;
 

@@ -26,7 +26,3 @@ const domain::WorkSchedule::DayData& domain::WorkSchedule::operator[](size_t ind
 const std::string& domain::WorkSchedule::getDescription() const {
     return description_;
 }
-
-domain::WorkScheduleId domain::WorkSchedule::getId() const {
-    return work_schedule_id_;
-}

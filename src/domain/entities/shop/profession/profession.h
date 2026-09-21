@@ -2,6 +2,7 @@
 
 #include <cstdint>
 #include <optional>
+#include <unordered_map>
 
 #include "tagged.h"
 #include "value_data/types.h"
@@ -16,8 +17,9 @@ using ProfessionId = utils::Tagged<uint64_t, detail::Profession>;
 using ProfessionIdHasher = utils::TaggedHasher<ProfessionId>;
 
 struct Profession {
-    ProfessionId profession_id;
     std::string name;
 };
+
+using Professions = std::unordered_map<ProfessionId, Profession, ProfessionIdHasher>;
 
 }  // namespace domain

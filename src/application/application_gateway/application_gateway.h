@@ -27,6 +27,9 @@ public:
         const GetDepartmentStaffRequestDto& get_department_staff_request_dto) const override;
     bool updateEmployee(const UserAccessDto& user_access_dto,
                         const UpdateEmployeeRequestDto& update_employee_request_dto) const override;
+    std::optional<GetDepartmentTimesheetResponseDto> getDepartmentTimesheet(
+        const UserAccessDto& user_access_dto,
+        const GetDepartmentTimesheetRequestDto& get_department_timesheet_request_dto) const override;
 
 private:
     ApplicationManagerInterface& application_manager_;

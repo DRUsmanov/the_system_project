@@ -35,10 +35,9 @@ public:
                                 const domain::Employee& employee,
                                 const domain::EmployeeAssignment& employee_assignment,
                                 const std::optional<domain::Date>& assignment_changing_date) const = 0;
-
-    virtual std::optional<domain::Timesheet> getTimesheet(const domain::UserId& user_id,
-                                                          const domain::DepartmentId& department_id,
-                                                          std::chrono::year_month year_month) const = 0;
+    virtual std::optional<domain::Timesheet> getDepartmentTimesheet(const domain::UserId& user_id,
+                                                                    const domain::DepartmentId& department_id,
+                                                                    std::chrono::year_month year_month) const = 0;
 };
 
 }  // namespace application

@@ -242,9 +242,9 @@ bool application::ApplicationManager::updateEmployee(
     }
 }
 
-std::optional<domain::Timesheet> ApplicationManager::getTimesheet(const domain::UserId& user_id,
-                                                                  const domain::DepartmentId& department_id,
-                                                                  std::chrono::year_month year_month) const {
+std::optional<domain::Timesheet> ApplicationManager::getDepartmentTimesheet(const domain::UserId& user_id,
+                                                                            const domain::DepartmentId& department_id,
+                                                                            std::chrono::year_month year_month) const {
     utils::logFunctionStart(utils::FUNCTION_INFO);
     try {
         auto uow = uow_factory_.createUow();
@@ -263,8 +263,7 @@ std::optional<domain::Timesheet> ApplicationManager::getTimesheet(const domain::
             return std::nullopt;
         }
 
-        std::optional<domain::Timesheet> timesheet =
-            timesheet_service->getDepartmentTimesheet(department_id, user->admin_category_id, year_month);
+        auto timesheet = timesheet_service->getDepartmentTimesheet(department_id, user->admin_category_id, year_month);
 
         if (timesheet.has_value()) {
             return timesheet;
@@ -273,6 +272,7 @@ std::optional<domain::Timesheet> ApplicationManager::getTimesheet(const domain::
         domain::EmployeeAssignments employee_assignments = shop_service->getAllEmployeeAssignments();
         timesheet_service->generateTimesheetForAllEmployees(employee_assignments, year_month.year());
         return timesheet_service->getDepartmentTimesheet(department_id, user->admin_category_id, year_month);
+
     } catch (std::exception& ex) {
         utils::logException(ex);
         return std::nullopt;

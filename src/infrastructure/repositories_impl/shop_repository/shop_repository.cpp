@@ -166,11 +166,10 @@ std::optional<domain::StaffPositions> infrastructure::ShopRepository::downloadSt
 
         domain::StaffPosition staff_position;
 
-        staff_position.staff_position_id = staff_position_id;
         staff_position.description = description;
         staff_position.default_profession_id = default_profession_id;
 
-        staff_positions.push_back(staff_position);
+        staff_positions.insert({staff_position_id, staff_position});
     }
 
     return staff_positions;

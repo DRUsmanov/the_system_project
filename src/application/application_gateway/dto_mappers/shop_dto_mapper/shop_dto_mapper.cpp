@@ -62,9 +62,8 @@ GetDepartmentsResponseDto ShopDtoMapper::convert(const domain::Departments& depa
 
 GetStaffPositionsResponseDto ShopDtoMapper::convert(const domain::StaffPositions& staff_positions) const {
     GetStaffPositionsResponseDto get_staff_positions_response_dto;
-    for (const auto& staff_position : staff_positions) {
-        get_staff_positions_response_dto.staff_positions[*staff_position.staff_position_id] =
-            staff_position.description;
+    for (const auto& [staff_position_id, staff_position] : staff_positions) {
+        get_staff_positions_response_dto.staff_positions[*staff_position_id] = staff_position.description;
     }
     return get_staff_positions_response_dto;
 }

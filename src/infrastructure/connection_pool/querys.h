@@ -126,6 +126,7 @@ constexpr std::string ID{"id"};
 constexpr std::string EMPLOYEE_ID{"employee_id"};
 constexpr std::string DEPARTMENT_ID{"department_id"};
 constexpr std::string STAFF_POSITION_ID{"staff_position_id"};
+constexpr std::string WORK_SCHEDULE_ID{"work_schedule_id"};
 constexpr std::string DATE{"date"};
 constexpr std::string WORK_TIME{"work_time"};
 constexpr std::string NIGHT_WORK_TIME{"night_work_time"};
@@ -183,9 +184,9 @@ inline const std::unordered_map<std::string, std::string> querys{
      WHERE employee_id = $1 AND start_date >= MAKE_DATE($2, 1, 1)
      AND start_date < MAKE_DATE($2 + 1, 1, 1);)"},
     {query::UPLOAD_TIMESHEET,
-     R"(INSERT INTO timesheet (employee_id, department_id, staff_position_id, date, work_start, work_end, work_time,
+     R"(INSERT INTO timesheet (employee_id, department_id, staff_position_id, work_schedule_id, date, work_start, work_end, work_time,
      night_work_start, night_work_end, night_work_time, rest_start, rest_end, leave_type, admin_category_id, admin_employee_id, comment)
-     VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16) RETURNING id;)"},
+     VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17) RETURNING id;)"},
     {query::DOWNLOAD_EMPLOYEE_ASSIGNMENT,
      R"(SELECT id, employee_id, department_id, staff_position_id, work_schedule_id FROM staffing_assignments
      WHERE employee_id = $1;)"},
@@ -199,7 +200,7 @@ inline const std::unordered_map<std::string, std::string> querys{
     {query::UPDATE_EMPLOYEE_ASSIGNMENT,
      R"(UPDATE staffing_assignments SET department_id=$2, staff_position_id=$3, work_schedule_id=$4 WHERE id=$1;)"},
     {query::DOWNLOAD_DEPARTMENT_TIMESHEET,
-     R"(SELECT  employee_id, department_id, staff_position_id, date, work_start, work_end, work_time,
+     R"(SELECT employee_id, department_id, staff_position_id, work_schedule_id, date, work_start, work_end, work_time,
      night_work_start, night_work_end, night_work_time, rest_start, rest_end, leave_type, admin_category_id, admin_employee_id,
      comment FROM timesheet WHERE date >= MAKE_DATE($1, $2, 1) AND date < MAKE_DATE($1, $2, 1) + INTERVAL '1 month'
      AND department_id=$3 AND admin_category_id=$4;)"},

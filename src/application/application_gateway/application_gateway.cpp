@@ -2,6 +2,7 @@
 
 #include <tuple>
 
+#include "entities/timesheet/leave_types/leave_type.h"
 #include "logger.h"
 
 using namespace application;
@@ -117,4 +118,46 @@ bool ApplicationGateway::updateEmployee(const UserAccessDto& user_access_dto,
                                                employee,
                                                employee_assignment,
                                                assignment_changing_date);
+}
+
+std::optional<GetDepartmentTimesheetResponseDto> ApplicationGateway::getDepartmentTimesheet(
+    const UserAccessDto& user_access_dto,
+    const GetDepartmentTimesheetRequestDto& get_department_timesheet_request_dto) const {
+    auto user_id = user_dto_mapper_.convert(user_access_dto);
+    auto [department_id, date] = timesheet_dto_mapper_.convert(get_department_timesheet_request_dto);
+
+    auto ymd = std::chrono::year_month_day{date};
+    auto ym = std::chrono::year_month{ymd.year(), ymd.month()};
+
+    auto department_timesheet = application_manager_.getDepartmentTimesheet(user_id, department_id, ym);
+
+    if (!department_timesheet.has_value()) {
+        return std::nullopt;
+    }
+
+    auto department_staff = application_manager_.getDepartmentStaff(user_id, department_id);
+
+    if (!department_staff.has_value()) {
+        return std::nullopt;
+    }
+
+    const auto& employees = department_staff.value().getEmployees();
+
+    auto work_schedules = application_manager_.getWorkSchedules(user_id);
+
+    if (!work_schedules.has_value()) {
+        return std::nullopt;
+    }
+
+    auto staff_positions = application_manager_.getStaffPositions(user_id);
+
+    if (!staff_positions.has_value()) {
+        return std::nullopt;
+    }
+
+    return timesheet_dto_mapper_.convert(department_timesheet.value(),
+                                         employees,
+                                         work_schedules.value(),
+                                         staff_positions.value(),
+                                         domain::kLeaveTypeDescriptions);
 }
