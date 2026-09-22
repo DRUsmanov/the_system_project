@@ -8,6 +8,14 @@
 
 namespace domain {
 
+namespace detail {
+struct LeaveTypeIdTag {};
+}  // namespace detail
+
+using LeaveTypeId = utils::Tagged<uint64_t, detail::LeaveTypeIdTag>;
+using LeaveTypeIdHasher = utils::TaggedHasher<LeaveTypeId>;
+
+// TODO: now leave_type position must be equal with database - what to do???
 enum class LeaveType : uint64_t {
     VACATION = 1,                // Отпуск
     STUDY_LEAVE,                 // Ученический отпуск

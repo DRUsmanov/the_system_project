@@ -9,7 +9,7 @@ class ShopRepository : public domain::ShopRepositoryInterface {
 public:
     ShopRepository(std::shared_ptr<Uow> uow) : uow_{uow} {}
 
-    domain::EmployeeAssignments downloadAllEmployeeAssignments() const override;
+    std::optional<domain::EmployeeAssignments> downloadAllEmployeeAssignments() const override;
     std::optional<domain::EmployeeId> uploadEmployee(const domain::Employee& employee,
                                                      const domain::EmployeeAssignment& employee_assignment) override;
     std::optional<domain::Employee> downloadEmployee(domain::EmployeeId employee_id) const override;

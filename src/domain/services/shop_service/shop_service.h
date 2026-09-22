@@ -12,7 +12,7 @@ class ShopService : public ShopServiceInterface {
 public:
     ShopService(std::shared_ptr<ShopRepositoryInterface> shop_repository) : shop_repository_{shop_repository} {}
 
-    EmployeeAssignments getAllEmployeeAssignments() const override;
+    std::optional<EmployeeAssignments> getAllEmployeeAssignments() const override;
     std::optional<EmployeeId> addNewEmployee(const Employee& employee,
                                              const EmployeeAssignment& employee_assignment) override;
     std::optional<Employee> getEmployee(const EmployeeId& employee_id) const override;

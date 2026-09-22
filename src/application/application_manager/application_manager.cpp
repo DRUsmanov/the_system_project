@@ -269,12 +269,28 @@ std::optional<domain::Timesheet> ApplicationManager::getDepartmentTimesheet(cons
             return timesheet;
         }
 
-        domain::EmployeeAssignments employee_assignments = shop_service->getAllEmployeeAssignments();
-        timesheet_service->generateTimesheetForAllEmployees(employee_assignments, year_month.year());
+        auto employee_assignments = shop_service->getAllEmployeeAssignments();
+
+        if (!employee_assignments.has_value()) {
+            return std::nullopt;
+        }
+
+        if (!timesheet_service->generateTimesheetForAllEmployees(employee_assignments.value(), year_month.year())) {
+            return std::nullopt;
+        }
+
+        uow->commit();
+
         return timesheet_service->getDepartmentTimesheet(department_id, user->admin_category_id, year_month);
 
     } catch (std::exception& ex) {
         utils::logException(ex);
         return std::nullopt;
     }
+}
+
+const domain::LeaveTypeDescriptions& application::ApplicationManager::getLeaveTypeDescriptions(
+    const domain::UserId& user_id) const {
+    utils::logFunctionStart(utils::FUNCTION_INFO);
+    return domain::kLeaveTypeDescriptions;
 }

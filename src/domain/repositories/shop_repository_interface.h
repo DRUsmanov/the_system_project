@@ -12,7 +12,7 @@ class ShopRepositoryInterface {
 public:
     virtual ~ShopRepositoryInterface() = default;
 
-    virtual EmployeeAssignments downloadAllEmployeeAssignments() const = 0;
+    virtual std::optional<EmployeeAssignments> downloadAllEmployeeAssignments() const = 0;
     virtual std::optional<EmployeeId> uploadEmployee(const Employee& employee,
                                                      const EmployeeAssignment& employee_assignment) = 0;
     virtual std::optional<Employee> downloadEmployee(EmployeeId employee_id) const = 0;

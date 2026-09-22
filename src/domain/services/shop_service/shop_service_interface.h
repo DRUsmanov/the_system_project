@@ -12,7 +12,7 @@ class ShopServiceInterface {
 public:
     virtual ~ShopServiceInterface() = default;
 
-    virtual EmployeeAssignments getAllEmployeeAssignments() const = 0;
+    virtual std::optional<EmployeeAssignments> getAllEmployeeAssignments() const = 0;
     virtual std::optional<EmployeeId> addNewEmployee(const Employee& employee,
                                                      const EmployeeAssignment& employee_assignment) = 0;
     virtual std::optional<Employee> getEmployee(const EmployeeId& employee_id) const = 0;

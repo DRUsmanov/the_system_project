@@ -45,6 +45,7 @@ public:
     std::optional<domain::Timesheet> getDepartmentTimesheet(const domain::UserId& user_id,
                                                             const domain::DepartmentId& department_id,
                                                             std::chrono::year_month year_month) const override;
+    const domain::LeaveTypeDescriptions& getLeaveTypeDescriptions(const domain::UserId& user_id) const override;
 
 private:
     const domain::UowFactoryInterface& uow_factory_;

@@ -413,3 +413,7 @@ std::optional<Date> domain::TimesheetService::getMaxDateInTimesheet() const {
     utils::logFunctionStart(utils::FUNCTION_INFO);
     return timesheet_repository_->downloadMaxDate();
 }
+
+const LeaveTypeDescriptions& domain::TimesheetService::getLeaveTypeDescriptions() const {
+    return kLeaveTypeDescriptions;
+}

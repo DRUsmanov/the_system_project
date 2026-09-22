@@ -31,6 +31,7 @@ public:
     bool removeTimesheetForEmployeeFromDate(const EmployeeId& employee_id, const domain::Date& removin_date) override;
     std::optional<WorkSchedules> getWorkSchedules() const override;
     std::optional<Date> getMaxDateInTimesheet() const override;
+    const LeaveTypeDescriptions& getLeaveTypeDescriptions() const override;
 
 private:
     struct TimesheetGenerationContext {

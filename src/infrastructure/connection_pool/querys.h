@@ -34,6 +34,8 @@ constexpr std::string DOWNLOAD_DEPARTMENT_TIMESHEET{"dload_dep_timesheet"};
 constexpr std::string DOWNLOAD_MAX_TIMESHEET_DATE{"dload_max_ts_date"};
 constexpr std::string DELETE_EMPLOYEE_TIMESHEET("del_emp_ts");
 constexpr std::string DELETE_EMPLOYEE_ASSIGNMENT("del_emp_assign");
+constexpr std::string DOWNLOAD_EMPLOYEES_ASSIGNMENT("dload_empls_assign");
+constexpr std::string DOWNLOAD_LEAVE_TYPES("dload_leave_types");
 }  // namespace query
 namespace tables {
 
@@ -147,6 +149,11 @@ constexpr std::string ID{"id"};
 constexpr std::string DESCRIPTION{"description"};
 }  // namespace departments
 
+namespace leave_types {
+constexpr std::string ID{"id"};
+constexpr std::string DESCRIPTION{"description"};
+}  // namespace leave_types
+
 }  // namespace tables
 
 // TODO: переделать на запросы через имена столбцов
@@ -207,6 +214,8 @@ inline const std::unordered_map<std::string, std::string> querys{
     {query::DOWNLOAD_MAX_TIMESHEET_DATE, R"(SELECT MAX(date) FROM timesheet;)"},
     {query::DELETE_EMPLOYEE_TIMESHEET,
      R"(DELETE FROM timesheet WHERE employee_id=$1 AND date>= MAKE_DATE($2, $3, $4);)"},
-    {query::DELETE_EMPLOYEE_ASSIGNMENT, R"(DELETE FROM staffing_assignments WHERE employee_id=$1;)"}};
+    {query::DELETE_EMPLOYEE_ASSIGNMENT, R"(DELETE FROM staffing_assignments WHERE employee_id=$1;)"},
+    {query::DOWNLOAD_EMPLOYEES_ASSIGNMENT, R"(SELECT * FROM staffing_assignments;)"},
+    {query::DOWNLOAD_LEAVE_TYPES, R"(SELECT * FROM leave_types;)"}};
 
 }  // namespace infrastructure

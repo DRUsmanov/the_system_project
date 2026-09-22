@@ -28,6 +28,7 @@ public:
     virtual std::optional<GetDepartmentTimesheetResponseDto> getDepartmentTimesheet(
         const UserAccessDto& user_access_dto,
         const GetDepartmentTimesheetRequestDto& get_department_timesheet_request_dto) const = 0;
+    virtual GetLeaveTypesResponseDto getLeaveTypeDescriptions(const UserAccessDto& user_access_dto) const = 0;
 };
 
 }  // namespace application

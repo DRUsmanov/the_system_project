@@ -4,7 +4,7 @@
 
 using namespace domain;
 
-EmployeeAssignments ShopService::getAllEmployeeAssignments() const {
+std::optional<EmployeeAssignments> ShopService::getAllEmployeeAssignments() const {
     return shop_repository_->downloadAllEmployeeAssignments();
 }
 

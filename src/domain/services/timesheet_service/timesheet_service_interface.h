@@ -28,6 +28,7 @@ public:
                                                     const domain::Date& removin_date) = 0;
     virtual std::optional<WorkSchedules> getWorkSchedules() const = 0;
     virtual std::optional<Date> getMaxDateInTimesheet() const = 0;
+    virtual const LeaveTypeDescriptions& getLeaveTypeDescriptions() const = 0;
 };
 
 }  // namespace domain

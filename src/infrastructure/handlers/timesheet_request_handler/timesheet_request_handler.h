@@ -7,6 +7,7 @@
 
 #include "application_gateway/application_gateway_interface.h"
 #include "content_type/content_types.h"
+#include "handlers/timesheet_request_handler/leave_types_request_handler/leave_types_request_handler.h"
 #include "handlers/timesheet_request_handler/work_schedule_request_handler/work_schedule_request_handler.h"
 #include "json_formater/json_formater.h"
 #include "token_manager/token_manager.h"
@@ -21,7 +22,8 @@ using namespace std::literals;
 class TimesheetRequestHandler {
 public:
     explicit TimesheetRequestHandler(application::ApplicationGatewayInterface& application_gateway) :
-        application_gateway_{application_gateway}, work_schedule_request_handler_{application_gateway} {}
+        application_gateway_{application_gateway}, work_schedule_request_handler_{application_gateway},
+        leave_type_request_handler_{application_gateway} {}
 
     template <typename Body, typename Allocator, typename TextResponseMaker, typename FileResponseMaker, typename Send>
     void operator()(http::request<Body, http::basic_fields<Allocator>>&& req,
@@ -39,6 +41,15 @@ public:
                                            text_response_maker,
                                            file_response_maker,
                                            std::forward<decltype(send)>(send));
+            return;
+        }
+
+        if (target.starts_with(LEAVE_TYPES)) {
+            leave_type_request_handler_(std::move(req),
+                                        payload,
+                                        text_response_maker,
+                                        file_response_maker,
+                                        std::forward<decltype(send)>(send));
             return;
         }
 
@@ -100,6 +111,7 @@ public:
 private:
     application::ApplicationGatewayInterface& application_gateway_;
     WorkscheduleRequestHandler work_schedule_request_handler_;
+    LeaveTypesRequestHandler leave_type_request_handler_;
 
 private:
     std::string makeGetDepartmentTimesheetResponse(
@@ -109,6 +121,7 @@ private:
     constexpr static std::string_view API_V1_TIMESHEET = "/api/v1/timesheet/"sv;
     constexpr static std::string_view WORK_SCHEDULE = "work_schedule"sv;
     constexpr static std::string_view DEPARTMENT_ID = "department_id"sv;
+    constexpr static std::string_view LEAVE_TYPES = "leave_types"sv;
     constexpr static std::string_view YEAR = "year"sv;
     constexpr static std::string_view MONTH = "month"sv;
 

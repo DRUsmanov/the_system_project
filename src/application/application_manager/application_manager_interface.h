@@ -38,6 +38,7 @@ public:
     virtual std::optional<domain::Timesheet> getDepartmentTimesheet(const domain::UserId& user_id,
                                                                     const domain::DepartmentId& department_id,
                                                                     std::chrono::year_month year_month) const = 0;
+    virtual const domain::LeaveTypeDescriptions& getLeaveTypeDescriptions(const domain::UserId& user_id) const = 0;
 };
 
 }  // namespace application

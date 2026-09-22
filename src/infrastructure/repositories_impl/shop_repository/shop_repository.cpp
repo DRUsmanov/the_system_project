@@ -9,10 +9,29 @@
 
 using namespace infrastructure;
 
-domain::EmployeeAssignments ShopRepository::downloadAllEmployeeAssignments() const {
+std::optional<domain::EmployeeAssignments> ShopRepository::downloadAllEmployeeAssignments() const {
     utils::logFunctionStart(utils::FUNCTION_INFO);
-    return domain::EmployeeAssignments();
-    // TODO
+    auto result = uow_->execParams(query::DOWNLOAD_EMPLOYEES_ASSIGNMENT);
+
+    if (result.size() == 0) {
+        return std::nullopt;
+    }
+
+    domain::EmployeeAssignments employee_assignments;
+
+    for (const auto& row : result) {
+        domain::EmployeeAssignment employee_assignment;
+        domain::EmployeeId employee_id{row.at(tables::staffing_assignments::EMPLOYEE_ID).as<uint64_t>()};
+        employee_assignment.department_id =
+            domain::DepartmentId{row.at(tables::staffing_assignments::DEPARTMENT_ID).as<uint64_t>()};
+        employee_assignment.staff_position_id =
+            domain::StaffPositionId{row.at(tables::staffing_assignments::STAFF_POSITION_ID).as<uint64_t>()};
+        employee_assignment.work_schedule_id =
+            domain::WorkScheduleId{row.at(tables::staffing_assignments::WORK_SCHEDULE_ID).as<uint64_t>()};
+        employee_assignments.addEmployeeAssignment(employee_id, employee_assignment);
+    }
+
+    return employee_assignments;
 }
 
 std::optional<domain::EmployeeId> ShopRepository::uploadEmployee(

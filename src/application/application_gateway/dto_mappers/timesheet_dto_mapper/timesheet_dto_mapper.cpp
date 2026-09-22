@@ -21,10 +21,7 @@ EmployeeInfoDto makeEmployeeInfoDto(const domain::EmployeeId& employee_id, const
     return employee_info_dto;
 }
 
-EmployeeDayDataDto makeEmployeeDayDataDto(const domain::Timesheet::DayData& employee_day_data,
-                                          const domain::StaffPositions& staff_positions,
-                                          const domain::WorkSchedules& work_schedules,
-                                          const domain::LeaveTypeDescriptions& leave_type_descriptions) {
+EmployeeDayDataDto makeEmployeeDayDataDto(const domain::Timesheet::DayData& employee_day_data) {
     EmployeeDayDataDto employee_day_data_dto;
 
     if (employee_day_data.work_time.has_value()) {
@@ -36,17 +33,15 @@ EmployeeDayDataDto makeEmployeeDayDataDto(const domain::Timesheet::DayData& empl
     }
 
     if (employee_day_data.leave_type.has_value()) {
-        employee_day_data_dto.leave_type = leave_type_descriptions.at(employee_day_data.leave_type.value());
+        employee_day_data_dto.leave_type_id = static_cast<uint64_t>(employee_day_data.leave_type.value());
     }
 
     if (employee_day_data.comment.has_value()) {
         employee_day_data_dto.comment = employee_day_data.comment.value();
     }
 
-    employee_day_data_dto.staff_position_description =
-        staff_positions.at(employee_day_data.staff_position_id).description;
-    employee_day_data_dto.work_schedule_description =
-        work_schedules.at(employee_day_data.work_schedule_id).getDescription();
+    employee_day_data_dto.staff_position_id = *employee_day_data.staff_position_id;
+    employee_day_data_dto.work_schedule_id = *employee_day_data.work_schedule_id;
 
     return employee_day_data_dto;
 }
@@ -61,31 +56,29 @@ std::pair<domain::DepartmentId, domain::Date> TimesheetDtoMapper::convert(
     return {department_id, date};
 }
 
-GetDepartmentTimesheetResponseDto TimesheetDtoMapper::convert(
-    const domain::Timesheet& department_timesheet,
-    const domain::Employees& employees,
-    const domain::WorkSchedules& work_schedules,
-    const domain::StaffPositions& staff_positions,
-    const domain::LeaveTypeDescriptions& leave_type_descriptions) const {
+GetDepartmentTimesheetResponseDto TimesheetDtoMapper::convert(const domain::Timesheet& department_timesheet) const {
     GetDepartmentTimesheetResponseDto get_department_timesheet_response_dto;
-    auto& employees_info_dto = get_department_timesheet_response_dto.employees_info_dto;
     auto& employees_day_data_dto = get_department_timesheet_response_dto.employees_day_data_dto;
 
     for (auto it = department_timesheet.begin(); it != department_timesheet.end(); ++it) {
         const auto& employee_id = it->first;
         const auto& days_data = it->second;
 
-        auto employee_info_dto = makeEmployeeInfoDto(employee_id, employees);
-
-        employees_info_dto.insert({*employee_id, employee_info_dto});
-
         for (const auto& [date, day_data] : days_data) {
             auto date_as_string = domain::dateToString(date);
-            auto employee_day_data_dto =
-                makeEmployeeDayDataDto(day_data, staff_positions, work_schedules, leave_type_descriptions);
+            auto employee_day_data_dto = makeEmployeeDayDataDto(day_data);
             employees_day_data_dto[*employee_id].insert({date_as_string, employee_day_data_dto});
         }
     }
 
     return get_department_timesheet_response_dto;
+}
+
+GetLeaveTypesResponseDto application::TimesheetDtoMapper::convert(
+    const domain::LeaveTypeDescriptions& leave_type_descriptions) const {
+    GetLeaveTypesResponseDto get_leave_types_response_dto;
+    for (const auto& [leave_type, leave_type_description] : leave_type_descriptions) {
+        get_leave_types_response_dto.leave_type_desriptions[static_cast<uint64_t>(leave_type)] = leave_type_description;
+    }
+    return get_leave_types_response_dto;
 }

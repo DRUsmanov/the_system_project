@@ -155,9 +155,13 @@ std::optional<GetDepartmentTimesheetResponseDto> ApplicationGateway::getDepartme
         return std::nullopt;
     }
 
-    return timesheet_dto_mapper_.convert(department_timesheet.value(),
-                                         employees,
-                                         work_schedules.value(),
-                                         staff_positions.value(),
-                                         domain::kLeaveTypeDescriptions);
+    return timesheet_dto_mapper_.convert(department_timesheet.value());
+}
+
+GetLeaveTypesResponseDto application::ApplicationGateway::getLeaveTypeDescriptions(
+    const UserAccessDto& user_access_dto) const {
+    utils::logFunctionStart(utils::FUNCTION_INFO);
+    auto user_id = user_dto_mapper_.convert(user_access_dto);
+    auto leave_type_desriptions = application_manager_.getLeaveTypeDescriptions(user_id);
+    return timesheet_dto_mapper_.convert(leave_type_desriptions);
 }

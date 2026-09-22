@@ -30,6 +30,7 @@ public:
     std::optional<GetDepartmentTimesheetResponseDto> getDepartmentTimesheet(
         const UserAccessDto& user_access_dto,
         const GetDepartmentTimesheetRequestDto& get_department_timesheet_request_dto) const override;
+    GetLeaveTypesResponseDto getLeaveTypeDescriptions(const UserAccessDto& user_access_dto) const override;
 
 private:
     ApplicationManagerInterface& application_manager_;

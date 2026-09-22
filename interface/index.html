@@ -225,7 +225,7 @@
 
     /* ==================== ЭКРАН РАБОТЫ ==================== */
     #appScreen.active {
-      grid-template-columns: 260px 1fr;
+      grid-template-columns: 200px 1fr;
       grid-template-rows: auto 1fr;
       grid-template-areas:
         "sidebar header"
@@ -292,6 +292,7 @@
       color: #fca5a5;
     }
 
+    /* ==================== САЙДБАР ==================== */
     .sidebar {
       grid-area: sidebar;
       background: var(--panel);
@@ -302,10 +303,10 @@
     }
 
     .sidebar-header {
-      padding: 1rem 1.25rem;
+      padding: 0.85rem 0.9rem;
       border-bottom: 1px solid var(--border);
-      font-size: 0.75rem;
-      letter-spacing: 0.15em;
+      font-size: 0.7rem;
+      letter-spacing: 0.12em;
       text-transform: uppercase;
       color: var(--text-dim);
     }
@@ -313,18 +314,19 @@
     .sidebar-nav {
       flex: 1;
       overflow-y: auto;
-      padding: 0.5rem;
+      padding: 0.35rem;
     }
 
     .nav-item {
       display: flex;
-      align-items: center;
-      gap: 0.75rem;
-      padding: 0.7rem 0.9rem;
+      align-items: flex-start;
+      gap: 0.6rem;
+      padding: 0.6rem 0.7rem;
       border-radius: 8px;
       color: var(--text);
       cursor: pointer;
-      font-size: 0.95rem;
+      font-size: 0.85rem;
+      line-height: 1.25;
       transition: background 0.2s ease, color 0.2s ease;
       border: none;
       background: transparent;
@@ -342,17 +344,18 @@
     }
 
     .nav-item .icon {
-      width: 1.25rem;
+      width: 1.1rem;
       text-align: center;
       flex-shrink: 0;
       opacity: 0.9;
+      line-height: 1.25;
     }
 
     .nav-item .label {
       flex: 1;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
+      white-space: normal;
+      overflow-wrap: break-word;
+      word-break: break-word;
     }
 
     .main {
@@ -388,7 +391,7 @@
       line-height: 1.5;
     }
 
-    /* ==================== МОДУЛЬ: ТАБЕЛЬ ==================== */
+    /* ==================== МОДУЛЬ ==================== */
     .module-title {
       font-size: 1.5rem;
       font-weight: 600;
@@ -453,7 +456,6 @@
       cursor: not-allowed;
     }
 
-    /* ===== Стрелки листания периода (табель) ===== */
     .ts-period {
       display: flex;
       align-items: center;
@@ -570,7 +572,6 @@
       color: #fca5a5;
     }
 
-    /* ===== Кнопки в панели ===== */
     .toolbar .control.actions {
       margin-left: auto;
     }
@@ -694,6 +695,228 @@
       border-bottom: none;
     }
 
+    /* ==================== ТАБЛИЦА ТАБЕЛЯ ==================== */
+    .ts-table-wrap {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: auto;
+      text-align: left;
+      max-width: 100%;
+      max-height: 72vh;
+    }
+
+    .ts-table {
+      border-collapse: separate;
+      border-spacing: 0;
+      font-size: 0.75rem;
+      table-layout: fixed;
+    }
+
+    .ts-table th,
+    .ts-table td {
+      border-right: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .ts-table thead th {
+      position: sticky;
+      top: 0;
+      z-index: 2;
+      background: var(--panel-2);
+      color: var(--text-dim);
+      font-weight: 500;
+      font-size: 0.65rem;
+      letter-spacing: 0.03em;
+      text-transform: uppercase;
+      padding: 0.35rem 0.25rem;
+      text-align: center;
+      line-height: 1.15;
+    }
+
+    .ts-table th.ts-fixed,
+    .ts-table td.ts-fixed {
+      position: sticky;
+      z-index: 1;
+      background: var(--panel);
+      text-align: left;
+      white-space: normal;
+      word-break: break-word;
+    }
+
+    .ts-table td.ts-fixed {
+      background: #1a2536;
+    }
+
+    .ts-table thead th.ts-fixed {
+      z-index: 3;
+      background: var(--panel-2);
+    }
+
+    .ts-fixed-1 {
+      left: 0;
+      width: 110px;
+      min-width: 110px;
+      max-width: 110px;
+      line-height: 1.25;
+      padding: 0.35rem 0.4rem;
+    }
+
+    .ts-fixed-1 .fio-part {
+      display: block;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      font-size: 0.7rem;
+    }
+
+    .ts-fixed-2 {
+      left: 110px;
+      width: 56px;
+      min-width: 56px;
+      max-width: 56px;
+      white-space: nowrap;
+      text-align: center;
+      padding: 0.35rem 0.25rem;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .ts-fixed-3 {
+      left: 166px;
+      width: 150px;
+      min-width: 150px;
+      max-width: 150px;
+      line-height: 1.2;
+      padding: 0.35rem 0.5rem;
+      font-size: 0.7rem;
+    }
+
+    .ts-fixed-4 {
+      left: 316px;
+      width: 90px;
+      min-width: 90px;
+      max-width: 90px;
+      white-space: normal;
+      line-height: 1.2;
+      padding: 0.35rem 0.4rem;
+      font-size: 0.7rem;
+    }
+
+    .ts-table thead th.ts-day,
+    .ts-table tbody td.ts-day {
+      padding: 0.25rem 0.05rem;
+      text-align: center;
+    }
+
+    .ts-table thead th.ts-day {
+      font-size: 0.65rem;
+      line-height: 1.1;
+    }
+
+    .ts-table thead th.ts-day .ts-day-num {
+      font-weight: 600;
+      color: var(--text);
+      font-size: 0.7rem;
+      display: block;
+      line-height: 1.1;
+    }
+
+    .ts-table thead th.ts-day .ts-day-dow {
+      display: block;
+      font-size: 0.55rem;
+      color: var(--text-dim);
+      letter-spacing: 0;
+      text-transform: none;
+      line-height: 1.1;
+    }
+
+    .ts-table thead th.ts-day.is-weekend .ts-day-num {
+      color: #fca5a5;
+    }
+
+    .ts-table thead th.ts-day.is-weekend .ts-day-dow {
+      color: #fca5a5;
+    }
+
+    .ts-table tbody td.ts-day {
+      cursor: pointer;
+      transition: background 0.1s;
+      color: var(--text);
+      font-size: 0.65rem;
+      line-height: 1.1;
+    }
+
+    .ts-table tbody td.ts-day:hover {
+      background: var(--panel-2);
+    }
+
+    .ts-table tbody td.ts-day.empty {
+      color: var(--text-dim);
+      cursor: default;
+    }
+
+    .ts-table tbody td.ts-day.empty:hover {
+      background: transparent;
+    }
+
+    .ts-table tbody td.ts-merged {
+      text-align: center;
+      cursor: default;
+      background: rgba(59, 130, 246, 0.06);
+      font-size: 0.7rem;
+      font-weight: 500;
+      color: var(--text);
+      padding: 0.4rem 0.3rem;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .ts-table tbody td.ts-merged:hover {
+      background: rgba(59, 130, 246, 0.06);
+    }
+
+    /* Цвета типов отсутствий */
+    .ts-cell-vacation {
+      background: rgba(59, 130, 246, 0.18);
+      color: #93c5fd;
+    }
+
+    .ts-cell-study {
+      background: rgba(59, 130, 246, 0.18);
+      color: #93c5fd;
+    }
+
+    .ts-cell-sick {
+      background: rgba(239, 68, 68, 0.18);
+      color: #fca5a5;
+    }
+
+    .ts-cell-medical {
+      background: rgba(20, 184, 166, 0.18);
+      color: #5eead4;
+    }
+
+    .ts-cell-unpaid {
+      background: rgba(234, 179, 8, 0.18);
+      color: #fde68a;
+    }
+
+    .ts-cell-duties {
+      background: rgba(168, 85, 247, 0.18);
+      color: #d8b4fe;
+    }
+
+    .ts-cell-weekend {
+      background: rgba(148, 163, 184, 0.12);
+      color: #cbd5e1;
+    }
+
+    .ts-cell-holiday {
+      background: rgba(239, 68, 68, 0.25);
+      color: #fca5a5;
+    }
+
     /* ==================== МОДАЛЬНОЕ ОКНО ==================== */
     .modal-backdrop {
       position: fixed;
@@ -772,7 +995,6 @@
       overflow-y: auto;
     }
 
-    /* ===== Секции формы ===== */
     .form-section+.form-section {
       margin-top: 1.75rem;
       padding-top: 1.5rem;
@@ -794,7 +1016,6 @@
       border-top-color: rgba(51, 65, 85, 0.6);
     }
 
-    /* ===== Сетка полей ===== */
     .form-grid {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
@@ -853,7 +1074,6 @@
       cursor: not-allowed;
     }
 
-    /* ===== Подсветка ошибок ===== */
     .form-field.invalid input,
     .form-field.invalid select {
       border-color: var(--danger);
@@ -871,7 +1091,6 @@
       display: block;
     }
 
-    /* В режиме просмотра поля визуально "неактивные", но текст читаемый */
     .modal.mode-view .form-field input,
     .modal.mode-view .form-field select {
       background: transparent;
@@ -900,21 +1119,15 @@
       display: none;
     }
 
-    /* ==================== БЛОК ИЗМЕНЕНИЯ НАЗНАЧЕНИЯ ==================== */
     .assignment-changed-block {
-      margin-top: 1.5rem;
-      padding: 1.1rem 1.25rem;
+      margin-top: 0;
+      padding: 0 1.25rem;
       background: rgba(59, 130, 246, 0.08);
-      border: 1px solid rgba(59, 130, 246, 0.35);
+      border: 0 solid rgba(59, 130, 246, 0.35);
       border-radius: 10px;
-
       opacity: 0;
       max-height: 0;
       overflow: hidden;
-      padding-top: 0;
-      padding-bottom: 0;
-      margin-top: 0;
-      border-width: 0;
       transition:
         opacity 0.28s ease,
         max-height 0.35s ease,
@@ -997,14 +1210,12 @@
       display: none !important;
     }
 
-    /* ==================== БЛОК УДАЛЕНИЯ СОТРУДНИКА ==================== */
     .modal-remove-block {
       margin-top: 0;
       padding: 0 1.25rem;
       background: rgba(239, 68, 68, 0.08);
       border: 0 solid rgba(239, 68, 68, 0.4);
       border-radius: 10px;
-
       opacity: 0;
       max-height: 0;
       overflow: hidden;
@@ -1071,10 +1282,22 @@
       display: block;
     }
 
-    /* В режиме удаления скрываем основную форму и блок назначения */
     .modal.mode-remove .form-section,
     .modal.mode-remove .assignment-changed-block {
       display: none !important;
+    }
+
+    .ts-cell-info {
+      padding: 0.75rem 1rem;
+      background: var(--panel-2);
+      border-radius: 8px;
+      font-size: 0.9rem;
+      color: var(--text-dim);
+      line-height: 1.5;
+    }
+
+    .ts-cell-info-line strong {
+      color: var(--text);
     }
 
     .modal-footer {
@@ -1122,7 +1345,7 @@
         top: 0;
         left: 0;
         bottom: 0;
-        width: 260px;
+        width: 200px;
         transform: translateX(-100%);
         transition: transform 0.2s;
         z-index: 100;
@@ -1249,7 +1472,6 @@
       </div>
 
       <form class="modal-body" id="empModalForm" novalidate>
-        <!-- ===== Личные данные ===== -->
         <div class="form-section">
           <div class="form-section-title">Личные данные</div>
           <div class="form-grid">
@@ -1287,18 +1509,15 @@
           </div>
         </div>
 
-        <!-- ===== Назначение ===== -->
         <div class="form-section">
           <div class="form-section-title">Назначение</div>
 
-          <!-- Участок — на всю ширину -->
           <div class="form-field" data-field="department_id" style="margin-bottom: 1rem;">
             <label for="empModalDepartment">Участок *</label>
             <select id="empModalDepartment" name="department_id"></select>
             <div class="field-error">Выберите участок</div>
           </div>
 
-          <!-- Должность и график — в две колонки -->
           <div class="form-grid-2">
             <div class="form-field" data-field="staff_position_id">
               <label for="empModalStaffPosition">Должность *</label>
@@ -1317,7 +1536,6 @@
           </div>
         </div>
 
-        <!-- ===== Блок изменения назначения ===== -->
         <div class="assignment-changed-block" id="empModalAssignmentBlock" hidden>
           <div class="assignment-changed-warning">
             <span class="assignment-icon">⚠</span>
@@ -1334,7 +1552,6 @@
           </div>
         </div>
 
-        <!-- ===== Блок подтверждения удаления ===== -->
         <div class="modal-remove-block" id="empModalRemoveBlock" hidden>
           <div class="modal-remove-info" id="empModalRemoveText"></div>
 
@@ -1352,9 +1569,57 @@
     </div>
   </div>
 
+  <!-- ================== МОДАЛЬНОЕ ОКНО: ЯЧЕЙКА ТАБЕЛЯ ================== -->
+  <div class="modal-backdrop" id="tsCellModal">
+    <div class="modal" id="tsCellModalInner" style="max-width: 520px;">
+      <div class="modal-header">
+        <h2 id="tsCellModalTitle">Редактирование дня</h2>
+        <button class="modal-close" id="tsCellModalCloseBtn" title="Закрыть">✕</button>
+      </div>
+
+      <form class="modal-body" id="tsCellModalForm" novalidate>
+        <div class="ts-cell-info" id="tsCellInfo"></div>
+
+        <div class="form-grid-2" style="margin-top: 1rem;">
+          <div class="form-field" data-field="work_time">
+            <label for="tsCellWorkTime">Рабочее время</label>
+            <input type="text" id="tsCellWorkTime" name="work_time" placeholder="ЧЧ:ММ">
+            <div class="field-error">Формат ЧЧ:ММ</div>
+          </div>
+          <div class="form-field" data-field="night_work_time">
+            <label for="tsCellNightTime">Ночное время</label>
+            <input type="text" id="tsCellNightTime" name="night_work_time" placeholder="ЧЧ:ММ">
+            <div class="field-error">Формат ЧЧ:ММ</div>
+          </div>
+        </div>
+
+        <div class="form-field" data-field="leave_type_id" style="margin-top: 1rem;">
+          <label for="tsCellLeaveType">Вид отсутствия</label>
+          <select id="tsCellLeaveType" name="leave_type_id">
+            <option value="">— нет —</option>
+          </select>
+          <div class="field-error">Выберите вид отсутствия</div>
+        </div>
+
+        <div class="form-field" data-field="comment" style="margin-top: 1rem;">
+          <label for="tsCellComment">Комментарий</label>
+          <input type="text" id="tsCellComment" name="comment" placeholder="Текст комментария">
+          <div class="field-error">Комментарий</div>
+        </div>
+
+        <div class="modal-message" id="tsCellModalMessage"></div>
+      </form>
+
+      <div class="modal-footer">
+        <button type="button" class="btn" id="tsCellCancelBtn">Отмена</button>
+        <button type="button" class="btn btn-primary" id="tsCellSaveBtn">Сохранить</button>
+      </div>
+    </div>
+  </div>
+
   <script>
     // ==================== КОНФИГ ====================
-    const API_BASE = 'http://192.168.1.13:8080/api/v1'; // ← при необходимости замените
+    const API_BASE = 'http://192.168.1.13:8080/api/v1';
     const LOGIN_URL = `${API_BASE}/login`;
     const TOKEN_KEY = 'auth_token';
     const USER_KEY = 'auth_user';
@@ -1628,8 +1893,79 @@
     let departmentsCache = [];
     let staffPositionsCache = [];
     let workSchedulesCache = [];
+    let leaveTypesCache = [];
 
     let reloadEmployeesList = null;
+
+    // ==================== ТИПЫ ОТСУТСТВИЙ — АББР. И ЦВЕТА ====================
+    const LEAVE_TYPE_ABBR = {
+      1: 'ОТ',
+      2: 'УО',
+      3: 'ГО',
+      4: 'МБ',
+      5: 'БЛ',
+      6: 'МО',
+      7: 'ДД',
+      8: 'БО',
+      9: 'ДС',
+      10: 'ОЗ',
+      11: 'ДО',
+      12: 'КД',
+      13: 'ОБ',
+      14: 'В',
+      15: 'П',
+      16: 'ДП'
+    };
+
+    const LEAVE_TYPE_CLS = {
+      1: 'ts-cell-vacation',
+      2: 'ts-cell-study',
+      3: 'ts-cell-duties',
+      4: 'ts-cell-duties',
+      5: 'ts-cell-sick',
+      6: 'ts-cell-medical',
+      7: 'ts-cell-medical',
+      8: 'ts-cell-sick',
+      9: 'ts-cell-medical',
+      10: 'ts-cell-unpaid',
+      11: 'ts-cell-unpaid',
+      12: 'ts-cell-duties',
+      13: 'ts-cell-medical',
+      14: 'ts-cell-weekend',
+      15: 'ts-cell-holiday',
+      16: 'ts-cell-holiday'
+    };
+
+    function getLeaveType(id) {
+      if (id == null) return null;
+      const nid = Number(id);
+      const item = leaveTypesCache.find(t => Number(t.id) === nid);
+      if (!item) {
+        return {
+          id: nid,
+          description: '—',
+          abbr: LEAVE_TYPE_ABBR[nid] || '?',
+          cls: LEAVE_TYPE_CLS[nid] || ''
+        };
+      }
+      return {
+        id: nid,
+        description: item.description,
+        abbr: LEAVE_TYPE_ABBR[nid] || item.description.slice(0, 2).toUpperCase(),
+        cls: LEAVE_TYPE_CLS[nid] || ''
+      };
+    }
+
+    function getStaffPositionDesc(id) {
+      if (id == null) return '';
+      const item = staffPositionsCache.find(p => Number(p.id) === Number(id));
+      return item ? item.description : '';
+    }
+    function getWorkScheduleDesc(id) {
+      if (id == null) return '';
+      const item = workSchedulesCache.find(w => Number(w.id) === Number(id));
+      return item ? item.description : '';
+    }
 
     // ==================== ОБЩЕЕ: ЗАГРУЗКА УЧАСТКОВ ====================
     async function loadDepartments(selectEl, bodyEl, options = {}) {
@@ -1688,6 +2024,16 @@
     }
 
     // ==================== МОДУЛЬ: ТАБЕЛЬ РАБОЧЕГО ВРЕМЕНИ ====================
+    const DOW_SHORT = ['вс', 'пн', 'вт', 'ср', 'чт', 'пт', 'сб'];
+    const MAX_DAYS = 31;
+
+    // Дебаунс-таймер для перерасчёта высот строк при изменении размера
+    let tsRowHeightTimer = null;
+
+    function daysInMonth(year, month) {
+      return new Date(year, month, 0).getDate();
+    }
+
     function renderTimesheet() {
       const container = el('div');
 
@@ -1719,35 +2065,23 @@
       });
 
       const prevBtn = el('button', {
-        type: 'button',
-        class: 'ts-arrow',
-        id: 'tsPrevBtn',
-        title: 'Предыдущий месяц',
-        'aria-label': 'Предыдущий месяц',
-        text: '‹'
+        type: 'button', class: 'ts-arrow', id: 'tsPrevBtn',
+        title: 'Предыдущий месяц', 'aria-label': 'Предыдущий месяц', text: '‹'
       });
 
       const nextBtn = el('button', {
-        type: 'button',
-        class: 'ts-arrow',
-        id: 'tsNextBtn',
-        title: 'Следующий месяц',
-        'aria-label': 'Следующий месяц',
-        text: '›'
+        type: 'button', class: 'ts-arrow', id: 'tsNextBtn',
+        title: 'Следующий месяц', 'aria-label': 'Следующий месяц', text: '›'
       });
 
       const todayBtn = el('button', {
-        type: 'button',
-        class: 'ts-today',
-        id: 'tsTodayBtn',
-        title: 'Перейти к текущему месяцу',
-        text: 'Текущий месяц'
+        type: 'button', class: 'ts-today', id: 'tsTodayBtn',
+        title: 'Перейти к текущему месяцу', text: 'Текущий месяц'
       });
 
       function ensureYearOption(y) {
         const hasYear = Array.from(yearSelect.options).some(o => Number(o.value) === y);
         if (hasYear) return;
-
         const newOpt = el('option', { value: String(y), text: String(y) });
         let inserted = false;
         for (const opt of yearSelect.options) {
@@ -1766,11 +2100,9 @@
         m += delta;
         if (m < 1) { m = 12; y -= 1; }
         if (m > 12) { m = 1; y += 1; }
-
         ensureYearOption(y);
         yearSelect.value = String(y);
         monthSelect.value = String(m);
-
         onFiltersChanged();
       }
 
@@ -1778,7 +2110,6 @@
         ensureYearOption(currentYear);
         yearSelect.value = String(currentYear);
         monthSelect.value = String(currentMonth);
-
         onFiltersChanged();
       }
 
@@ -1816,11 +2147,7 @@
       });
 
       function onFiltersChanged() {
-        console.log('filters changed:', {
-          department_id: departmentSelect.value,
-          year: yearSelect.value,
-          month: monthSelect.value
-        });
+        loadTimesheet(body, departmentSelect.value, yearSelect.value, monthSelect.value);
       }
 
       departmentSelect.addEventListener('change', onFiltersChanged);
@@ -1829,6 +2156,454 @@
 
       return container;
     }
+
+    async function ensureCatalogs() {
+      if (!staffPositionsCache.length) {
+        try {
+          const { response, data } = await apiFetch('/shop/staff_position');
+          if (response.ok && data && data.status !== false && Array.isArray(data.staff_positions)) {
+            staffPositionsCache = data.staff_positions;
+          }
+        } catch (err) { console.error('staff_positions:', err); }
+      }
+
+      if (!workSchedulesCache.length) {
+        try {
+          const { response, data } = await apiFetch('/timesheet/work_schedule');
+          if (response.ok && data && data.status !== false && Array.isArray(data.work_schedules)) {
+            workSchedulesCache = data.work_schedules;
+          }
+        } catch (err) { console.error('work_schedules:', err); }
+      }
+
+      if (!leaveTypesCache.length) {
+        try {
+          const { response, data } = await apiFetch('/timesheet/leave_types');
+          if (response.ok && data && data.status !== false && Array.isArray(data.leave_types)) {
+            leaveTypesCache = data.leave_types;
+          }
+        } catch (err) { console.error('leave_types:', err); }
+      }
+    }
+
+    async function loadTimesheet(bodyEl, departmentId, year, month) {
+      if (!departmentId) {
+        bodyEl.innerHTML = '';
+        bodyEl.appendChild(el('div', { class: 'hint', text: 'Выберите подразделение, чтобы увидеть табель.' }));
+        return;
+      }
+
+      bodyEl.innerHTML = '';
+      bodyEl.appendChild(el('div', { class: 'state' }, [
+        el('span', { class: 'spinner' }),
+        el('span', { text: 'Загрузка табеля...' })
+      ]));
+
+      try {
+        await ensureCatalogs();
+
+        const [tsRes, staffRes] = await Promise.all([
+          apiFetch(`/timesheet?department_id=${Number(departmentId)}&year=${Number(year)}&month=${Number(month)}`),
+          apiFetch(`/shop/department/${Number(departmentId)}`)
+        ]);
+
+        const tsData = tsRes.data;
+        const staffData = staffRes.data;
+
+        if (!tsRes.response.ok || !tsData || tsData.status === false) {
+          bodyEl.innerHTML = '';
+          bodyEl.appendChild(el('div', { class: 'state error' }, [
+            el('span', { text: 'Не удалось загрузить табель' })
+          ]));
+          return;
+        }
+
+        const employeesById = new Map();
+        if (staffRes.response.ok && staffData && Array.isArray(staffData.department_staff)) {
+          staffData.department_staff.forEach(s => {
+            employeesById.set(s.employee_id, {
+              employee_id: s.employee_id,
+              last_name: s.last_name,
+              first_name: s.first_name,
+              patronymic: s.patronymic,
+              employee_number: s.employee_number,
+              etalon: {
+                staff_position_id: s.staff_position_id,
+                work_schedule_id: s.work_schedule_id
+              }
+            });
+          });
+        }
+
+        renderTimesheetTable(bodyEl, tsData, employeesById, Number(year), Number(month));
+      } catch (err) {
+        console.error(err);
+        bodyEl.innerHTML = '';
+        bodyEl.appendChild(el('div', { class: 'state error' }, [
+          el('span', { text: err.message || 'Ошибка соединения' })
+        ]));
+      }
+    }
+
+    // ==================== АВТО-ВЫСОТА СТРОК ТАБЕЛЯ ====================
+    function equalizeTimesheetRows(table) {
+      if (!table) return;
+
+      const rows = table.querySelectorAll('tbody tr');
+      if (!rows.length) return;
+
+      // Сбрасываем высоту
+      rows.forEach(tr => {
+        tr.style.height = '';
+        tr.querySelectorAll('td').forEach(td => {
+          td.style.height = '';
+          td.style.maxHeight = '';
+        });
+      });
+
+      // Измеряем максимальную высоту
+      let maxH = 0;
+      rows.forEach(tr => {
+        const h = tr.offsetHeight;
+        if (h > maxH) maxH = h;
+      });
+
+      if (maxH > 0) {
+        rows.forEach(tr => {
+          tr.style.height = maxH + 'px';
+        });
+      }
+    }
+
+    function renderTimesheetTable(bodyEl, data, employeesById, year, month) {
+      bodyEl.innerHTML = '';
+
+      const daysData = Array.isArray(data.days_data) ? data.days_data : [];
+
+      if (!daysData.length) {
+        bodyEl.appendChild(el('div', { class: 'hint', text: 'В выбранном подразделении нет сотрудников.' }));
+        return;
+      }
+
+      const totalDays = daysInMonth(year, month);
+
+      const FIXED_TOTAL = 110 + 56 + 150 + 90; // 406
+      const MIN_DAY_WIDTH = 18;
+      const bodyStyle = getComputedStyle(bodyEl);
+      const bodyPadding = parseFloat(bodyStyle.paddingLeft) + parseFloat(bodyStyle.paddingRight);
+      const availableWidth = bodyEl.clientWidth - bodyPadding;
+
+      let dayWidth = Math.floor((availableWidth - FIXED_TOTAL) / MAX_DAYS);
+      if (dayWidth < MIN_DAY_WIDTH) dayWidth = MIN_DAY_WIDTH;
+
+      const tableWidth = FIXED_TOTAL + MAX_DAYS * dayWidth;
+
+      // Шапка
+      const thead = el('thead');
+      const headerRow = el('tr');
+
+      headerRow.appendChild(el('th', { class: 'ts-fixed ts-fixed-1', text: 'ФИО' }));
+      headerRow.appendChild(el('th', { class: 'ts-fixed ts-fixed-2', text: 'Таб. №' }));
+      headerRow.appendChild(el('th', { class: 'ts-fixed ts-fixed-3', text: 'Должность' }));
+      headerRow.appendChild(el('th', { class: 'ts-fixed ts-fixed-4', text: 'График' }));
+
+      for (let d = 1; d <= MAX_DAYS; d++) {
+        if (d > totalDays) {
+          const th = el('th', { class: 'ts-day', html: '&nbsp;' });
+          th.style.width = dayWidth + 'px';
+          th.style.minWidth = dayWidth + 'px';
+          th.style.maxWidth = dayWidth + 'px';
+          headerRow.appendChild(th);
+          continue;
+        }
+        const date = new Date(year, month - 1, d);
+        const dow = date.getDay();
+        const isWeekend = (dow === 0 || dow === 6);
+
+        const th = el('th', { class: 'ts-day' + (isWeekend ? ' is-weekend' : '') });
+        th.style.width = dayWidth + 'px';
+        th.style.minWidth = dayWidth + 'px';
+        th.style.maxWidth = dayWidth + 'px';
+
+        th.appendChild(el('span', { class: 'ts-day-num', text: String(d) }));
+        th.appendChild(el('span', { class: 'ts-day-dow', text: DOW_SHORT[dow] }));
+        headerRow.appendChild(th);
+      }
+
+      thead.appendChild(headerRow);
+
+      // Тело
+      const tbody = el('tbody');
+
+      daysData.forEach(empDays => {
+        const empId = empDays.employee_id;
+        const empInfo = employeesById.get(empId);
+
+        const eData = empInfo ? {
+          last_name: empInfo.last_name,
+          first_name: empInfo.first_name,
+          patronymic: empInfo.patronymic,
+          employee_number: empInfo.employee_number
+        } : {
+          last_name: `Сотрудник #${empId}`,
+          first_name: '',
+          patronymic: '',
+          employee_number: ''
+        };
+        const etalon = empInfo ? empInfo.etalon : null;
+
+        const cellsMap = new Map();
+        (empDays.days_data || []).forEach(d => cellsMap.set(d.date, d.employee_data || {}));
+
+        // Группировка по (spId, wsId) — только по дням, которые есть
+        const groups = [];
+        const groupIndexByKey = new Map();
+
+        cellsMap.forEach((cell, dateStr) => {
+          const spId = cell.staff_position_id ?? null;
+          const wsId = cell.work_schedule_id ?? null;
+
+          if (spId == null && wsId == null) return;
+
+          const d = parseInt(dateStr.slice(8, 10), 10);
+          const key = `${spId}|${wsId}`;
+
+          if (!groupIndexByKey.has(key)) {
+            groupIndexByKey.set(key, groups.length);
+            groups.push({ spId, wsId, days: new Set() });
+          }
+          groups[groupIndexByKey.get(key)].days.add(d);
+        });
+
+        groups.sort((a, b) => {
+          const asp = a.spId ?? Number.MAX_SAFE_INTEGER;
+          const bsp = b.spId ?? Number.MAX_SAFE_INTEGER;
+          if (asp !== bsp) return asp - bsp;
+          const aws = a.wsId ?? Number.MAX_SAFE_INTEGER;
+          const bws = b.wsId ?? Number.MAX_SAFE_INTEGER;
+          return aws - bws;
+        });
+
+        let nativeIdx = -1;
+        if (etalon) {
+          nativeIdx = groups.findIndex(g =>
+            Number(g.spId) === Number(etalon.staff_position_id) &&
+            Number(g.wsId) === Number(etalon.work_schedule_id)
+          );
+        }
+
+        const dayToGroupIdx = new Map();
+        groups.forEach((g, i) => {
+          g.days.forEach(d => dayToGroupIdx.set(d, i));
+        });
+
+        groups.forEach((g, groupIdx) => {
+          const tr = el('tr');
+
+          const fioTd = el('td', { class: 'ts-fixed ts-fixed-1' });
+          [eData.last_name, eData.first_name, eData.patronymic].filter(Boolean).forEach(part => {
+            fioTd.appendChild(el('span', { class: 'fio-part', text: part }));
+          });
+          tr.appendChild(fioTd);
+
+          tr.appendChild(el('td', { class: 'ts-fixed ts-fixed-2', text: String(eData.employee_number ?? '') }));
+
+          tr.appendChild(el('td', { class: 'ts-fixed ts-fixed-3', text: getStaffPositionDesc(g.spId) }));
+          tr.appendChild(el('td', { class: 'ts-fixed ts-fixed-4', text: getWorkScheduleDesc(g.wsId) }));
+
+          let d = 1;
+          while (d <= MAX_DAYS) {
+            if (d > totalDays) {
+              const td = el('td', { class: 'ts-day' });
+              td.style.width = dayWidth + 'px';
+              td.style.minWidth = dayWidth + 'px';
+              td.style.maxWidth = dayWidth + 'px';
+              tr.appendChild(td);
+              d++;
+              continue;
+            }
+
+            const dayGroupIdx = dayToGroupIdx.get(d);
+
+            if (dayGroupIdx === groupIdx) {
+              const dateStr = `${year}-${String(month).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+              const cellData = cellsMap.get(dateStr) || {};
+
+              const td = el('td', { class: 'ts-day' });
+              td.style.width = dayWidth + 'px';
+              td.style.minWidth = dayWidth + 'px';
+              td.style.maxWidth = dayWidth + 'px';
+
+              if (cellData.leave_type_id != null) {
+                const lt = getLeaveType(cellData.leave_type_id);
+                if (lt) {
+                  if (lt.cls) td.classList.add(lt.cls);
+                  td.appendChild(el('span', { class: 'ts-cell-abbr', text: lt.abbr }));
+                  td.title = lt.description;
+                }
+              } else if (cellData.work_time) {
+                td.textContent = cellData.work_time;
+              } else {
+                td.classList.add('empty');
+                td.textContent = '—';
+              }
+
+              td.addEventListener('click', () => openTsCellModal({
+                year, month, day: d, dateStr,
+                employeeId: empId,
+                employeeData: eData,
+                cellData: cellData || null
+              }));
+
+              tr.appendChild(td);
+              d++;
+
+            } else if (groupIdx === nativeIdx) {
+              const dateStr = `${year}-${String(month).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+              const cellData = cellsMap.get(dateStr) || {};
+              const otherDesc = getStaffPositionDesc(cellData.staff_position_id);
+
+              let runEnd = d;
+              while (runEnd <= totalDays) {
+                const gIdx = dayToGroupIdx.get(runEnd);
+                if (gIdx === groupIdx) break;
+                runEnd++;
+              }
+              const span = runEnd - d;
+
+              const td = el('td', { class: 'ts-merged', text: otherDesc || '—' });
+              td.colSpan = span;
+              td.style.width = (span * dayWidth) + 'px';
+              td.style.minWidth = (span * dayWidth) + 'px';
+              td.style.maxWidth = (span * dayWidth) + 'px';
+              tr.appendChild(td);
+
+              d = runEnd;
+
+            } else {
+              const td = el('td', { class: 'ts-day empty' });
+              td.style.width = dayWidth + 'px';
+              td.style.minWidth = dayWidth + 'px';
+              td.style.maxWidth = dayWidth + 'px';
+              tr.appendChild(td);
+              d++;
+            }
+          }
+
+          tbody.appendChild(tr);
+        });
+      });
+
+      const table = el('table', { class: 'ts-table' }, [thead, tbody]);
+      table.style.width = tableWidth + 'px';
+      table.style.minWidth = tableWidth + 'px';
+
+      bodyEl.appendChild(el('div', { class: 'ts-table-wrap' }, [table]));
+
+      // Уравнять высоту строк после рендера
+      requestAnimationFrame(() => equalizeTimesheetRows(table));
+    }
+
+    // Пересчёт высоты строк при изменении размера окна
+    window.addEventListener('resize', () => {
+      clearTimeout(tsRowHeightTimer);
+      tsRowHeightTimer = setTimeout(() => {
+        const table = document.querySelector('.ts-table');
+        if (table) equalizeTimesheetRows(table);
+      }, 200);
+    });
+
+    // ==================== МОДАЛКА ЯЧЕЙКИ ТАБЕЛЯ ====================
+    const tsCellModal = document.getElementById('tsCellModal');
+    const tsCellModalTitle = document.getElementById('tsCellModalTitle');
+    const tsCellInfo = document.getElementById('tsCellInfo');
+    const tsCellWorkTime = document.getElementById('tsCellWorkTime');
+    const tsCellNightTime = document.getElementById('tsCellNightTime');
+    const tsCellLeaveType = document.getElementById('tsCellLeaveType');
+    const tsCellComment = document.getElementById('tsCellComment');
+    const tsCellModalMessage = document.getElementById('tsCellModalMessage');
+
+    let tsCellCurrent = null;
+
+    function fillLeaveTypeSelect() {
+      tsCellLeaveType.innerHTML = '<option value="">— нет —</option>';
+      leaveTypesCache.forEach(t => {
+        const nid = Number(t.id);
+        const abbr = LEAVE_TYPE_ABBR[nid] || '';
+        tsCellLeaveType.appendChild(el('option', {
+          value: String(nid),
+          text: abbr ? `${abbr} — ${t.description}` : t.description
+        }));
+      });
+    }
+
+    function showTsCellMessage(text, type) {
+      tsCellModalMessage.textContent = text;
+      tsCellModalMessage.className = 'modal-message ' + (type || '');
+    }
+
+    function clearTsCellMessage() {
+      tsCellModalMessage.textContent = '';
+      tsCellModalMessage.className = 'modal-message';
+    }
+
+    function openTsCellModal(ctx) {
+      tsCellCurrent = ctx;
+      clearTsCellMessage();
+
+      fillLeaveTypeSelect();
+
+      const emp = ctx.employeeData || {};
+      const fullName = [emp.last_name, emp.first_name, emp.patronymic].filter(Boolean).join(' ');
+      const dateHuman = new Date(ctx.year, ctx.month - 1, ctx.day)
+        .toLocaleDateString('ru-RU', { day: '2-digit', month: 'long', year: 'numeric' });
+
+      tsCellModalTitle.textContent = 'Редактирование дня';
+      tsCellInfo.innerHTML = `
+        <div class="ts-cell-info-line"><strong>${fullName}</strong></div>
+        <div class="ts-cell-info-line">Таб. № ${emp.employee_number ?? '—'} · ${dateHuman}</div>
+      `;
+
+      const c = ctx.cellData || {};
+      tsCellWorkTime.value = c.work_time || '';
+      tsCellNightTime.value = c.night_work_time || '';
+      tsCellComment.value = c.comment || '';
+      tsCellLeaveType.value = c.leave_type_id != null ? String(c.leave_type_id) : '';
+
+      tsCellModal.classList.add('open');
+      setTimeout(() => tsCellWorkTime.focus(), 50);
+    }
+
+    function closeTsCellModal() {
+      tsCellModal.classList.remove('open');
+      tsCellCurrent = null;
+    }
+
+    document.getElementById('tsCellModalCloseBtn').addEventListener('click', closeTsCellModal);
+    document.getElementById('tsCellCancelBtn').addEventListener('click', closeTsCellModal);
+    tsCellModal.addEventListener('click', (e) => {
+      if (e.target === tsCellModal) closeTsCellModal();
+    });
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && tsCellModal.classList.contains('open')) closeTsCellModal();
+    });
+
+    document.getElementById('tsCellSaveBtn').addEventListener('click', async () => {
+      clearTsCellMessage();
+      if (!tsCellCurrent) return;
+
+      const payload = {
+        employee_id: tsCellCurrent.employeeId,
+        date: tsCellCurrent.dateStr,
+        work_time: tsCellWorkTime.value.trim() || null,
+        night_work_time: tsCellNightTime.value.trim() || null,
+        leave_type_id: tsCellLeaveType.value ? Number(tsCellLeaveType.value) : null,
+        comment: tsCellComment.value.trim() || null
+      };
+
+      console.log('TODO: отправка изменения ячейки табеля:', payload);
+      showTsCellMessage('Функция сохранения пока не подключена к серверу', 'error');
+    });
 
     // ==================== МОДУЛЬ: СОТРУДНИКИ ====================
     function renderEmployees() {
@@ -1986,12 +2761,10 @@
     const empModalStaffPosition = document.getElementById('empModalStaffPosition');
     const empModalWorkSchedule = document.getElementById('empModalWorkSchedule');
 
-    // ===== Блок изменения назначения =====
     const empModalAssignmentBlock = document.getElementById('empModalAssignmentBlock');
     const empModalAssignmentDate = document.getElementById('empModalAssignmentDate');
     const empModalAssignmentList = document.getElementById('empModalAssignmentList');
 
-    // ===== Блок удаления =====
     const empModalRemoveBlock = document.getElementById('empModalRemoveBlock');
     const empModalRemoveText = document.getElementById('empModalRemoveText');
     const empModalRemovingDate = document.getElementById('empModalRemovingDate');
@@ -2000,7 +2773,6 @@
     let empModalCurrentEmployee = null;
     let empModalOriginalAssignment = null;
 
-    // ==================== ВАЛИДАЦИЯ ====================
     function clearFieldErrors() {
       empModalForm.querySelectorAll('.form-field.invalid').forEach(f => f.classList.remove('invalid'));
     }
@@ -2036,7 +2808,6 @@
       return invalid;
     }
 
-    // ==================== СПРАВОЧНИКИ ====================
     function fillDepartmentSelect(selectEl, departments, selectedId) {
       selectEl.innerHTML = '';
       selectEl.appendChild(el('option', { value: '', text: '— выберите участок —' }));
@@ -2070,35 +2841,6 @@
       empModalMessage.className = 'modal-message';
     }
 
-    async function ensureCatalogs() {
-      if (!departmentsCache.length) {
-        try {
-          const { response, data } = await apiFetch('/shop/department');
-          if (response.ok && data && data.status !== false && Array.isArray(data.departments)) {
-            departmentsCache = data.departments;
-          }
-        } catch (err) { console.error('departments:', err); }
-      }
-
-      if (!staffPositionsCache.length) {
-        try {
-          const { response, data } = await apiFetch('/shop/staff_position');
-          if (response.ok && data && data.status !== false && Array.isArray(data.staff_positions)) {
-            staffPositionsCache = data.staff_positions;
-          }
-        } catch (err) { console.error('staff_positions:', err); }
-      }
-
-      if (!workSchedulesCache.length) {
-        try {
-          const { response, data } = await apiFetch('/timesheet/work_schedule');
-          if (response.ok && data && data.status !== false && Array.isArray(data.work_schedules)) {
-            workSchedulesCache = data.work_schedules;
-          }
-        } catch (err) { console.error('work_schedules:', err); }
-      }
-    }
-
     function fillEmployeeForm(emp) {
       empModalLastName.value = emp?.last_name || '';
       empModalFirstName.value = emp?.first_name || '';
@@ -2130,7 +2872,6 @@
       fillSimpleSelect(empModalWorkSchedule, workSchedulesCache, '— выберите график —');
     }
 
-    // ==================== ИЗМЕНЕНИЕ НАЗНАЧЕНИЯ ====================
     const ASSIGNMENT_FIELDS = [
       { key: 'department_id', label: 'участок' },
       { key: 'staff_position_id', label: 'должность' },
@@ -2181,7 +2922,6 @@
       }
     }
 
-    // ==================== РЕЖИМЫ МОДАЛКИ ====================
     function setEmpModalMode(mode) {
       empModalMode = mode;
 
@@ -2349,7 +3089,6 @@
       setEmpModalMode('view');
     }
 
-    // ===== Удаление =====
     function onEmpModalDelete() {
       if (!empModalCurrentEmployee) return;
 
@@ -2423,7 +3162,6 @@
       }
     }
 
-    // ===== Сохранение =====
     async function onEmpModalEditSave() {
       clearEmpModalMessage();
       if (!empModalCurrentEmployee) return;
@@ -2538,7 +3276,6 @@
       }
     }
 
-    // Закрытие модалки
     document.getElementById('empModalCloseBtn').addEventListener('click', closeEmpModal);
     empModal.addEventListener('click', (e) => {
       if (e.target === empModal) closeEmpModal();
@@ -2547,7 +3284,6 @@
       if (e.key === 'Escape' && empModal.classList.contains('open')) closeEmpModal();
     });
 
-    // Очистка ошибки при вводе
     [empModalLastName, empModalFirstName, empModalBirthDate, empModalEmploymentDate,
       empModalNumber, empModalDepartment, empModalStaffPosition, empModalWorkSchedule,
       empModalAssignmentDate, empModalRemovingDate]
@@ -2560,7 +3296,6 @@
         input.addEventListener('change', handler);
       });
 
-    // Отслеживание изменений в трёх селектах назначения
     [empModalDepartment, empModalStaffPosition, empModalWorkSchedule].forEach(selectEl => {
       selectEl.addEventListener('change', updateAssignmentBlock);
     });
