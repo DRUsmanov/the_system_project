@@ -36,6 +36,9 @@ constexpr std::string DELETE_EMPLOYEE_TIMESHEET("del_emp_ts");
 constexpr std::string DELETE_EMPLOYEE_ASSIGNMENT("del_emp_assign");
 constexpr std::string DOWNLOAD_EMPLOYEES_ASSIGNMENT("dload_empls_assign");
 constexpr std::string DOWNLOAD_LEAVE_TYPES("dload_leave_types");
+constexpr std::string UPDATE_EMPLOYEE_TIMESHEET_DAY_DATA("upd_empl_ts_day_data");
+constexpr std::string DOWNLOAD_EMPLOYEE_TIMESHEET_BETWEEN_DATE{"dload_empl_ts_btw_date"};
+constexpr std::string DOWNLOAD_EMPLOYEE_EXTENDED_VACATIONS_TIMESHEET{"dload_empl_ext_vac_ts"};
 }  // namespace query
 namespace tables {
 
@@ -186,10 +189,10 @@ inline const std::unordered_map<std::string, std::string> querys{
     {query::DOWNLOAD_SYSTEM_ADMINISTRATOR_ID, R"(SELECT id, category FROM admin_categorys WHERE category = 'system';)"},
     {query::DOWNLOAD_WORK_SCHEDULE, R"(SELECT * FROM work_schedules WHERE id = $1;)"},
     {query::DOWNLOAD_VACATIONS_BY_YEAR, R"(SELECT id, employee_id, start_date, end_date FROM vacations
-     WHERE start_date >= MAKE_DATE($1, 1, 1) AND start_date < MAKE_DATE($1 + 1, 1, 1);)"},
+     WHERE start_date >= MAKE_DATE($1, 1, 1) AND start_date < MAKE_DATE($1 + 1, 1, 1) ORDER BY start_date;)"},
     {query::DOWNLOAD_EMPLOYEE_VACATIONS_BY_YEAR, R"(SELECT id, employee_id, start_date, end_date FROM vacations
      WHERE employee_id = $1 AND start_date >= MAKE_DATE($2, 1, 1)
-     AND start_date < MAKE_DATE($2 + 1, 1, 1);)"},
+     AND start_date < MAKE_DATE($2 + 1, 1, 1) ORDER BY start_date;)"},
     {query::UPLOAD_TIMESHEET,
      R"(INSERT INTO timesheet (employee_id, department_id, staff_position_id, work_schedule_id, date, work_start, work_end, work_time,
      night_work_start, night_work_end, night_work_time, rest_start, rest_end, leave_type, admin_category_id, admin_employee_id, comment)
@@ -200,7 +203,7 @@ inline const std::unordered_map<std::string, std::string> querys{
     {query::REMOVE_EMPLOYEE, R"(UPDATE employees SET is_active=false WHERE id=$1;)"},
     {query::DOWNLOAD_DEPARTMENTS, R"(SELECT * FROM departments ORDER BY description ASC;)"},
     {query::DOWNLOAD_STAFF_POSITIONS, R"(SELECT * FROM staff_positions ORDER BY id ASC;)"},
-    {query::DOWNLOAD_WORK_SCHEDULES, R"(SELECT * FROM work_schedules ORDER BY description ASC;)"},
+    {query::DOWNLOAD_WORK_SCHEDULES, R"(SELECT * FROM work_schedules ORDER BY id ASC;)"},
     {query::DOWNLOAD_DEPARTMENT_ASSIGNMENTS, R"(SELECT * FROM staffing_assignments WHERE department_id=$1;)"},
     {query::UPDATE_EMPLOYEE,
      R"(UPDATE employees SET last_name=$2, first_name=$3, patronymic=$4, birth_date=$5, employment_date=$6, employee_number=$7 WHERE id=$1;)"},
@@ -210,12 +213,26 @@ inline const std::unordered_map<std::string, std::string> querys{
      R"(SELECT employee_id, department_id, staff_position_id, work_schedule_id, date, work_start, work_end, work_time,
      night_work_start, night_work_end, night_work_time, rest_start, rest_end, leave_type, admin_category_id, admin_employee_id,
      comment FROM timesheet WHERE date >= MAKE_DATE($1, $2, 1) AND date < MAKE_DATE($1, $2, 1) + INTERVAL '1 month'
-     AND department_id=$3 AND admin_category_id=$4;)"},
+     AND department_id=$3 AND admin_category_id=$4 ORDER BY date;)"},
     {query::DOWNLOAD_MAX_TIMESHEET_DATE, R"(SELECT MAX(date) FROM timesheet;)"},
     {query::DELETE_EMPLOYEE_TIMESHEET,
      R"(DELETE FROM timesheet WHERE employee_id=$1 AND date>= MAKE_DATE($2, $3, $4);)"},
     {query::DELETE_EMPLOYEE_ASSIGNMENT, R"(DELETE FROM staffing_assignments WHERE employee_id=$1;)"},
     {query::DOWNLOAD_EMPLOYEES_ASSIGNMENT, R"(SELECT * FROM staffing_assignments;)"},
-    {query::DOWNLOAD_LEAVE_TYPES, R"(SELECT * FROM leave_types;)"}};
+    {query::DOWNLOAD_LEAVE_TYPES, R"(SELECT * FROM leave_types;)"},
+    {query::UPDATE_EMPLOYEE_TIMESHEET_DAY_DATA,
+     R"(UPDATE timesheet SET staff_position_id=$4, work_schedule_id=$5, work_start=$6, work_end=$7, work_time=$8,
+     night_work_start=$9, night_work_end=$10, night_work_time=$11, rest_start=$12, rest_end=$13, leave_type=$14, admin_employee_id=$15, comment=$16
+     WHERE employee_id=$1 AND admin_category_id=$2 AND date=$3;)"},
+    {query::DOWNLOAD_EMPLOYEE_TIMESHEET_BETWEEN_DATE,
+     R"(SELECT employee_id, department_id, staff_position_id, work_schedule_id, date, work_time, night_work_time, comment,
+     work_start, work_end, night_work_start, night_work_end, rest_start, rest_end, leave_type, admin_category_id, admin_employee_id
+     FROM timesheet WHERE employee_id = $1 AND admin_category_id = $2 AND date BETWEEN MAKE_DATE($3, $4, $5) AND MAKE_DATE($6, $7, $8) ORDER BY date;)"},
+    {query::DOWNLOAD_EMPLOYEE_EXTENDED_VACATIONS_TIMESHEET,
+     R"(SELECT employee_id, department_id, staff_position_id, work_schedule_id, date, work_time,
+     night_work_time, comment, work_start, work_end, night_work_start, night_work_end, rest_start, rest_end, leave_type, admin_category_id, admin_employee_id
+     FROM timesheet WHERE employee_id = $1 AND admin_category_id = $2 AND date >= MAKE_DATE($3, $4, $5) AND date<
+     (SELECT MIN(date) FROM timesheet WHERE employee_id = $1 AND admin_category_id = $2 AND date > MAKE_DATE($3, $4, $5) AND leave_type IS NULL)
+     ORDER BY date;)"}};
 
 }  // namespace infrastructure

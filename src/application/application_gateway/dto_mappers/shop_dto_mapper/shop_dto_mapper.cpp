@@ -44,6 +44,21 @@ std::pair<domain::EmployeeId, domain::Date> ShopDtoMapper::convert(
     return {empployee_id, removing_date};
 }
 
+domain::EmployeeId application::ShopDtoMapper::convert(const GetEmployeeRequestDto& get_employee_request_dto) const {
+    return domain::EmployeeId{get_employee_request_dto.employee_id};
+}
+
+GetEmployeeResponseDto application::ShopDtoMapper::convert(const domain::Employee& employee) const {
+    GetEmployeeResponseDto get_employee_response_dto;
+    get_employee_response_dto.last_name = employee.last_name;
+    get_employee_response_dto.first_name = employee.first_name;
+    get_employee_response_dto.patronymic = employee.patronymic;
+    get_employee_response_dto.birth_date = domain::dateToString(employee.birth_date);
+    get_employee_response_dto.employment_date = domain::dateToString(employee.employment_date);
+    get_employee_response_dto.employee_number = employee.employee_number;
+    return get_employee_response_dto;
+}
+
 // ======================================================================
 // GET DEPARTMENTS
 // ======================================================================

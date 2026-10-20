@@ -1,5 +1,6 @@
 #include "repositories_impl/timesheet_repository/timesheet_repository.h"
 
+#include <iostream>
 #include <string>
 
 #include "connection_pool/querys.h"
@@ -113,7 +114,7 @@ domain::WorkSchedule makeWorkScheduleFromJsonObject(json::object& work_schedule_
     return {cycle_size, start_cycle_date, is_works_on_holidays, cycle, description};
 }
 
-struct PreparedDayDataToInsert {
+struct PreparedDayData {
     uint64_t department_id;
     uint64_t staff_position_id;
     uint64_t work_schedule_id;
@@ -133,57 +134,57 @@ struct PreparedDayDataToInsert {
     std::optional<uint64_t> admin_employee_id;
 };
 
-PreparedDayDataToInsert prepareDayDataToInsert(const domain::Timesheet::DayData& day_data,
-                                               std::optional<domain::EmployeeId> admin_employee_id) {
+PreparedDayData prepareDayData(const domain::Timesheet::DayData& day_data,
+                               std::optional<domain::EmployeeId> admin_employee_id) {
     utils::logFunctionStart(utils::FUNCTION_INFO);
-    PreparedDayDataToInsert prepared_day_data_to_insert;
-    prepared_day_data_to_insert.department_id = *day_data.department_id;
-    prepared_day_data_to_insert.staff_position_id = *day_data.staff_position_id;
-    prepared_day_data_to_insert.work_schedule_id = *day_data.work_schedule_id;
+    PreparedDayData prepared_day_data;
+    prepared_day_data.department_id = *day_data.department_id;
+    prepared_day_data.staff_position_id = *day_data.staff_position_id;
+    prepared_day_data.work_schedule_id = *day_data.work_schedule_id;
 
     if (day_data.work_start.has_value()) {
-        prepared_day_data_to_insert.work_start = domain::timeToString(day_data.work_start.value());
+        prepared_day_data.work_start = domain::timeToString(day_data.work_start.value());
     }
 
     if (day_data.work_end.has_value()) {
-        prepared_day_data_to_insert.work_end = domain::timeToString(day_data.work_end.value());
+        prepared_day_data.work_end = domain::timeToString(day_data.work_end.value());
     }
 
     if (day_data.work_time.has_value()) {
-        prepared_day_data_to_insert.work_time = domain::timeToString(day_data.work_time.value());
+        prepared_day_data.work_time = domain::timeToString(day_data.work_time.value());
     }
 
     if (day_data.night_work_start.has_value()) {
-        prepared_day_data_to_insert.night_work_start = domain::timeToString(day_data.night_work_start.value());
+        prepared_day_data.night_work_start = domain::timeToString(day_data.night_work_start.value());
     }
 
     if (day_data.night_work_end.has_value()) {
-        prepared_day_data_to_insert.night_work_end = domain::timeToString(day_data.night_work_end.value());
+        prepared_day_data.night_work_end = domain::timeToString(day_data.night_work_end.value());
     }
 
     if (day_data.night_work_time.has_value()) {
-        prepared_day_data_to_insert.night_work_time = domain::timeToString(day_data.night_work_time.value());
+        prepared_day_data.night_work_time = domain::timeToString(day_data.night_work_time.value());
     }
 
     if (day_data.rest_start.has_value()) {
-        prepared_day_data_to_insert.rest_start = domain::timeToString(day_data.rest_start.value());
+        prepared_day_data.rest_start = domain::timeToString(day_data.rest_start.value());
     }
 
     if (day_data.rest_end.has_value()) {
-        prepared_day_data_to_insert.rest_end = domain::timeToString(day_data.rest_end.value());
+        prepared_day_data.rest_end = domain::timeToString(day_data.rest_end.value());
     }
 
     if (day_data.leave_type.has_value()) {
-        prepared_day_data_to_insert.leave_type = static_cast<uint64_t>(day_data.leave_type.value());
+        prepared_day_data.leave_type = static_cast<uint64_t>(day_data.leave_type.value());
     }
 
     if (admin_employee_id.has_value()) {
-        prepared_day_data_to_insert.admin_employee_id = *admin_employee_id.value();
+        prepared_day_data.admin_employee_id = *admin_employee_id.value();
     }
 
-    prepared_day_data_to_insert.comment = day_data.comment;
+    prepared_day_data.comment = day_data.comment;
 
-    return prepared_day_data_to_insert;
+    return prepared_day_data;
 }
 
 domain::Timesheet::DayData makeDayDataFromRow(const pqxx::row& row) {
@@ -260,7 +261,7 @@ domain::Timesheet::DayData makeDayDataFromRow(const pqxx::row& row) {
 }  // namespace
 
 std::optional<domain::WorkSchedule> TimesheetRepository::downloadWorkScheduleById(
-    domain::WorkScheduleId work_schedule_id) const {
+    const domain::WorkScheduleId& work_schedule_id) const {
     utils::logFunctionStart(utils::FUNCTION_INFO);
     auto result = uow_->execParams(query::DOWNLOAD_WORK_SCHEDULE, *work_schedule_id);
 
@@ -359,13 +360,13 @@ std::optional<domain::EmployeeVacations> TimesheetRepository::downloadVacationsB
 }
 
 std::optional<domain::EmployeeVacations> TimesheetRepository::downloadVacationsByEmployeeId(
-    domain::EmployeeId employee_id) const {
+    const domain::EmployeeId& employee_id) const {
     return domain::EmployeeVacations();
     // TODO
 }
 
 std::optional<domain::EmployeeVacations> TimesheetRepository::downloadVacationsByEmployeeIdAndYear(
-    domain::EmployeeId employee_id,
+    const domain::EmployeeId& employee_id,
     std::chrono::year year) const {
     utils::logFunctionStart(utils::FUNCTION_INFO);
     auto result = uow_->execParams(query::DOWNLOAD_EMPLOYEE_VACATIONS_BY_YEAR, *employee_id, static_cast<int>(year));
@@ -404,8 +405,8 @@ std::optional<domain::AdminCategoryId> TimesheetRepository::downloadSystemAdmini
 }
 
 std::optional<domain::Timesheet> TimesheetRepository::downloadDepartmentTimesheet(
-    domain::DepartmentId department_id,
-    domain::AdminCategoryId admin_category_id,
+    const domain::DepartmentId& department_id,
+    const domain::AdminCategoryId& admin_category_id,
     std::chrono::year_month year_month) const {
     utils::logFunctionStart(utils::FUNCTION_INFO);
     uint64_t year = static_cast<int>(year_month.year());
@@ -424,7 +425,86 @@ std::optional<domain::Timesheet> TimesheetRepository::downloadDepartmentTimeshee
         auto date = domain::dateFromString(row.at(timesheet_keys::DATE).as<std::string>());
         auto admin_category_id = domain::AdminCategoryId{row.at(timesheet_keys::ADMIN_CATEGORY_ID).as<uint64_t>()};
         auto day_data = makeDayDataFromRow(row);
-        timesheet.addEmployeeDayData(employee_id, date, admin_category_id, day_data);
+        timesheet.addEmployeeDayData(employee_id, date, day_data);
+    }
+
+    return timesheet;
+}
+
+std::optional<domain::Timesheet> TimesheetRepository::downloadEmployeeTimesheetBetweenDate(
+    const domain::EmployeeId& employee_id,
+    const domain::AdminCategoryId& admin_category_id,
+    const domain::Date& start_date,
+    const domain::Date& end_date) {
+    utils::logFunctionStart(utils::FUNCTION_INFO);
+    auto start_ymd = std::chrono::year_month_day{start_date};
+    auto end_ymd = std::chrono::year_month_day{end_date};
+
+    uint64_t start_year = static_cast<int>(start_ymd.year());
+    uint64_t start_month = static_cast<uint>(start_ymd.month());
+    uint64_t start_day = static_cast<uint>(start_ymd.day());
+
+    uint64_t end_year = static_cast<int>(end_ymd.year());
+    uint64_t end_month = static_cast<uint>(end_ymd.month());
+    uint64_t end_day = static_cast<uint>(end_ymd.day());
+
+    auto result = uow_->execParams(query::DOWNLOAD_EMPLOYEE_TIMESHEET_BETWEEN_DATE,
+                                   *employee_id,
+                                   *admin_category_id,
+                                   start_year,
+                                   start_month,
+                                   start_day,
+                                   end_year,
+                                   end_month,
+                                   end_day);
+
+    if (result.size() == 0) {
+        return std::nullopt;
+    }
+
+    domain::Timesheet timesheet;
+
+    for (const auto& row : result) {
+        auto employee_id = domain::EmployeeId{row.at(timesheet_keys::EMPLOYEE_ID).as<uint64_t>()};
+        auto date = domain::dateFromString(row.at(timesheet_keys::DATE).as<std::string>());
+        auto admin_category_id = domain::AdminCategoryId{row.at(timesheet_keys::ADMIN_CATEGORY_ID).as<uint64_t>()};
+        auto day_data = makeDayDataFromRow(row);
+        timesheet.addEmployeeDayData(employee_id, date, day_data);
+    }
+
+    return timesheet;
+}
+
+std::optional<domain::Timesheet> infrastructure::TimesheetRepository::downloadEmployeeExtendedVacationsTimesheet(
+    const domain::EmployeeId& employee_id,
+    const domain::AdminCategoryId& admin_category_id,
+    const domain::Date& start_date) {
+    utils::logFunctionStart(utils::FUNCTION_INFO);
+    auto start_ymd = std::chrono::year_month_day{start_date};
+
+    uint64_t start_year = static_cast<int>(start_ymd.year());
+    uint64_t start_month = static_cast<uint>(start_ymd.month());
+    uint64_t start_day = static_cast<uint>(start_ymd.month());
+
+    auto result = uow_->execParams(query::DOWNLOAD_EMPLOYEE_EXTENDED_VACATIONS_TIMESHEET,
+                                   *employee_id,
+                                   *admin_category_id,
+                                   start_year,
+                                   start_month,
+                                   start_day);
+
+    if (result.size() == 0) {
+        return std::nullopt;
+    }
+
+    domain::Timesheet timesheet;
+
+    for (const auto& row : result) {
+        auto employee_id = domain::EmployeeId{row.at(timesheet_keys::EMPLOYEE_ID).as<uint64_t>()};
+        auto date = domain::dateFromString(row.at(timesheet_keys::DATE).as<std::string>());
+        auto admin_category_id = domain::AdminCategoryId{row.at(timesheet_keys::ADMIN_CATEGORY_ID).as<uint64_t>()};
+        auto day_data = makeDayDataFromRow(row);
+        timesheet.addEmployeeDayData(employee_id, date, day_data);
     }
 
     return timesheet;
@@ -458,7 +538,7 @@ bool infrastructure::TimesheetRepository::deleteEmployeeTimesheetFromDate(const 
 }
 
 bool TimesheetRepository::uploadTimesheet(const domain::Timesheet& timesheet,
-                                          domain::AdminCategoryId admin_category_id,
+                                          const domain::AdminCategoryId& admin_category_id,
                                           std::optional<domain::EmployeeId> admin_employee_id) {
     utils::logFunctionStart(utils::FUNCTION_INFO);
     for (auto it = timesheet.begin(); it != timesheet.end(); ++it) {
@@ -466,29 +546,88 @@ bool TimesheetRepository::uploadTimesheet(const domain::Timesheet& timesheet,
         auto days_data = it->second;
 
         for (const auto& [date, day_data] : days_data) {
-            auto prepared_day_data_to_insert = prepareDayDataToInsert(day_data, admin_employee_id);
+            auto prepared_day_data = prepareDayData(day_data, admin_employee_id);
 
             auto result = uow_->execParams(query::UPLOAD_TIMESHEET,
                                            *employee_id,
-                                           prepared_day_data_to_insert.department_id,
-                                           prepared_day_data_to_insert.staff_position_id,
-                                           prepared_day_data_to_insert.work_schedule_id,
+                                           prepared_day_data.department_id,
+                                           prepared_day_data.staff_position_id,
+                                           prepared_day_data.work_schedule_id,
                                            domain::dateToString(date),
-                                           prepared_day_data_to_insert.work_start,
-                                           prepared_day_data_to_insert.work_end,
-                                           prepared_day_data_to_insert.work_time,
-                                           prepared_day_data_to_insert.night_work_start,
-                                           prepared_day_data_to_insert.night_work_end,
-                                           prepared_day_data_to_insert.night_work_time,
-                                           prepared_day_data_to_insert.rest_start,
-                                           prepared_day_data_to_insert.rest_end,
-                                           prepared_day_data_to_insert.leave_type,
+                                           prepared_day_data.work_start,
+                                           prepared_day_data.work_end,
+                                           prepared_day_data.work_time,
+                                           prepared_day_data.night_work_start,
+                                           prepared_day_data.night_work_end,
+                                           prepared_day_data.night_work_time,
+                                           prepared_day_data.rest_start,
+                                           prepared_day_data.rest_end,
+                                           prepared_day_data.leave_type,
                                            *admin_category_id,
-                                           prepared_day_data_to_insert.admin_employee_id,
-                                           prepared_day_data_to_insert.comment);
+                                           prepared_day_data.admin_employee_id,
+                                           prepared_day_data.comment);
 
             if (result.size() != 1) {
                 return false;
+            }
+        }
+    }
+
+    return true;
+}
+
+bool infrastructure::TimesheetRepository::updateTimesheet(const domain::Timesheet& timesheet,
+                                                          const domain::AdminCategoryId& admin_category_id,
+                                                          const domain::EmployeeId& admin_employee_id) {
+    utils::logFunctionStart(utils::FUNCTION_INFO);
+    for (auto it = timesheet.begin(); it != timesheet.end(); ++it) {
+        auto employee_id = it->first;
+        auto days_data = it->second;
+
+        for (const auto& [date, day_data] : days_data) {
+            auto prepared_day_data = prepareDayData(day_data, admin_employee_id);
+
+            auto result = uow_->execParams(query::UPDATE_EMPLOYEE_TIMESHEET_DAY_DATA,
+                                           *employee_id,
+                                           *admin_category_id,
+                                           domain::dateToString(date),
+                                           prepared_day_data.staff_position_id,
+                                           prepared_day_data.work_schedule_id,
+                                           prepared_day_data.work_start,
+                                           prepared_day_data.work_end,
+                                           prepared_day_data.work_time,
+                                           prepared_day_data.night_work_start,
+                                           prepared_day_data.night_work_end,
+                                           prepared_day_data.night_work_time,
+                                           prepared_day_data.rest_start,
+                                           prepared_day_data.rest_end,
+                                           prepared_day_data.leave_type,
+                                           prepared_day_data.admin_employee_id,
+                                           prepared_day_data.comment);
+
+            if (result.affected_rows() == 0) {
+                result = uow_->execParams(query::UPLOAD_TIMESHEET,
+                                          *employee_id,
+                                          prepared_day_data.department_id,
+                                          prepared_day_data.staff_position_id,
+                                          prepared_day_data.work_schedule_id,
+                                          domain::dateToString(date),
+                                          prepared_day_data.work_start,
+                                          prepared_day_data.work_end,
+                                          prepared_day_data.work_time,
+                                          prepared_day_data.night_work_start,
+                                          prepared_day_data.night_work_end,
+                                          prepared_day_data.night_work_time,
+                                          prepared_day_data.rest_start,
+                                          prepared_day_data.rest_end,
+                                          prepared_day_data.leave_type,
+                                          *admin_category_id,
+                                          prepared_day_data.admin_employee_id,
+                                          prepared_day_data.comment);
+
+                if (result.size() != 1) {
+                    return false;
+                }
             }
         }
     }

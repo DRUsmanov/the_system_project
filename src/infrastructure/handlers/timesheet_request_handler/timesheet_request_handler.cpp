@@ -13,8 +13,14 @@ constexpr std::string_view STATUS{"status"};
 constexpr std::string_view EMPLOYEE_ID{"employee_id"};
 constexpr std::string_view DATE{"date"};
 constexpr std::string_view DAY_DATA{"employee_data"};
+constexpr std::string_view WORK_START{"work_start"};
+constexpr std::string_view WORK_END{"work_end"};
 constexpr std::string_view WORK_TIME{"work_time"};
+constexpr std::string_view NIGHT_WORK_START{"night_work_start"};
+constexpr std::string_view NIGHT_WORK_END{"night_work_end"};
 constexpr std::string_view NIGHT_WORK_TIME{"night_work_time"};
+constexpr std::string_view REST_START{"rest_start"};
+constexpr std::string_view REST_END{"rest_end"};
 constexpr std::string_view LEAVE_TYPE_ID{"leave_type_id"};
 constexpr std::string_view COMMENT{"comment"};
 constexpr std::string_view STAFF_POSITION_ID{"staff_position_id"};
@@ -29,17 +35,33 @@ std::string infrastructure::TimesheetRequestHandler::makeGetDepartmentTimesheetR
         response[response_keys::STATUS] = true;
 
         json::array employees_day_data_array;
-        const auto& employees_day_dat_dto = get_department_timesheet_response_dto.value().employees_day_data_dto;
-        for (const auto& [employee_id, employee_days_data_dto] : employees_day_dat_dto) {
+        const auto& employees_day_data_dto = get_department_timesheet_response_dto.value().employees_day_data_dto;
+        for (const auto& [employee_id, employee_days_data_dto] : employees_day_data_dto) {
             json::array employee_day_data_array;
             for (const auto& [date, employee_day_data] : employee_days_data_dto) {
                 json::object day_data_object;
+                day_data_object[response_keys::WORK_START] = employee_day_data.work_start
+                                                                 ? json::value(employee_day_data.work_start.value())
+                                                                 : json::value(nullptr);
+                day_data_object[response_keys::WORK_END] =
+                    employee_day_data.work_end ? json::value(employee_day_data.work_end.value()) : json::value(nullptr);
                 day_data_object[response_keys::WORK_TIME] = employee_day_data.work_time
                                                                 ? json::value(employee_day_data.work_time.value())
                                                                 : json::value(nullptr);
+                day_data_object[response_keys::NIGHT_WORK_START] =
+                    employee_day_data.night_work_start ? json::value(employee_day_data.night_work_start.value())
+                                                       : json::value(nullptr);
+                day_data_object[response_keys::NIGHT_WORK_END] =
+                    employee_day_data.night_work_end ? json::value(employee_day_data.night_work_end.value())
+                                                     : json::value(nullptr);
                 day_data_object[response_keys::NIGHT_WORK_TIME] =
                     employee_day_data.night_work_time ? json::value(employee_day_data.night_work_time.value())
                                                       : json::value(nullptr);
+                day_data_object[response_keys::REST_START] = employee_day_data.rest_start
+                                                                 ? json::value(employee_day_data.rest_start.value())
+                                                                 : json::value(nullptr);
+                day_data_object[response_keys::REST_END] =
+                    employee_day_data.rest_end ? json::value(employee_day_data.rest_end.value()) : json::value(nullptr);
                 day_data_object[response_keys::LEAVE_TYPE_ID] =
                     employee_day_data.leave_type_id ? json::value(employee_day_data.leave_type_id.value())
                                                     : json::value(nullptr);

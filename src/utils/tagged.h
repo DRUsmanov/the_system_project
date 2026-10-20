@@ -1,9 +1,9 @@
 #pragma once
 
 #include <compare>
-#include <utility>
 #include <cstddef>
 #include <functional>
+#include <utility>
 
 namespace utils {
 
@@ -14,12 +14,8 @@ public:
     using TagType = Tag;
 
     Tagged() = default;
-    explicit Tagged(Value&& v)
-        : value_(std::move(v)) {
-    }
-    explicit Tagged(const Value& v)
-        : value_(v) {
-    }
+    explicit Tagged(Value&& v) : value_(std::move(v)) {}
+    explicit Tagged(const Value& v) : value_(v) {}
 
     const Value& operator*() const {
         return value_;
@@ -39,6 +35,13 @@ template <typename TaggedValue>
 struct TaggedHasher {
     size_t operator()(const TaggedValue& value) const {
         return std::hash<typename TaggedValue::ValueType>{}(*value);
+    }
+};
+
+template <typename TaggedValue>
+struct TaggedComporator {
+    bool operator()(const TaggedValue& value1, const TaggedValue& value2) const {
+        return *value1 < *value2;
     }
 };
 

@@ -37,6 +37,23 @@ struct RemoveEmployeeRequestDto {
 };
 
 // ======================================================================
+// GET EMPLOYEE
+// ======================================================================
+
+struct GetEmployeeRequestDto {
+    uint64_t employee_id;
+};
+
+struct GetEmployeeResponseDto {
+    std::string last_name;
+    std::string first_name;
+    std::string patronymic;
+    std::string birth_date;
+    std::string employment_date;
+    uint64_t employee_number;
+};
+
+// ======================================================================
 // GET DEPARTMENTS
 // ======================================================================
 

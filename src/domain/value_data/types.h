@@ -53,9 +53,21 @@ struct TimeHasher {
     }
 };
 
+struct TimeComporator {
+    bool operator()(const Time& time1, const Time& time2) const {
+        return time1 < time2;
+    }
+};
+
 struct DateHasher {
     size_t operator()(const Date& date) const {
         return std::hash<long long>{}(date.time_since_epoch().count());
+    }
+};
+
+struct DateComporator {
+    bool operator()(const Date& date1, const Date& date2) const {
+        return date1 < date2;
     }
 };
 

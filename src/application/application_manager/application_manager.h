@@ -46,6 +46,21 @@ public:
                                                             const domain::DepartmentId& department_id,
                                                             std::chrono::year_month year_month) const override;
     const domain::LeaveTypeDescriptions& getLeaveTypeDescriptions(const domain::UserId& user_id) const override;
+    bool updateEmployeeTimesheetDaysData(const domain::UserId& user_id,
+                                         const domain::EmployeeId& employee_id,
+                                         const domain::Date& start_date,
+                                         const domain::Date& end_date,
+                                         const domain::Timesheet::DayData& updated_day_data) const override;
+    bool setEmployeeLeaveInTimesheet(const domain::UserId& user_id,
+                                     const domain::EmployeeId& employee_id,
+                                     const domain::Date& start_date,
+                                     const domain::Date& end_date,
+                                     const domain::LeaveType& leave_type) const override;
+    bool changeEmployeeAssignmentInTimesheet(const domain::UserId& user_id,
+                                             const domain::EmployeeId& employee_id,
+                                             const domain::EmployeeAssignment& changed_employee_assignment,
+                                             const domain::Date& start_date,
+                                             const domain::Date& end_date) const override;
 
 private:
     const domain::UowFactoryInterface& uow_factory_;

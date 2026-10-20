@@ -39,6 +39,21 @@ public:
                                                                     const domain::DepartmentId& department_id,
                                                                     std::chrono::year_month year_month) const = 0;
     virtual const domain::LeaveTypeDescriptions& getLeaveTypeDescriptions(const domain::UserId& user_id) const = 0;
+    virtual bool updateEmployeeTimesheetDaysData(const domain::UserId& user_id,
+                                                 const domain::EmployeeId& employee_id,
+                                                 const domain::Date& start_date,
+                                                 const domain::Date& end_date,
+                                                 const domain::Timesheet::DayData& updated_day_data) const = 0;
+    virtual bool setEmployeeLeaveInTimesheet(const domain::UserId& user_id,
+                                             const domain::EmployeeId& employee_id,
+                                             const domain::Date& start_date,
+                                             const domain::Date& end_date,
+                                             const domain::LeaveType& leave_type) const = 0;
+    virtual bool changeEmployeeAssignmentInTimesheet(const domain::UserId& user_id,
+                                                     const domain::EmployeeId& employee_id,
+                                                     const domain::EmployeeAssignment& changed_employee_assignment,
+                                                     const domain::Date& start_date,
+                                                     const domain::Date& end_date) const = 0;
 };
 
 }  // namespace application

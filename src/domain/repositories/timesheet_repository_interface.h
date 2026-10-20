@@ -21,25 +21,36 @@ class TimeSheetRepositoryInterface {
 public:
     virtual ~TimeSheetRepositoryInterface() = default;
 
-    virtual std::optional<WorkSchedule> downloadWorkScheduleById(WorkScheduleId work_schedule_id) const = 0;
+    virtual std::optional<WorkSchedule> downloadWorkScheduleById(const WorkScheduleId& work_schedule_id) const = 0;
     virtual std::optional<WorkSchedules> downloadWorkSchedules() const = 0;
     virtual std::optional<PreHolidays> downloadPreHolidaysByYear(std::chrono::year year) const = 0;
     virtual std::optional<Holidays> downloadHolidaysByYear(std::chrono::year year) const = 0;
     virtual std::optional<ExtraHolidays> downloadExtraHolidaysByYear(std::chrono::year year) const = 0;
     virtual std::optional<EmployeeVacations> downloadVacationsByYear(std::chrono::year year) const = 0;
-    virtual std::optional<EmployeeVacations> downloadVacationsByEmployeeId(EmployeeId employee_id) const = 0;
-    virtual std::optional<EmployeeVacations> downloadVacationsByEmployeeIdAndYear(EmployeeId employee_id,
+    virtual std::optional<EmployeeVacations> downloadVacationsByEmployeeId(const EmployeeId& employee_id) const = 0;
+    virtual std::optional<EmployeeVacations> downloadVacationsByEmployeeIdAndYear(const EmployeeId& employee_id,
                                                                                   std::chrono::year year) const = 0;
     virtual std::optional<AdminCategoryId> downloadSystemAdministratorId() const = 0;
-    virtual std::optional<Timesheet> downloadDepartmentTimesheet(DepartmentId department_id,
-                                                                 AdminCategoryId admin_category_id,
+    virtual std::optional<Timesheet> downloadDepartmentTimesheet(const DepartmentId& department_id,
+                                                                 const AdminCategoryId& admin_category_id,
                                                                  std::chrono::year_month year_month) const = 0;
+    virtual std::optional<Timesheet> downloadEmployeeTimesheetBetweenDate(const EmployeeId& employee_id,
+                                                                          const AdminCategoryId& admin_category_id,
+                                                                          const Date& start_date,
+                                                                          const Date& end_date) = 0;
+    virtual std::optional<Timesheet> downloadEmployeeExtendedVacationsTimesheet(
+        const EmployeeId& employee_id,
+        const AdminCategoryId& admin_category_id,
+        const Date& start_date) = 0;
+
     virtual std::optional<Date> downloadMaxDate() const = 0;
     virtual bool deleteEmployeeTimesheetFromDate(const domain::EmployeeId& employee_id, const domain::Date& date) = 0;
-
     virtual bool uploadTimesheet(const Timesheet& timesheet,
-                                 AdminCategoryId admin_category_id,
+                                 const AdminCategoryId& admin_category_id,
                                  std::optional<EmployeeId> admin_employee_id = std::nullopt) = 0;
+    virtual bool updateTimesheet(const Timesheet& timesheet,
+                                 const AdminCategoryId& admin_category_id,
+                                 const EmployeeId& admin_employee_id) = 0;
 };
 
 }  // namespace domain

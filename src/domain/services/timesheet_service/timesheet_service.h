@@ -25,13 +25,31 @@ public:
     bool generateTimesheetForNewEmployee(const EmployeeId& employee_id,
                                          const Employee& employee,
                                          const EmployeeAssignment& employee_assignment) override;
-    bool updateTimesheetForEmployee(const EmployeeId& employee_id,
-                                    const EmployeeAssignment& employee_assignment,
-                                    const domain::Date& assignment_changing_date) override;
+    bool updateTimesheetForEmployeeFromDate(const EmployeeId& employee_id,
+                                            const EmployeeAssignment& employee_assignment,
+                                            const domain::Date& assignment_changing_date) override;
     bool removeTimesheetForEmployeeFromDate(const EmployeeId& employee_id, const domain::Date& removin_date) override;
     std::optional<WorkSchedules> getWorkSchedules() const override;
     std::optional<Date> getMaxDateInTimesheet() const override;
     const LeaveTypeDescriptions& getLeaveTypeDescriptions() const override;
+    bool updateEmployeeTimesheetDayData(const domain::EmployeeId& employee_id,
+                                        const domain::Date& start_date,
+                                        const domain::Date& end_date,
+                                        const domain::Timesheet::DayData& updated_day_data,
+                                        const AdminCategoryId& admin_category_id,
+                                        const EmployeeId& admin_employee_id) override;
+    bool setEmployeeLeaveInTimesheet(const domain::EmployeeId& employee_id,
+                                     const domain::Date& start_date,
+                                     const domain::Date& end_date,
+                                     const domain::LeaveType& leave_type,
+                                     const AdminCategoryId& admin_category_id,
+                                     const EmployeeId& admin_employee_id) override;
+    bool changeEmployeeAssignmentInTimesheet(const domain::EmployeeId& employee_id,
+                                             const domain::EmployeeAssignment& changed_employee_assignment,
+                                             const domain::Date& start_date,
+                                             const domain::Date& end_date,
+                                             const AdminCategoryId& admin_category_id,
+                                             const EmployeeId& admin_employee_id) override;
 
 private:
     struct TimesheetGenerationContext {
@@ -49,13 +67,25 @@ private:
     };
 
 private:
-    bool generateEmployeeVacationsInTimesheet(Timesheet& timesheet,
-                                              const TimesheetGenerationContext& generation_context);
-    bool generateHolidaysAndPreHolidaysInTimesheet(Timesheet& timesheet,
-                                                   const TimesheetGenerationContext& generation_context);
-    bool generateWorkingAndNonWorkingDayInTimesheet(Timesheet& timesheet,
-                                                    const TimesheetGenerationContext& generation_context);
-    std::chrono::year_month_day getCurrentDate() const;
+    static bool generateEmployeeVacationsInTimesheet(Timesheet& timesheet,
+                                                     const TimesheetGenerationContext& generation_context);
+    static bool generateHolidaysAndPreHolidaysInTimesheet(Timesheet& timesheet,
+                                                          const TimesheetGenerationContext& generation_context);
+    static bool generateWorkingAndNonWorkingDayInTimesheet(Timesheet& timesheet,
+                                                           const TimesheetGenerationContext& generation_context);
+    bool processEmployeeSickLeaveDuringVacation(domain::Timesheet& employee_timesheet);
+    // bool processEmployeeSickLeaveDuringVacationRemoving(Timesheet& employee_timesheet,
+    //                                                     const Date start_date,
+    //                                                     const Date end_date,
+    //                                                     const AdminCategoryId& admin_category_id);
+    std::optional<Timesheet> getEmployeeTimesheetBetweenDate(const domain::EmployeeId& employee_id,
+                                                             const domain::Date& start_date,
+                                                             const domain::Date& end_date,
+                                                             const AdminCategoryId& admin_category_id) const;
+    std::optional<Timesheet> getEmployeeExtendedVacationsTimesheet(const EmployeeId& employee_id,
+                                                                   const AdminCategoryId& admin_category_id,
+                                                                   const Date start_date) const;
+    static std::chrono::year_month_day getCurrentDate();
 
 private:
     std::shared_ptr<TimeSheetRepositoryInterface> timesheet_repository_;

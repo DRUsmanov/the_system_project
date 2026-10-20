@@ -20,6 +20,19 @@ public:
 
     // GET LEAVE TYPES
     virtual GetLeaveTypesResponseDto convert(const domain::LeaveTypeDescriptions& leave_type_descriptions) const = 0;
+
+    // UPDATE EMPLOYEE TIMESHEET DAYS DATA
+    virtual std::tuple<domain::EmployeeId, domain::Date, domain::Date, domain::Timesheet::DayData> convert(
+        const UpdateEmployeeTimesheetDaysDataRequestDto& update_employee_timesheet_days_data_request_dto) const = 0;
+
+    // SET EMPLOYEE LEAVE TYPE IN TIMESHEET
+    virtual std::tuple<domain::EmployeeId, domain::Date, domain::Date, domain::LeaveType> convert(
+        const SetEmployeeLeaveTypeInTimesheetRequestDto& set_employee_leave_type_in_timesheet_request_dto) const = 0;
+
+    // CHANGE EMPLOYEE ASSIGNMENT IN TIMESHEET
+    virtual std::tuple<domain::EmployeeId, domain::Date, domain::Date, domain::EmployeeAssignment> convert(
+        const ChangeEmployeeAssignmentInTimesheetRequestDto& change_employee_assignment_in_timesheet_request_dto)
+        const = 0;
 };
 
 }  // namespace application

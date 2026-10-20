@@ -1,6 +1,7 @@
 #pragma once
 
 #include <boost/beast.hpp>
+#include <boost/url/url_view.hpp>
 #include <string_view>
 
 #include "application_gateway/application_gateway_interface.h"
@@ -27,6 +28,7 @@ public:
                     FileResponseMaker&& file_response_maker,
                     Send&& send) {
         std::string_view target = req.target();
+        auto params = boost::urls::url_view(target).params();
         target.remove_prefix(API_V1_SHOP_EMPLOYEE.size());
 
         auto method = req.method();
@@ -35,6 +37,37 @@ public:
         user_access_dto.user_id = payload.value().at(keys::USER_ID);
 
         if (method == http::verb::get) {
+            auto employee_id_it = params.find(EMPLOYEE_ID);
+            if (employee_id_it != params.end()) {
+                application::GetEmployeeRequestDto get_employee_request_dto;
+                get_employee_request_dto.employee_id = static_cast<uint64_t>(std::stoll((*employee_id_it).value));
+
+                application::UserAccessDto user_access_dto;
+                user_access_dto.user_id = payload.value().at(keys::USER_ID);
+
+                auto result = application_gateway_.getEmployee(user_access_dto, get_employee_request_dto);
+
+                if (result.has_value()) {
+                    auto employee_success_response =
+                        text_response_maker(http::status::ok, makeGetEmployeeResponse(result), content_type::APP_JSON);
+                    employee_success_response.set(http::field::cache_control, "no-cache");
+                    send(std::move(employee_success_response));
+                    return;
+                } else {
+                    auto employee_failed_response = text_response_maker(http::status::internal_server_error,
+                                                                        makeGetEmployeeResponse(result),
+                                                                        content_type::APP_JSON);
+                    employee_failed_response.set(http::field::cache_control, "no-cache");
+                    send(std::move(employee_failed_response));
+                    return;
+                }
+            } else {
+                auto invalid_params_request =
+                    text_response_maker(http::status::bad_request, INVALID_PARAMS, content_type::APP_JSON);
+                invalid_params_request.set(http::field::cache_control, "no-cache");
+                send(std::move(invalid_params_request));
+                return;
+            }
         }
 
         auto content_type_header_it = req.find(http::field::content_type);
@@ -123,20 +156,24 @@ private:
 private:
     application::AddEmployeeRequestDto makeAddEmployeeRequestDto(const json::object& request_body_as_object) const;
     std::string makeAddEmployeeResponse(
-        std::optional<application::AddEmployeeResponseDto> add_employee_response_dto) const;
+        const std::optional<application::AddEmployeeResponseDto>& add_employee_response_dto) const;
     application::RemoveEmployeeRequestDto makeRemoveEmployeeRequestDto(
         const json::object& request_body_as_object) const;
     std::string makeRemoveEmployeeResponse(bool is_employee_removed) const;
+    std::string makeGetEmployeeResponse(
+        const std::optional<application::GetEmployeeResponseDto>& get_employee_response_dto) const;
     application::UpdateEmployeeRequestDto makeUpdateEmployeeRequestDto(
         const json::object& request_body_as_object) const;
     std::string makeUpdateEmployeeResponse(bool is_employee_updated) const;
 
 private:
     constexpr static std::string_view API_V1_SHOP_EMPLOYEE = "/api/v1/shop/employee"sv;
+    constexpr static std::string_view EMPLOYEE_ID = "employee_id"sv;
     constexpr static std::string_view BAD_REQUEST =
         "{\"code\":\"bad_request\", \"message\":\"Bad request from employee_request_handler\"}"sv;
     constexpr static std::string_view INVALID_METHOD =
         "{\"code\":\"invalidMethod\", \"message\":\"Only POST, DELETE, PATCH method is expected\"}"sv;
+    constexpr static std::string_view INVALID_PARAMS = "{\"code\":\"invalidParams\", \"message\":\"Invalid params\"}"sv;
     constexpr static std::string_view SERVER_ERROR =
         "{\"code\": \"server_error\", \"message\": \"Server error from employee_request_handler\"}"sv;
 };

@@ -23,6 +23,10 @@ public:
     virtual std::pair<domain::EmployeeId, domain::Date> convert(
         const RemoveEmployeeRequestDto& remove_employee_request_dto) const = 0;
 
+    // GET EMPLOYEE
+    virtual domain::EmployeeId convert(const GetEmployeeRequestDto& get_employee_request_dto) const = 0;
+    virtual GetEmployeeResponseDto convert(const domain::Employee& employee) const = 0;
+
     // GET DEPARTMENTS
     virtual GetDepartmentsResponseDto convert(const domain::Departments& departments) const = 0;
 

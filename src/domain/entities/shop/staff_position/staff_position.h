@@ -1,8 +1,8 @@
 #pragma once
 
 #include <cstdint>
+#include <map>
 #include <optional>
-#include <unordered_map>
 
 #include "entities/shop/profession/profession.h"
 #include "tagged.h"
@@ -16,12 +16,13 @@ struct StaffPosition {};
 
 using StaffPositionId = utils::Tagged<uint64_t, detail::StaffPosition>;
 using StaffPositionIdHasher = utils::TaggedHasher<StaffPositionId>;
+using StaffPositionIdComporator = utils::TaggedComporator<StaffPositionId>;
 
 struct StaffPosition {
     std::string description;
     ProfessionId default_profession_id;
 };
 
-using StaffPositions = std::unordered_map<StaffPositionId, StaffPosition, StaffPositionIdHasher>;
+using StaffPositions = std::map<StaffPositionId, StaffPosition, StaffPositionIdComporator>;
 
 }  // namespace domain

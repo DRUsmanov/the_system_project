@@ -25,6 +25,13 @@ constexpr std::string_view IS_ADDED{"is_added"};
 constexpr std::string_view EMPLOYEE_ID{"employee_id"};
 constexpr std::string_view IS_REMOVED{"is_removed"};
 constexpr std::string_view IS_UPDATED{"is_updated"};
+constexpr std::string_view STATUS{"status"};
+constexpr std::string_view LAST_NAME{"last_name"};
+constexpr std::string_view FIRST_NAME{"first_name"};
+constexpr std::string_view PATRONYMIC{"patronymic"};
+constexpr std::string_view BIRTH_DATE{"birth_date"};
+constexpr std::string_view EMPLOYMENT_DATE{"employment_date"};
+constexpr std::string_view EMPLOYEE_NUMBER{"employee_number"};
 }  // namespace response_keys
 
 application::AddEmployeeRequestDto EmployeeRequestHandler::makeAddEmployeeRequestDto(
@@ -45,7 +52,7 @@ application::AddEmployeeRequestDto EmployeeRequestHandler::makeAddEmployeeReques
 }
 
 std::string EmployeeRequestHandler::makeAddEmployeeResponse(
-    std::optional<application::AddEmployeeResponseDto> add_employee_response_dto) const {
+    const std::optional<application::AddEmployeeResponseDto>& add_employee_response_dto) const {
     json::object response;
     if (add_employee_response_dto.has_value()) {
         response[response_keys::IS_ADDED] = true;
@@ -68,6 +75,24 @@ application::RemoveEmployeeRequestDto EmployeeRequestHandler::makeRemoveEmployee
 std::string EmployeeRequestHandler::makeRemoveEmployeeResponse(bool is_employee_removed) const {
     json::object response;
     response[response_keys::IS_REMOVED] = is_employee_removed;
+    return serializeObject(response);
+}
+
+std::string infrastructure::EmployeeRequestHandler::makeGetEmployeeResponse(
+    const std::optional<application::GetEmployeeResponseDto>& get_employee_response_dto) const {
+    json::object response;
+    if (get_employee_response_dto.has_value()) {
+        response[response_keys::STATUS] = true;
+        response[response_keys::LAST_NAME] = get_employee_response_dto.value().last_name;
+        response[response_keys::FIRST_NAME] = get_employee_response_dto.value().first_name;
+        response[response_keys::PATRONYMIC] = get_employee_response_dto.value().patronymic;
+        response[response_keys::BIRTH_DATE] = get_employee_response_dto.value().birth_date;
+        response[response_keys::EMPLOYMENT_DATE] = get_employee_response_dto.value().employment_date;
+        response[response_keys::EMPLOYEE_NUMBER] = get_employee_response_dto.value().employee_number;
+    } else {
+        response[response_keys::STATUS] = false;
+    }
+
     return serializeObject(response);
 }
 

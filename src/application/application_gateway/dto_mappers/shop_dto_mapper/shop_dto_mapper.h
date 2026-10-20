@@ -15,6 +15,10 @@ public:
     std::pair<domain::EmployeeId, domain::Date> convert(
         const RemoveEmployeeRequestDto& remove_employee_request_dto) const override;
 
+    // GET EMPLOYEE
+    domain::EmployeeId convert(const GetEmployeeRequestDto& get_employee_request_dto) const override;
+    GetEmployeeResponseDto convert(const domain::Employee& employee) const override;
+
     // GET DEPARTMENTS
     GetDepartmentsResponseDto convert(const domain::Departments& departments) const override;
 

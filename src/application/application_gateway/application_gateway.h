@@ -19,6 +19,9 @@ public:
         const AddEmployeeRequestDto& add_employee_request_dto) const override;
     bool removeEmployee(const UserAccessDto& user_access_dto,
                         const RemoveEmployeeRequestDto& remove_employee_request_dto) const override;
+    std::optional<GetEmployeeResponseDto> getEmployee(
+        const UserAccessDto& user_access_dto,
+        const GetEmployeeRequestDto& get_employee_request_dto) const override;
     std::optional<GetDepartmentsResponseDto> getDepartments(const UserAccessDto& user_access_dto) const override;
     std::optional<GetStaffPositionsResponseDto> getStaffPositions(const UserAccessDto& user_access_dto) const override;
     std::optional<GetWorkSchedulesResponseDto> getWorkSchedules(const UserAccessDto& user_access_dto) const override;
@@ -31,6 +34,15 @@ public:
         const UserAccessDto& user_access_dto,
         const GetDepartmentTimesheetRequestDto& get_department_timesheet_request_dto) const override;
     GetLeaveTypesResponseDto getLeaveTypeDescriptions(const UserAccessDto& user_access_dto) const override;
+    bool updateEmployeeTimesheetDaysData(const UserAccessDto& user_access_dto,
+                                         const UpdateEmployeeTimesheetDaysDataRequestDto&
+                                             update_employee_timesheet_days_data_request_dto) const override;
+    bool setEmployeeLeaveInTimesheet(const UserAccessDto& user_access_dto,
+                                     const SetEmployeeLeaveTypeInTimesheetRequestDto&
+                                         set_employee_leave_type_in_timesheet_request_dto) const override;
+    bool changeEmployeeAssignmentInTimesheet(const UserAccessDto& user_access_dto,
+                                             const ChangeEmployeeAssignmentInTimesheetRequestDto&
+                                                 change_employee_assignment_in_timesheet_request_dto) const override;
 
 private:
     ApplicationManagerInterface& application_manager_;

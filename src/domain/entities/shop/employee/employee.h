@@ -16,6 +16,7 @@ struct Employee {};
 using EmployeeId = utils::Tagged<uint64_t, detail::Employee>;
 using EmployeeIdHasher = utils::TaggedHasher<EmployeeId>;
 using EmployeeNumber = uint64_t;
+using EmployeeIdComporator = utils::TaggedComporator<EmployeeId>;
 
 struct Employee {
     // EmployeeId employee_id;

@@ -2,6 +2,8 @@
 
 #include <chrono>
 #include <exception>
+#include <iostream>
+#include <ranges>
 #include <unordered_map>
 #include <vector>
 
@@ -37,7 +39,9 @@ std::optional<Timesheet> TimesheetService::getDepartmentTimesheet(DepartmentId d
         for (auto& [employee_id, days_data] : system_timesheet.value()) {
             for (auto& [date, day_data] : days_data) {
                 if (auto employee_day_data = admin_timesheet->getEmployeeDayData(employee_id, date)) {
-                    system_timesheet->changeEmployeeDayData(employee_id, date, employee_day_data.value());
+                    if (!system_timesheet->changeEmployeeDayData(employee_id, date, employee_day_data.value())) {
+                        return std::nullopt;
+                    }
                 }
             }
         }
@@ -64,7 +68,6 @@ bool TimesheetService::generateEmployeeVacationsInTimesheet(Timesheet& timesheet
                                                                 generation_context.work_schedule_id);
                 timesheet.addEmployeeDayData(generation_context.employee_id,
                                              generation_context.date,
-                                             generation_context.admin_category_id,
                                              vacation_day_data);
                 return true;
             }
@@ -93,10 +96,7 @@ bool TimesheetService::generateHolidaysAndPreHolidaysInTimesheet(Timesheet& time
         pre_holidays_day_data.work_end.value() -= std::chrono::hours{1};
         pre_holidays_day_data.work_time.value() -= std::chrono::hours{1};
 
-        timesheet.addEmployeeDayData(generation_context.employee_id,
-                                     generation_context.date,
-                                     generation_context.admin_category_id,
-                                     pre_holidays_day_data);
+        timesheet.addEmployeeDayData(generation_context.employee_id, generation_context.date, pre_holidays_day_data);
         return true;
     }
 
@@ -106,10 +106,7 @@ bool TimesheetService::generateHolidaysAndPreHolidaysInTimesheet(Timesheet& time
                                                                              generation_context.department_id,
                                                                              generation_context.staff_position_id,
                                                                              generation_context.work_schedule_id);
-        timesheet.addEmployeeDayData(generation_context.employee_id,
-                                     generation_context.date,
-                                     generation_context.admin_category_id,
-                                     holidays_day_data);
+        timesheet.addEmployeeDayData(generation_context.employee_id, generation_context.date, holidays_day_data);
         return true;
     }
 
@@ -119,10 +116,7 @@ bool TimesheetService::generateHolidaysAndPreHolidaysInTimesheet(Timesheet& time
                                                                                    generation_context.department_id,
                                                                                    generation_context.staff_position_id,
                                                                                    generation_context.work_schedule_id);
-        timesheet.addEmployeeDayData(generation_context.employee_id,
-                                     generation_context.date,
-                                     generation_context.admin_category_id,
-                                     extra_holidays_day_data);
+        timesheet.addEmployeeDayData(generation_context.employee_id, generation_context.date, extra_holidays_day_data);
         return true;
     }
 
@@ -141,10 +135,7 @@ bool TimesheetService::generateWorkingAndNonWorkingDayInTimesheet(
                                                                          generation_context.staff_position_id,
                                                                          generation_context.work_schedule_id);
 
-        timesheet.addEmployeeDayData(generation_context.employee_id,
-                                     generation_context.date,
-                                     generation_context.admin_category_id,
-                                     working_day_data);
+        timesheet.addEmployeeDayData(generation_context.employee_id, generation_context.date, working_day_data);
         return true;
     } else {
         auto non_working_day_data = Timesheet::DayData::createNonWorkingDayData(LeaveType::WEEKEND,
@@ -152,16 +143,165 @@ bool TimesheetService::generateWorkingAndNonWorkingDayInTimesheet(
                                                                                 generation_context.staff_position_id,
                                                                                 generation_context.work_schedule_id);
 
-        timesheet.addEmployeeDayData(generation_context.employee_id,
-                                     generation_context.date,
-                                     generation_context.admin_category_id,
-                                     non_working_day_data);
+        timesheet.addEmployeeDayData(generation_context.employee_id, generation_context.date, non_working_day_data);
         return true;
     }
     return false;
 }
 
-std::chrono::year_month_day TimesheetService::getCurrentDate() const {
+bool TimesheetService::processEmployeeSickLeaveDuringVacation(domain::Timesheet& employee_timesheet) {
+    if (employee_timesheet.size() != 1) {
+        return false;
+    }
+
+    auto it = employee_timesheet.begin();
+
+    const auto& employee_id = it->first;
+    auto& employee_days_data = it->second;
+
+    if (employee_days_data.empty()) {
+        return false;
+    }
+
+    size_t extended_vacations_date_counter = 0;
+    for (auto& [date, day_data] : employee_days_data) {
+        if (day_data.leave_type.has_value() && day_data.leave_type.value() == LeaveType::VACATION) {
+            day_data.setLeaveType(domain::LeaveType::SICK_LEAVE_DURING_VACATION);
+            ++extended_vacations_date_counter;
+        } else {
+            return false;
+        }
+    }
+
+    auto extended_vacations_start_date = std::prev(employee_days_data.end())->first + std::chrono::days{1};
+    auto extended_vacations_end_date =
+        extended_vacations_start_date + std::chrono::days{extended_vacations_date_counter};
+
+    const auto& employee_day_data = employee_days_data.begin()->second;
+
+    auto department_id = employee_day_data.department_id;
+    auto staff_position_id = employee_day_data.staff_position_id;
+    auto work_schedule_id = employee_day_data.work_schedule_id;
+
+    auto extended_vacation_day_data = Timesheet::DayData::createNonWorkingDayData(LeaveType::VACATION,
+                                                                                  department_id,
+                                                                                  staff_position_id,
+                                                                                  work_schedule_id);
+
+    for (auto date = extended_vacations_start_date; date != extended_vacations_end_date; date += std::chrono::days{1}) {
+        employee_timesheet.addEmployeeDayData(employee_id, date, extended_vacation_day_data);
+    }
+
+    return true;
+}
+
+// bool domain::TimesheetService::processEmployeeSickLeaveDuringVacationRemoving(
+//     domain::Timesheet& employee_timesheet,
+//     const domain::Date start_date,
+//     const domain::Date end_date,
+//     const AdminCategoryId& admin_category_id) {
+//     if (employee_timesheet.size() != 1) {
+//         return false;
+//     }
+
+//     auto it = employee_timesheet.begin();
+
+//     const auto& employee_id = it->first;
+//     auto& employee_days_data = it->second;
+
+//     if (employee_days_data.empty()) {
+//         return false;
+//     }
+
+//     size_t extended_vacations_days_to_remove = 0;
+
+//     for (auto date = start_date; date <= end_date; date += std::chrono::days{1}) {
+//         const auto& day_data = employee_timesheet.getEmployeeDayData(employee_id, date);
+//         if (day_data.has_value() && day_data.value().leave_type.has_value() &&
+//             day_data.value().leave_type.value() == LeaveType::SICK_LEAVE_DURING_VACATION) {
+//             ++extended_vacations_days_to_remove;
+//         }
+//     }
+
+//     if (extended_vacations_days_to_remove == 0) {
+//         return false;
+//     }
+
+//     auto extended_vacations_emoployee_timesheet =
+//         getEmployeeExtendedVacationsTimesheet(employee_id, admin_category_id, start_date);
+
+//     if (!extended_vacations_emoployee_timesheet.has_value() ||
+//         extended_vacations_emoployee_timesheet.value().size() != 1) {
+//         return false;
+//     }
+
+//     auto extended_employee_vacations_timesheet_it = extended_vacations_emoployee_timesheet.value().begin();
+//     const auto& extended_employee_vacations_days_data = extended_employee_vacations_timesheet_it->second;
+
+//     size_t counter = 0;
+//     for (auto& [date, day_data] : std::views::reverse(extended_employee_vacations_days_data)) {
+//         day_data.
+//     }
+// }
+
+std::optional<Timesheet> domain::TimesheetService::getEmployeeTimesheetBetweenDate(
+    const domain::EmployeeId& employee_id,
+    const domain::Date& start_date,
+    const domain::Date& end_date,
+    const AdminCategoryId& admin_category_id) const {
+    utils::logFunctionStart(utils::FUNCTION_INFO);
+    auto system_administrator_id = timesheet_repository_->downloadSystemAdministratorId();
+
+    if (!system_administrator_id.has_value()) {
+        return std::nullopt;
+    }
+
+    auto system_timesheet = timesheet_repository_->downloadEmployeeTimesheetBetweenDate(employee_id,
+                                                                                        *system_administrator_id,
+                                                                                        start_date,
+                                                                                        end_date);
+
+    if (!system_timesheet.has_value()) {
+        return std::nullopt;
+    }
+
+    auto admin_timesheet = timesheet_repository_->downloadEmployeeTimesheetBetweenDate(employee_id,
+                                                                                       admin_category_id,
+                                                                                       start_date,
+                                                                                       end_date);
+
+    if (admin_timesheet.has_value()) {
+        for (auto& [employee_id, days_data] : admin_timesheet.value()) {
+            for (auto& [date, day_data] : days_data) {
+                if (auto employee_day_data = admin_timesheet->getEmployeeDayData(employee_id, date)) {
+                    if (!system_timesheet->changeEmployeeDayData(employee_id, date, employee_day_data.value())) {
+                        return std::nullopt;
+                    }
+                }
+            }
+        }
+    }
+
+    return system_timesheet;
+}
+
+std::optional<Timesheet> domain::TimesheetService::getEmployeeExtendedVacationsTimesheet(
+    const EmployeeId& employee_id,
+    const AdminCategoryId& admin_category_id,
+    const Date start_date) const {
+    utils::logFunctionStart(utils::FUNCTION_INFO);
+
+    auto admin_timesheet =
+        timesheet_repository_->downloadEmployeeExtendedVacationsTimesheet(employee_id, admin_category_id, start_date);
+
+    if (!admin_timesheet.has_value()) {
+        return std::nullopt;
+    }
+
+    return admin_timesheet;
+}
+
+std::chrono::year_month_day TimesheetService::getCurrentDate() {
     utils::logFunctionStart(utils::FUNCTION_INFO);
     using namespace std::chrono;
     using namespace std::literals;
@@ -313,9 +453,9 @@ bool TimesheetService::generateTimesheetForNewEmployee(const EmployeeId& employe
     return timesheet_repository_->uploadTimesheet(timesheet, system_administrator_id.value());
 }
 
-bool domain::TimesheetService::updateTimesheetForEmployee(const EmployeeId& employee_id,
-                                                          const EmployeeAssignment& employee_assignment,
-                                                          const domain::Date& assignment_changing_date) {
+bool domain::TimesheetService::updateTimesheetForEmployeeFromDate(const EmployeeId& employee_id,
+                                                                  const EmployeeAssignment& employee_assignment,
+                                                                  const domain::Date& assignment_changing_date) {
     utils::logFunctionStart(utils::FUNCTION_INFO);
     using namespace std::chrono;
     using namespace std::literals;
@@ -415,5 +555,79 @@ std::optional<Date> domain::TimesheetService::getMaxDateInTimesheet() const {
 }
 
 const LeaveTypeDescriptions& domain::TimesheetService::getLeaveTypeDescriptions() const {
+    utils::logFunctionStart(utils::FUNCTION_INFO);
     return kLeaveTypeDescriptions;
+}
+
+bool domain::TimesheetService::updateEmployeeTimesheetDayData(const domain::EmployeeId& employee_id,
+                                                              const domain::Date& start_date,
+                                                              const domain::Date& end_date,
+                                                              const domain::Timesheet::DayData& updated_day_data,
+                                                              const AdminCategoryId& admin_category_id,
+                                                              const EmployeeId& admin_employee_id) {
+    utils::logFunctionStart(utils::FUNCTION_INFO);
+    auto timesheet = getEmployeeTimesheetBetweenDate(employee_id, start_date, end_date, admin_category_id);
+
+    if (!timesheet.has_value() || timesheet.value().size() != 1) {
+        return false;
+    }
+
+    // mb need to set current employee assignment in copy of updated_day_data
+
+    for (auto date = start_date; date <= end_date; date += std::chrono::days{1}) {
+        if (!timesheet.value().changeEmployeeDayData(employee_id, date, updated_day_data)) {
+            return false;
+        }
+    }
+
+    return timesheet_repository_->updateTimesheet(timesheet.value(), admin_category_id, admin_employee_id);
+}
+
+bool domain::TimesheetService::setEmployeeLeaveInTimesheet(const domain::EmployeeId& employee_id,
+                                                           const domain::Date& start_date,
+                                                           const domain::Date& end_date,
+                                                           const domain::LeaveType& leave_type,
+                                                           const AdminCategoryId& admin_category_id,
+                                                           const EmployeeId& admin_employee_id) {
+    utils::logFunctionStart(utils::FUNCTION_INFO);
+    auto timesheet = getEmployeeTimesheetBetweenDate(employee_id, start_date, end_date, admin_category_id);
+
+    if (!timesheet.has_value() || timesheet.value().size() != 1) {
+        return false;
+    }
+
+    bool processing_result = false;
+
+    if (leave_type == LeaveType::SICK_LEAVE_DURING_VACATION) {
+        processing_result = processEmployeeSickLeaveDuringVacation(timesheet.value());
+    }
+
+    if (processing_result) {
+        return timesheet_repository_->updateTimesheet(timesheet.value(), admin_category_id, admin_employee_id);
+    }
+
+    return false;
+}
+
+bool domain::TimesheetService::changeEmployeeAssignmentInTimesheet(
+    const domain::EmployeeId& employee_id,
+    const domain::EmployeeAssignment& changed_employee_assignment,
+    const domain::Date& start_date,
+    const domain::Date& end_date,
+    const AdminCategoryId& admin_category_id,
+    const EmployeeId& admin_employee_id) {
+    utils::logFunctionStart(utils::FUNCTION_INFO);
+    auto timesheet = getEmployeeTimesheetBetweenDate(employee_id, start_date, end_date, admin_category_id);
+
+    if (!timesheet.has_value() || timesheet.value().size() != 1) {
+        return false;
+    }
+
+    auto& employees_days_data = timesheet.value().begin()->second;
+
+    for (auto date = start_date; date <= end_date; date += std::chrono::days{1}) {
+        timesheet.value().changeEmployeeAssignment(employee_id, date, changed_employee_assignment);
+    }
+
+    return timesheet_repository_->updateTimesheet(timesheet.value(), admin_category_id, admin_employee_id);
 }

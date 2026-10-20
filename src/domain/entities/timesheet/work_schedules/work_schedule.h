@@ -2,7 +2,7 @@
 
 #include <chrono>
 #include <cstdint>
-#include <unordered_map>
+#include <map>
 #include <vector>
 
 #include "tagged.h"
@@ -16,6 +16,7 @@ struct WorkScheduleIdTag {};
 
 using WorkScheduleId = utils::Tagged<uint64_t, detail::WorkScheduleIdTag>;
 using WorkScheduleIdHasher = utils::TaggedHasher<WorkScheduleId>;
+using WorkScheduleIdComporator = utils::TaggedComporator<WorkScheduleId>;
 
 class WorkSchedule {
 public:
@@ -63,6 +64,6 @@ private:
     std::string description_;
 };
 
-using WorkSchedules = std::unordered_map<WorkScheduleId, WorkSchedule, WorkScheduleIdHasher>;
+using WorkSchedules = std::map<WorkScheduleId, WorkSchedule, WorkScheduleIdComporator>;
 
 }  // namespace domain

@@ -48,6 +48,21 @@ bool ApplicationGateway::removeEmployee(const UserAccessDto& user_access_dto,
     return application_manager_.removeEmployee(user_id, employee_id, removing_date);
 }
 
+std::optional<GetEmployeeResponseDto> application::ApplicationGateway::getEmployee(
+    const UserAccessDto& user_access_dto,
+    const GetEmployeeRequestDto& get_employee_request_dto) const {
+    utils::logFunctionStart(utils::FUNCTION_INFO);
+    auto user_id = user_dto_mapper_.convert(user_access_dto);
+    auto employee_id = shop_dto_mapper_.convert(get_employee_request_dto);
+    auto employee = application_manager_.getEmployee(user_id, employee_id);
+
+    if (!employee) {
+        return std::nullopt;
+    }
+
+    return shop_dto_mapper_.convert(employee.value());
+}
+
 std::optional<GetDepartmentsResponseDto> ApplicationGateway::getDepartments(
     const UserAccessDto& user_access_dto) const {
     utils::logFunctionStart(utils::FUNCTION_INFO);
@@ -164,4 +179,42 @@ GetLeaveTypesResponseDto application::ApplicationGateway::getLeaveTypeDescriptio
     auto user_id = user_dto_mapper_.convert(user_access_dto);
     auto leave_type_desriptions = application_manager_.getLeaveTypeDescriptions(user_id);
     return timesheet_dto_mapper_.convert(leave_type_desriptions);
+}
+
+bool application::ApplicationGateway::updateEmployeeTimesheetDaysData(
+    const UserAccessDto& user_access_dto,
+    const UpdateEmployeeTimesheetDaysDataRequestDto& update_employee_timesheet_days_data_request_dto) const {
+    utils::logFunctionStart(utils::FUNCTION_INFO);
+    auto user_id = user_dto_mapper_.convert(user_access_dto);
+    auto [employee_id, start_date, end_date, updated_day_data] =
+        timesheet_dto_mapper_.convert(update_employee_timesheet_days_data_request_dto);
+    return application_manager_.updateEmployeeTimesheetDaysData(user_id,
+                                                                employee_id,
+                                                                start_date,
+                                                                end_date,
+                                                                updated_day_data);
+}
+
+bool application::ApplicationGateway::setEmployeeLeaveInTimesheet(
+    const UserAccessDto& user_access_dto,
+    const SetEmployeeLeaveTypeInTimesheetRequestDto& set_employee_leave_type_in_timesheet_request_dto) const {
+    utils::logFunctionStart(utils::FUNCTION_INFO);
+    auto user_id = user_dto_mapper_.convert(user_access_dto);
+    auto [employee_id, start_date, end_date, leave_type] =
+        timesheet_dto_mapper_.convert(set_employee_leave_type_in_timesheet_request_dto);
+    return application_manager_.setEmployeeLeaveInTimesheet(user_id, employee_id, start_date, end_date, leave_type);
+}
+
+bool application::ApplicationGateway::changeEmployeeAssignmentInTimesheet(
+    const UserAccessDto& user_access_dto,
+    const ChangeEmployeeAssignmentInTimesheetRequestDto& change_employee_assignment_in_timesheet_request_dto) const {
+    utils::logFunctionStart(utils::FUNCTION_INFO);
+    auto user_id = user_dto_mapper_.convert(user_access_dto);
+    auto [employee_id, start_date, end_date, changed_employee_assignment] =
+        timesheet_dto_mapper_.convert(change_employee_assignment_in_timesheet_request_dto);
+    return application_manager_.changeEmployeeAssignmentInTimesheet(user_id,
+                                                                    employee_id,
+                                                                    changed_employee_assignment,
+                                                                    start_date,
+                                                                    end_date);
 }

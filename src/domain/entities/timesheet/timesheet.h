@@ -1,5 +1,6 @@
 #pragma once
 
+#include <map>
 #include <optional>
 #include <string>
 #include <unordered_map>
@@ -67,20 +68,31 @@ public:
 
         bool isWorkingDay() const noexcept;
         bool isNightWorkingDay() const noexcept;
+        void setLeaveType(LeaveType leave_type);
+        void setComment(std::string comment);
+        bool isValid() const noexcept;
     };
 
-    using DaysData = std::unordered_map<Date, Timesheet::DayData, DateHasher>;
-    using TimesheetData = std::unordered_map<EmployeeId, DaysData, EmployeeIdHasher>;
+    using DaysData = std::map<Date, Timesheet::DayData, DateComporator>;
+    using TimesheetData = std::map<EmployeeId, DaysData, EmployeeIdComporator>;
 
-    bool addEmployeeDayData(EmployeeId employee_id,
-                            Date date,
-                            AdminCategoryId admin_category_id,
-                            const DayData& day_data);
-    std::optional<DayData> getEmployeeDayData(EmployeeId employee_id, Date date) const;
-    bool changeEmployeeDayData(EmployeeId employee_id, Date date, const DayData& day_data);
+    bool addEmployeeDayData(const EmployeeId& employee_id, Date date, const DayData& day_data);
+    std::optional<DayData> getEmployeeDayData(const EmployeeId& employee_id, Date date) const;
+    std::optional<std::reference_wrapper<domain::Timesheet::DaysData>> getEmployeeDaysData(
+        const EmployeeId& employee_id);
+    std::optional<std::reference_wrapper<const domain::Timesheet::DaysData>> getEmployeeDaysData(
+        const EmployeeId& employee_id) const;
+    bool changeEmployeeDayData(const EmployeeId& employee_id, Date date, const DayData& day_data);
+    bool changeEmployeeAssignment(const EmployeeId& employee_id,
+                                  Date date,
+                                  const EmployeeAssignment& employee_assignment);
 
-    TimesheetData::const_iterator begin() const;
-    TimesheetData::const_iterator end() const;
+    TimesheetData::const_iterator begin() const noexcept;
+    TimesheetData::const_iterator end() const noexcept;
+    TimesheetData::iterator begin() noexcept;
+    TimesheetData::iterator end() noexcept;
+    bool empty() const noexcept;
+    size_t size() const noexcept;
 
 private:
     TimesheetData data_;

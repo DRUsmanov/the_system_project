@@ -98,18 +98,18 @@ std::optional<domain::Employee> ApplicationManager::getEmployee(const domain::Us
     try {
         auto uow = uow_factory_.createUow();
         auto shop_service = shop_service_factory_.createShopService(uow);
-        auto permission_service = permission_service_factory_.createPermissionService(uow);
+        // auto permission_service = permission_service_factory_.createPermissionService(uow);
 
-        auto employee_assignment = shop_service->getEmployeeAssignment(employee_id);
+        // auto employee_assignment = shop_service->getEmployeeAssignment(employee_id);
 
-        if (!employee_assignment.has_value()) {
-            return std::nullopt;
-        }
+        // if (!employee_assignment.has_value()) {
+        //     return std::nullopt;
+        // }
 
-        if (!permission_service->checkUserDepartmentReadPermission(user_id,
-                                                                   employee_assignment.value().department_id)) {
-            return std::nullopt;
-        }
+        // if (!permission_service->checkUserDepartmentReadPermission(user_id,
+        //                                                            employee_assignment.value().department_id)) {
+        //     return std::nullopt;
+        // }
 
         return shop_service->getEmployee(employee_id);
     } catch (std::exception& ex) {
@@ -225,9 +225,9 @@ bool application::ApplicationManager::updateEmployee(
                 return false;
             }
             auto timesheet_service = timesheet_service_factory_.createTimesheetService(uow);
-            if (!timesheet_service->updateTimesheetForEmployee(employee_id,
-                                                               employee_assignment,
-                                                               assignment_changing_date.value())) {
+            if (!timesheet_service->updateTimesheetForEmployeeFromDate(employee_id,
+                                                                       employee_assignment,
+                                                                       assignment_changing_date.value())) {
                 return false;
             }
         }
@@ -289,8 +289,163 @@ std::optional<domain::Timesheet> ApplicationManager::getDepartmentTimesheet(cons
     }
 }
 
-const domain::LeaveTypeDescriptions& application::ApplicationManager::getLeaveTypeDescriptions(
-    const domain::UserId& user_id) const {
+const domain::LeaveTypeDescriptions& ApplicationManager::getLeaveTypeDescriptions(const domain::UserId& user_id) const {
     utils::logFunctionStart(utils::FUNCTION_INFO);
     return domain::kLeaveTypeDescriptions;
+}
+
+bool ApplicationManager::updateEmployeeTimesheetDaysData(const domain::UserId& user_id,
+                                                         const domain::EmployeeId& employee_id,
+                                                         const domain::Date& start_date,
+                                                         const domain::Date& end_date,
+                                                         const domain::Timesheet::DayData& updated_day_data) const {
+    utils::logFunctionStart(utils::FUNCTION_INFO);
+    try {
+        auto uow = uow_factory_.createUow();
+        auto timesheet_service = timesheet_service_factory_.createTimesheetService(uow);
+        auto shop_service = shop_service_factory_.createShopService(uow);
+        auto user_service = user_service_factory_.createUserService(uow);
+        auto permission_service = permission_service_factory_.createPermissionService(uow);
+
+        auto user = user_service->getUser(user_id);
+
+        if (!user.has_value()) {
+            return false;
+        }
+
+        const auto& employee_assignment = shop_service->getEmployeeAssignment(employee_id);
+
+        if (!employee_assignment.has_value()) {
+            return false;
+        }
+
+        const auto& department_id = employee_assignment->department_id;
+
+        if (!permission_service->checkUserDepartmentWritePermission(user_id, department_id)) {
+            return false;
+        }
+
+        if (!timesheet_service->updateEmployeeTimesheetDayData(employee_id,
+                                                               start_date,
+                                                               end_date,
+                                                               updated_day_data,
+                                                               user->admin_category_id,
+                                                               user->employee_id)) {
+            return false;
+        }
+
+        uow->commit();
+
+        return true;
+
+    } catch (std::exception& ex) {
+        utils::logException(ex);
+        return false;
+    }
+}
+
+bool ApplicationManager::setEmployeeLeaveInTimesheet(const domain::UserId& user_id,
+                                                     const domain::EmployeeId& employee_id,
+                                                     const domain::Date& start_date,
+                                                     const domain::Date& end_date,
+                                                     const domain::LeaveType& leave_type) const {
+    utils::logFunctionStart(utils::FUNCTION_INFO);
+    try {
+        auto uow = uow_factory_.createUow();
+        auto timesheet_service = timesheet_service_factory_.createTimesheetService(uow);
+        auto shop_service = shop_service_factory_.createShopService(uow);
+        auto user_service = user_service_factory_.createUserService(uow);
+        auto permission_service = permission_service_factory_.createPermissionService(uow);
+
+        auto user = user_service->getUser(user_id);
+
+        if (!user.has_value()) {
+            return false;
+        }
+
+        const auto& employee_assignment = shop_service->getEmployeeAssignment(employee_id);
+
+        if (!employee_assignment.has_value()) {
+            return false;
+        }
+
+        const auto& department_id = employee_assignment->department_id;
+
+        if (!permission_service->checkUserDepartmentWritePermission(user_id, department_id)) {
+            return false;
+        }
+
+        if (!timesheet_service->setEmployeeLeaveInTimesheet(employee_id,
+                                                            start_date,
+                                                            end_date,
+                                                            leave_type,
+                                                            user->admin_category_id,
+                                                            user->employee_id)) {
+            return false;
+        }
+
+        uow->commit();
+
+        return true;
+
+    } catch (std::exception& ex) {
+        utils::logException(ex);
+        return false;
+    }
+}
+
+bool application::ApplicationManager::changeEmployeeAssignmentInTimesheet(
+    const domain::UserId& user_id,
+    const domain::EmployeeId& employee_id,
+    const domain::EmployeeAssignment& changed_employee_assignment,
+    const domain::Date& start_date,
+    const domain::Date& end_date) const {
+    utils::logFunctionStart(utils::FUNCTION_INFO);
+    try {
+        auto uow = uow_factory_.createUow();
+        auto timesheet_service = timesheet_service_factory_.createTimesheetService(uow);
+        auto shop_service = shop_service_factory_.createShopService(uow);
+        auto user_service = user_service_factory_.createUserService(uow);
+        auto permission_service = permission_service_factory_.createPermissionService(uow);
+
+        auto user = user_service->getUser(user_id);
+
+        if (!user.has_value()) {
+            return false;
+        }
+
+        const auto& current_employee_assignment = shop_service->getEmployeeAssignment(employee_id);
+
+        if (!current_employee_assignment.has_value()) {
+            return false;
+        }
+
+        const auto& current_department_id = current_employee_assignment->department_id;
+
+        if (!permission_service->checkUserDepartmentWritePermission(user_id, current_department_id)) {
+            return false;
+        }
+
+        if (!permission_service->checkUserDepartmentWritePermission(user_id,
+                                                                    changed_employee_assignment.department_id)) {
+            return false;
+        }
+
+        if (!timesheet_service->changeEmployeeAssignmentInTimesheet(employee_id,
+                                                                    changed_employee_assignment,
+                                                                    start_date,
+                                                                    end_date,
+                                                                    user->admin_category_id,
+                                                                    user->employee_id)) {
+            return false;
+        }
+
+        uow->commit();
+
+        return true;
+
+    } catch (std::exception& ex) {
+        utils::logException(ex);
+        return false;
+    }
 }
